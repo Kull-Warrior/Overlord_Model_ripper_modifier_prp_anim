@@ -1,9 +1,7 @@
-
 from myFunction import *
 import Blender
 from Blender.Mathutils import *
 import bpy
-
 
 class Bone:
 	def __init__(self):
@@ -19,16 +17,14 @@ class Bone:
 		self.scaleMatrix=None
 		self.children=[]
 		self.edit=None
-	
-
 
 class Skeleton:
 	def __init__(self):
 		self.name='armature'
 		self.boneList=[]
-		self.armature=None  
+		self.armature=None
 		self.object=None
-		self.boneNameList=[] 
+		self.boneNameList=[]
 		self.ARMATURESPACE=False
 		self.BONESPACE=False
 		self.DEL=True
@@ -40,9 +36,7 @@ class Skeleton:
 		self.debugFile=None
 		self.SORT=False
 		self.matrix=None
-		
-		
-		
+
 	def boneChildren(self,parentBlenderBone,parentBone):
 		for child in parentBlenderBone.children:
 			for bone in self.boneList:
@@ -50,7 +44,7 @@ class Skeleton:
 					blenderBone=self.armature.bones[bone.name]
 					bone.matrix*=parentBone.matrix
 					self.boneChildren(blenderBone,bone)
-		
+
 	def createChildList(self):
 		for boneID in range(len(self.boneList)):
 			bone=self.boneList[boneID]
@@ -58,26 +52,25 @@ class Skeleton:
 			blenderBone=self.armature.bones[name]
 			if blenderBone.parent is None:
 				self.boneChildren(blenderBone,bone)
-		
-	def draw(self): 
+
+	def draw(self):
 		if self.WARNING==True:
 			print 'INPUT:'
 			print 'class<Skeleton>.name:',self.name
 			print 'class<Skeleton>.boneList:',len(self.boneList)
 			print 'class<Skeleton>.ARMATURESPACE:',self.ARMATURESPACE
 			print 'class<Skeleton>.BONESPACE:',self.BONESPACE
-			
+
 		if self.debug is not None:
 			self.debugFile=open(self.debug+'.skeleton','w')
-			
-		
+
 		self.check()
 		if len(self.boneList)>0:
 			self.create_bones()
 			self.create_bone_connection()
 			if self.SORT==True:
 				self.createChildList()
-			self.create_bone_position()			
+			self.create_bone_position()
 		if self.BINDMESH is True:
 			scene = bpy.data.scenes.active
 			for object in scene.objects:
@@ -95,7 +88,7 @@ class Skeleton:
 					#self.armature.bones[children[0].name].options=Blender.Armature.CONNECTED
 					if ebone.tail!=children[0].head['ARMATURESPACE']:
 						ebone.tail=children[0].head['ARMATURESPACE']
-					self.armature.update()	
+					self.armature.update()
 			for key in self.armature.bones.keys():
 				bone=self.armature.bones[key]
 				#print bone
@@ -108,10 +101,8 @@ class Skeleton:
 				self.armature.autoIK=True
 		if self.debug is not None:
 			self.debugFile.close()
-			
 
-
-	def create_bones(self): 
+	def create_bones(self):
 		self.armature.makeEditable()
 		boneList=[]
 		for bone in self.armature.bones.values():
@@ -126,10 +117,10 @@ class Skeleton:
 				self.boneList[boneID].name=name
 			self.boneNameList.append(name)
 			if name not in boneList:
-				eb = Blender.Armature.Editbone() 
+				eb = Blender.Armature.Editbone()
 				self.armature.bones[name] = eb
 		self.armature.update()
-		
+
 	def create_bone_connection(self):
 		self.armature.makeEditable()
 		for boneID in range(len(self.boneList)):
@@ -145,21 +136,18 @@ class Skeleton:
 					parentName=self.boneList[parentID].name
 			if self.boneList[boneID].parentName is not None:
 				parentName=self.boneList[boneID].parentName
-			if parentName is not None:  
+			if parentName is not None:
 				parent=self.armature.bones[parentName]
 				if parentID is not None:
 					if parentID!=-1:
 						bone.parent=parent
 				else:
 					bone.parent=parent
-					
 			else:
 				if self.WARNING==True:
 					print 'WARNING: no parent for bone',name
 		self.armature.update()
-		
-		
-		
+
 	def create_bone_position(self):
 		self.armature.makeEditable()
 		for m in range(len(self.boneList)):
@@ -171,7 +159,7 @@ class Skeleton:
 			bone = self.armature.bones[name]
 			if matrix is not None:
 				if self.ARMATURESPACE==True:
-					bone.matrix=matrix					
+					bone.matrix=matrix
 					if self.NICE==True:
 						bvec = bone.tail- bone.head
 						bvec.normalize()
@@ -180,7 +168,7 @@ class Skeleton:
 					rotMatrix=matrix.rotationPart()
 					posMatrix=matrix.translationPart()
 					if bone.parent:
-						bone.head =   posMatrix * bone.parent.matrix+bone.parent.head
+						bone.head = posMatrix * bone.parent.matrix+bone.parent.head
 						tempM = rotMatrix * bone.parent.matrix 
 						bone.matrix = tempM
 					else:
@@ -189,10 +177,10 @@ class Skeleton:
 					if self.NICE==True:
 						bvec = bone.tail- bone.head
 						bvec.normalize()
-						bone.tail = bone.head + 0.01 * bvec 
+						bone.tail = bone.head + 0.01 * bvec
 				else:
 					if self.WARNING==True:
-						print 'ARMATUREPACE or BONESPACE ?'	
+						print 'ARMATUREPACE or BONESPACE ?'
 			elif rotMatrix is not None and posMatrix is not None:
 				if self.ARMATURESPACE==True:
 					rotMatrix=roundMatrix(rotMatrix,4)
@@ -206,8 +194,8 @@ class Skeleton:
 					rotMatrix=roundMatrix(rotMatrix,4).rotationPart()
 					posMatrix=roundMatrix(posMatrix,4).translationPart()
 					if bone.parent:
-						bone.head =   posMatrix * bone.parent.matrix+bone.parent.head
-						tempM = rotMatrix * bone.parent.matrix 
+						bone.head = posMatrix * bone.parent.matrix+bone.parent.head
+						tempM = rotMatrix * bone.parent.matrix
 						bone.matrix = tempM
 					else:
 						bone.head = posMatrix
@@ -215,19 +203,17 @@ class Skeleton:
 					if self.NICE==True:
 						bvec = bone.tail- bone.head
 						bvec.normalize()
-						bone.tail = bone.head + 0.01 * bvec 
+						bone.tail = bone.head + 0.01 * bvec
 				else:
 					if self.WARNING==True:
-						print 'ARMATUREPACE or BONESPACE ?'	
+						print 'ARMATUREPACE or BONESPACE ?'
 			else:
 				if self.WARNING==True:
 					print 'WARNINIG: rotMatrix or posMatrix or matrix is None'
-							
+
 		self.armature.update()
 		Blender.Window.RedrawAll()
-		
-		
-		
+
 	def check(self):
 		scn = Blender.Scene.GetCurrent()
 		scene = bpy.data.scenes.active
@@ -239,18 +225,17 @@ class Skeleton:
 			if object.name == self.name:
 				self.object = Blender.Object.Get(self.name)
 				self.armature = self.object.getData()
-				if self.DEL==True:  
+				if self.DEL==True:
 					self.armature.makeEditable()
 					for bone in self.armature.bones.values():
 						del self.armature.bones[bone.name]
 					self.armature.update()
-		if self.object==None: 
+		if self.object==None:
 			self.object = Blender.Object.New('Armature',self.name)
-		if self.armature==None: 
+		if self.armature==None:
 			self.armature = Blender.Armature.New(self.name)
 			self.object.link(self.armature)
 		scn.link(self.object)
 		self.armature.drawType = Blender.Armature.STICK
 		self.object.drawMode = Blender.Object.DrawModes.XRAY
 		self.matrix=self.object.mat
-	

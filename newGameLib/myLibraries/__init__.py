@@ -7,8 +7,6 @@ import skeletonLib
 import unpackLib
 import commandLib
 
-
-
 reload(myFunction)
 reload(binaresLib)
 reload(imageLib)
@@ -17,7 +15,6 @@ reload(actionLib)
 reload(skeletonLib)
 reload(unpackLib)
 reload(commandLib)
-
 
 from myFunction import *
 from binaresLib import *

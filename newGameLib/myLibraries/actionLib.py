@@ -1,6 +1,6 @@
 import bpy
 import Blender
-		
+
 class ActionBone:
 	def	__init__(self):
 		self.name=None
@@ -12,8 +12,7 @@ class ActionBone:
 		self.scaleKeyList=[]
 		self.matrixFrameList=[]
 		self.matrixKeyList=[]
-		
-	
+
 class Action:
 	def __init__(self):
 		self.frameCount=None
@@ -24,40 +23,38 @@ class Action:
 		self.BONESPACE=False
 		self.FRAMESORT=False
 		self.BONESORT=False
-		
+
 	def boneNameList(self):
 		if self.skeleton is not None:
 			scene = bpy.data.scenes.active
 			for object in scene.objects:
 				if object.name==self.skeleton:
 					self.boneNameList=object.getData().bones.keys()
-		
-		
+
 	def setContext(self):
 		scn = Blender.Scene.GetCurrent()
 		context = scn.getRenderingContext()
 		if self.frameCount is not None:
-			context.eFrame = self.frameCount	
-		
-		
+			context.eFrame = self.frameCount
+
 	def draw(self):
 		scene = bpy.data.scenes.active
 		skeleton=None
 		if self.skeleton is not None:
 			for object in scene.objects:
 				if object.getType()=='Armature':
-					if object.name==self.skeleton:				
+					if object.name==self.skeleton:
 						skeleton = object
 		else:
 			print 'WARNING: no armature'
-		if skeleton is not None:			
+		if skeleton is not None:
 			armature=skeleton.getData()
 			pose = skeleton.getPose()
 			action = Blender.Armature.NLA.NewAction(self.name)
 			action.setActive(skeleton)
 			scn = Blender.Scene.GetCurrent()
 			timeList=[]
-			
+
 			if self.FRAMESORT is True:
 				frameList=[]
 				for m in range(len(self.boneList)):
@@ -74,7 +71,7 @@ class Action:
 						frame=actionbone.matrixFrameList[n]
 						if frame not in frameList:
 							frameList.append(frame)
-										
+
 				for k in range(len(frameList)):
 					frame=sorted(frameList)[k]
 					for m in range(len(self.boneList)):
@@ -93,16 +90,14 @@ class Action:
 											[Blender.Object.Pose.LOC],True)
 										pose.update()
 									if self.BONESPACE is True:
-										if pbone.parent:		
+										if pbone.parent:
 											pbone.poseMatrix=bonematrix*pbone.parent.poseMatrix
 										else:
 											pbone.poseMatrix=bonematrix
 										pbone.insertKey(skeleton, frame,\
 											[Blender.Object.Pose.LOC],True)
 										#pose.update()
-										
-									
-									
+
 							for n in range(len(actionbone.rotFrameList)):
 								if frame==actionbone.rotFrameList[n]:
 									timeList.append(frame)
@@ -114,13 +109,13 @@ class Action:
 											[Blender.Object.Pose.ROT],True)
 										pose.update()
 									if self.BONESPACE is True:
-										if pbone.parent:		
+										if pbone.parent:
 											pbone.poseMatrix=bonematrix*pbone.parent.poseMatrix
 										else:
 											pbone.poseMatrix=bonematrix
 										pbone.insertKey(skeleton, frame,\
 											[Blender.Object.Pose.ROT],True)
-											
+
 							for n in range(len(actionbone.matrixFrameList)):
 								if frame==actionbone.matrixFrameList[n]:
 									timeList.append(frame)
@@ -132,7 +127,7 @@ class Action:
 											#[Blender.Object.Pose.LOC],True)
 										pose.update()
 									if self.BONESPACE is True:
-										if pbone.parent:		
+										if pbone.parent:
 											pbone.poseMatrix=matrix*pbone.parent.poseMatrix
 										else:
 											pbone.poseMatrix=skeleton.matrixWorld*matrix
@@ -140,16 +135,15 @@ class Action:
 											[Blender.Object.Pose.ROT,Blender.Object.Pose.LOC],True)
 										pose.update()
 					#pose.update()
-				
+
 			elif self.BONESORT is True:
-				
+
 				for m in range(len(self.boneList)):
 					actionbone=self.boneList[m]
 					name=actionbone.name
 					pbone=pose.bones[name]
 					Blender.Window.RedrawAll()
-					
-					
+
 					if pbone is not None:
 						#matrix=armature.bones[name].matrix['ARMATURESPACE']
 						pbone.insertKey(skeleton,0,[Blender.Object.Pose.ROT,Blender.Object.Pose.LOC],True)
@@ -167,7 +161,7 @@ class Action:
 									[Blender.Object.Pose.LOC],True)
 								pose.update()
 							if self.BONESPACE is True:
-								if pbone.parent:		
+								if pbone.parent:
 									pbone.poseMatrix=bonematrix*pbone.parent.poseMatrix
 									#pbone.loc=bonematrix*pbone.parent.poseMatrix+pbone.parent.head
 								else:
@@ -175,9 +169,8 @@ class Action:
 									#pbone.loc=bonematrix
 								pbone.insertKey(skeleton, 1+frame,\
 									[Blender.Object.Pose.LOC],True)
-								pose.update()	
-								
-								
+								pose.update()
+
 						for n in range(len(actionbone.rotFrameList)):
 							frame=actionbone.rotFrameList[n]
 							timeList.append(frame)
@@ -190,7 +183,7 @@ class Action:
 									[Blender.Object.Pose.ROT],True)
 								pose.update()
 							if self.BONESPACE is True:
-								if pbone.parent:		
+								if pbone.parent:
 									pbone.poseMatrix=bonematrix*pbone.parent.poseMatrix
 								else:
 									pbone.poseMatrix=bonematrix
@@ -198,7 +191,7 @@ class Action:
 								pbone.insertKey(skeleton, 1+frame,\
 									[Blender.Object.Pose.ROT],True)
 								pose.update()
-								
+
 						for n in range(len(actionbone.matrixFrameList)):
 							frame=actionbone.matrixFrameList[n]
 							timeList.append(frame)
@@ -210,7 +203,7 @@ class Action:
 									[Blender.Object.Pose.ROT,Blender.Object.Pose.LOC],True)
 								pose.update()
 							if self.BONESPACE is True:
-								if pbone.parent:		
+								if pbone.parent:
 									pbone.poseMatrix=bonematrix*pbone.parent.poseMatrix
 								else:
 									pbone.poseMatrix=bonematrix
@@ -220,7 +213,5 @@ class Action:
 						#pose.update()
 			else:
 				print 'WARNING: missing BONESORT or FRAMESORT'
-			if len(timeList)>0:	
+			if len(timeList)>0:
 				self.frameCount=max(map(int,timeList))
-							
-		

@@ -5,7 +5,6 @@ import Blender
 def ddsheader():
 	ddsheader = '\x44\x44\x53\x20\x7C\x00\x00\x00\x07\x10\x0A\x00\x00\x04\x00\x00\x00\x04\x00\x00\x00\x00\x08\x00\x00\x00\x00\x00\x0B\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x20\x00\x00\x00\x05\x00\x00\x00\x44\x58\x54\x31\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x08\x10\x40\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
 	return ddsheader
-   
 
 def tga_16(data):
 	newdata=''
@@ -18,11 +17,7 @@ def tga_16(data):
 		g = g * 255 / 63
 		b = b * 255 / 31
 		newdata+=struct.pack('iii',r,g,b)
-		
-	
 	return newdata
-		
-
 
 def RGB565_2_RGB888(szer,wys,data,outname):
 	newdata=''
@@ -34,18 +29,18 @@ def RGB565_2_RGB888(szer,wys,data,outname):
 			start+=2
 			r = (c>>11)&0x1f
 			g = (c>>5)&0x3f
-			b = c&0x001f  
-	   		pr=(r<<3)|(r>>2)
+			b = c&0x001f
+			pr=(r<<3)|(r>>2)
 			pg=(g<<2)|(g>>4)
-			pb=(b<<3)|(b>>2)	
+			pb=(b<<3)|(b>>2)
 			if pr==0 and pg==0 and pb==0:
 				pa=1
 			else:
-				pa=0		
+				pa=0
 			image.setPixelI(n, 511-m, (pr, pg, pb,pa))
 			#newdata+=struct.pack('iii',pr,pg,pb)
 	#return newdata
-	image.save()	
+	image.save()
 
 def ARGB1555_2_ARGB8888(data):
 	newdata=''
@@ -59,8 +54,7 @@ def ARGB1555_2_ARGB8888(data):
 		integer=(a*0x1FE00) | rgb | ((rgb >> 5) & 0x070707)
 		newdata+=struct.pack('I',integer)
 	return newdata
-		
-			
+
 class Image():
 	def __init__(self):
 		self.format=None
@@ -68,6 +62,7 @@ class Image():
 		self.szer=None
 		self.name=None
 		self.data=None
+
 	def draw(self):
 		if self.format is not None:
 			if self.wys is not None:

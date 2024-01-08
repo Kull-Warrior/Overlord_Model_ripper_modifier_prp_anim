@@ -1,6 +1,6 @@
 import os
-import Blender							
-				
+import Blender
+
 """
 
 def bf_parser(filename,g):
@@ -11,7 +11,7 @@ def bf_parser(filename,g):
 	cmd.command=quickbms
 	cmd.run()
 """
-	
+
 blendDir=os.path.dirname(Blender.Get('filename'))
 toolsDir=blendDir+os.sep+"newGameLib"+os.sep+"tools"
 
@@ -32,11 +32,11 @@ offzip.start='0'
 
 PNG=Command()
 PNG.option=' -out png '
-PNG.exe=toolsDir+os.sep+"Nconvert/nconvert.exe"	
+PNG.exe=toolsDir+os.sep+"Nconvert/nconvert.exe"
 
 JPG=Command()
 JPG.option=' -out jpeg '
-JPG.exe=toolsDir+os.sep+"Nconvert/nconvert.exe"	
+JPG.exe=toolsDir+os.sep+"Nconvert/nconvert.exe"
 
 zip=Command()
 zip.option='x'
@@ -63,7 +63,6 @@ UMODEL=Command()
 UMODEL.exe=toolsDir+os.sep+'umodel'+os.sep+'umodel.exe'
 UMODEL.option='"-export" "-meshes" "-nostat"'
 
-									
 class Cmd():
 	def __init__(self):
 		self.input=None
@@ -78,35 +77,21 @@ class Cmd():
 		self.UMODEL=False
 		self.quickbms=False
 		self.OFFZIP=False
-		
+
 	def run(self):
 		print 'offzip'
 		if self.output is not None:
 			try:os.mkdir(self.output)
-			except:pass 
-			
+			except:pass
+
 		commandline=None
 		if self.gr2==True:commandline = gr2.exe+' "'+ self.input +'" '+ gr2.option
 		if self.cd==True:commandline = cd.exe+' "'+ self.input+'"'
 		if self.pdf==True:commandline = pdf.exe+' "'+ self.input+'"'
-		if self.PNG==True:commandline = PNG.exe+PNG.option+' '+ self.input			
-		if self.JPG==True:commandline = JPG.exe+JPG.option+' '+ self.input			
+		if self.PNG==True:commandline = PNG.exe+PNG.option+' '+ self.input
+		if self.JPG==True:commandline = JPG.exe+JPG.option+' '+ self.input
 		if self.quickbms==True:commandline = quickbms.exe+' '+self.bms+'  '+self.input+' '+self.output
 		if self.OFFZIP==True:commandline = offzip.exe+' '+offzip.option+'  "'+self.input+'" "'+self.output+'" "'+offzip.start+'"'
-		if self.UMODEL==True:commandline = UMODEL.exe+' '+UMODEL.option+' '+ '-out="'+os.path.dirname(self.input)+'" "'+self.input+'"'	
+		if self.UMODEL==True:commandline = UMODEL.exe+' '+UMODEL.option+' '+ '-out="'+os.path.dirname(self.input)+'" "'+self.input+'"'
 		if commandline is not None:os.system(commandline)
 		print commandline
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-			

@@ -1,15 +1,13 @@
 import Blender,os
 import zlib
 
-
-
 def inflate(data):
-    decompress = zlib.decompressobj(
-            -zlib.MAX_WBITS  # see above
-    )
-    inflated = decompress.decompress(data)
-    inflated += decompress.flush()
-    return inflated	
+	decompress = zlib.decompressobj(
+			-zlib.MAX_WBITS  # see above
+	)
+	inflated = decompress.decompress(data)
+	inflated += decompress.flush()
+	return inflated
 
 class Unpacker:
 	"""
@@ -34,7 +32,8 @@ class Unpacker:
 		self.INFLATE=False
 		self.outputDir=None
 		self.inputFile=None
-	def unpack(self):		
+
+	def unpack(self):
 		if self.ZLIB==True:
 			import zlib
 		if self.inputFile is not None:
@@ -44,20 +43,20 @@ class Unpacker:
 					for m in range(self.fileCount):
 						newfiledir=self.outputDir+os.sep+Blender.sys.dirname(self.nameList[m])
 						try:os.makedirs(newfiledir)
-						except:pass			
+						except:pass
 						newfile=open(self.outputDir+os.sep+self.nameList[m],'wb')
 						data=self.dataList[m]
 						newfile.write(data)
 						print self.nameList[m]
 						newfile.close()
-					
+
 				if len(self.offsetList)==len(self.sizeList)==len(self.nameList):
 					self.fileCount=len(self.nameList)
 					for m in range(self.fileCount):
 						archive.seek(self.offsetList[m],0)
 						newfiledir=self.outputDir+os.sep+Blender.sys.dirname(self.nameList[m])
 						try:os.makedirs(newfiledir)
-						except:pass	
+						except:pass
 						newfile=open(self.outputDir+os.sep+self.nameList[m],'wb')
 						if self.ZLIB==True:
 							try:
@@ -66,7 +65,7 @@ class Unpacker:
 								print 'unpackING...',self.nameList[m]
 							except:
 								print 'ZLIB WARNING.NOT unpackED',self.nameList[m]
-						elif self.INFLATE==True:	
+						elif self.INFLATE==True:
 							data=inflate(archive.read(self.sizeList[m]))
 							newfile.write(data)
 						else:
@@ -77,8 +76,7 @@ class Unpacker:
 				else:
 					print 'MISSING....'
 			else:
-				print 'NO outputDir DIR'	
-			archive.close()						
+				print 'NO outputDir DIR'
+			archive.close()
 		else:
-			print 'NO ARCHIVE'						
-		
+			print 'NO ARCHIVE'
