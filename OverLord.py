@@ -597,14 +597,16 @@ def animFILEParser(filename,g):
 		action.draw()
 		action.setContext()
 
-def Parser():
+def openFile(flagList):
+	global input,output,txt
+	input=Input(flagList)
+	output=Output(flagList)
 	filename=input.filename
 	print
 	print '='*70
 	print filename
 	print '='*70
 	print
-	global txt
 	ext=filename.split('.')[-1].lower()
 
 	if ext=='prp':
@@ -618,11 +620,5 @@ def Parser():
 		g=BinaryReader(file)
 		animFILEParser(filename,g)
 		file.close()
-
-def openFile(flagList):
-	global input,output
-	input=Input(flagList)
-	output=Output(flagList)
-	parser=Parser()
 
 Blender.Window.FileSelector(openFile,'import','Overlord I and II files: prp - archive, anim - animation')
