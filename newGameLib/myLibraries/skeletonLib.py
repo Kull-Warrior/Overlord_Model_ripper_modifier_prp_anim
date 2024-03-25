@@ -37,21 +37,21 @@ class Skeleton:
 		self.SORT=False
 		self.matrix=None
 
-	def boneChildren(self,parentBlenderBone,parentBone):
+	def bone_children(self,parentBlenderBone,parentBone):
 		for child in parentBlenderBone.children:
 			for bone in self.boneList:
 				if bone.name==child.name:
 					blenderBone=self.armature.bones[bone.name]
 					bone.matrix*=parentBone.matrix
-					self.boneChildren(blenderBone,bone)
+					self.bone_children(blenderBone,bone)
 
-	def createChildList(self):
+	def create_child_list(self):
 		for boneID in range(len(self.boneList)):
 			bone=self.boneList[boneID]
 			name=bone.name
 			blenderBone=self.armature.bones[name]
 			if blenderBone.parent is None:
-				self.boneChildren(blenderBone,bone)
+				self.bone_children(blenderBone,bone)
 
 	def draw(self):
 		if self.WARNING==True:
@@ -69,7 +69,7 @@ class Skeleton:
 			self.create_bones()
 			self.create_bone_connection()
 			if self.SORT==True:
-				self.createChildList()
+				self.create_child_list()
 			self.create_bone_position()
 		if self.BINDMESH is True:
 			scene = bpy.data.scenes.active
@@ -183,16 +183,16 @@ class Skeleton:
 						print 'ARMATUREPACE or BONESPACE ?'
 			elif rotMatrix is not None and posMatrix is not None:
 				if self.ARMATURESPACE==True:
-					rotMatrix=roundMatrix(rotMatrix,4)
-					posMatrix=roundMatrix(posMatrix,4)
+					rotMatrix=round_matrix(rotMatrix,4)
+					posMatrix=round_matrix(posMatrix,4)
 					bone.matrix=rotMatrix*posMatrix
 					if self.NICE==True:
 						bvec = bone.tail- bone.head
 						bvec.normalize()
 						bone.tail = bone.head + 0.01 * bvec
 				elif self.BONESPACE==True:
-					rotMatrix=roundMatrix(rotMatrix,4).rotationPart()
-					posMatrix=roundMatrix(posMatrix,4).translationPart()
+					rotMatrix=round_matrix(rotMatrix,4).rotationPart()
+					posMatrix=round_matrix(posMatrix,4).translationPart()
 					if bone.parent:
 						bone.head = posMatrix * bone.parent.matrix+bone.parent.head
 						tempM = rotMatrix * bone.parent.matrix

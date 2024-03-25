@@ -26,13 +26,13 @@ class Input(object):
 			self.animList=[]
 			self.archiveList=[]
 
-def Input1(object):
+def input1(object):
 	return object
 
-def Output(object):
+def output(object):
 	return object
 
-def Float255(data):
+def float255(data):
 	list=[]
 	for get in data:
 		list.append(get/255.0)
@@ -51,44 +51,44 @@ class Sys(object):
 			self.base=os.path.basename(input)+'Dir'
 		self.dir=os.path.dirname(input)
 		self.blendFile=Blender.Get('filename')
-	def	Dir(self,base):
+	def	directory(self,base):
 		newDir=self.dir+os.sep+base
 		if os.path.exists(newDir)==False:
 			os.makedirs(newDir)
-	def	addDir(self,base):
+	def	add_directory(self,base):
 		newDir=self.dir+os.sep+base
 		if os.path.exists(newDir)==False:
 			os.makedirs(newDir)
 
-def isQuat(quat):
+def is_quat(quat):
 	sum=quat[1]**2+quat[2]**2+quat[3]**2
 	return quat[0]**2-sum
 
-def QuatMatrix(quat):
+def quat_matrix(quat):
 	return Quaternion(quat[3],quat[0],quat[1],quat[2]).toMatrix()
 
-def VectorMatrix(vector):
+def vector_matrix(vector):
 	return TranslationMatrix(Vector(vector))
 
-def roundVector(vec,dec=17):
+def round_vector(vec,dec=17):
 	fvec=[]
 	for v in vec:
 		fvec.append(round(v,dec))
 	return Vector(fvec)
 
-def roundMatrix(mat,dec=17):
+def round_matrix(mat,dec=17):
 	fmat = []
 	for row in mat:
-		fmat.append(roundVector(row,dec))
+		fmat.append(round_vector(row,dec))
 	return Matrix(*fmat)
 
-def Matrix4x4(data):
+def matrix_4x4(data):
 	return Matrix(	data[:4],\
 					data[4:8],\
 					data[8:12],\
 					data[12:16])
 
-def Matrix3x3(data):
+def matrix_3x3(data):
 	return Matrix(	data[:3],\
 					data[3:6],\
 					data[6:9])
@@ -111,7 +111,7 @@ class Searcher():
 					tree(dir)
 		tree(dir)
 
-def ParseID():
+def parse_id():
 	ids = []
 	scene = bpy.data.scenes.active
 	for mat in Blender.Material.Get():

@@ -2,9 +2,9 @@ import struct
 import os
 import Blender
 
-def ddsheader():
-	ddsheader = '\x44\x44\x53\x20\x7C\x00\x00\x00\x07\x10\x0A\x00\x00\x04\x00\x00\x00\x04\x00\x00\x00\x00\x08\x00\x00\x00\x00\x00\x0B\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x20\x00\x00\x00\x05\x00\x00\x00\x44\x58\x54\x31\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x08\x10\x40\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
-	return ddsheader
+def get_dds_header():
+	dds_header = '\x44\x44\x53\x20\x7C\x00\x00\x00\x07\x10\x0A\x00\x00\x04\x00\x00\x00\x04\x00\x00\x00\x00\x08\x00\x00\x00\x00\x00\x0B\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x20\x00\x00\x00\x05\x00\x00\x00\x44\x58\x54\x31\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x08\x10\x40\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+	return dds_header
 
 def tga_16(data):
 	newdata=''
@@ -19,7 +19,7 @@ def tga_16(data):
 		newdata+=struct.pack('iii',r,g,b)
 	return newdata
 
-def RGB565_2_RGB888(szer,wys,data,outname):
+def rgb565_to_rgb888(szer,wys,data,outname):
 	newdata=''
 	start=0
 	image=Blender.Image.New(outname,szer,wys,24)
@@ -42,7 +42,7 @@ def RGB565_2_RGB888(szer,wys,data,outname):
 	#return newdata
 	image.save()
 
-def ARGB1555_2_ARGB8888(data):
+def argb1555_to_argb8888(data):
 	newdata=''
 	for m in range(len(data)/2):
 		c=struct.unpack('H',data[m*2:m*2+2])[0]
@@ -73,7 +73,7 @@ class Image():
 								os.makedirs(Blender.sys.dirname(self.name))
 							if self.format=='DXT1':
 								newfile=open(self.name,'wb')
-								newfile.write(ddsheader())
+								newfile.write(get_dds_header())
 								newfile.seek(0xC)
 								newfile.write(struct.pack('i',self.wys))
 								newfile.seek(0x10)
@@ -85,7 +85,7 @@ class Image():
 								newfile.close()
 							elif self.format=='DXT3':
 								newfile=open(self.name,'wb')
-								newfile.write(ddsheader())
+								newfile.write(get_dds_header())
 								newfile.seek(0xC)
 								newfile.write(struct.pack('i',self.wys))
 								newfile.seek(0x10)
@@ -97,7 +97,7 @@ class Image():
 								newfile.close()
 							elif self.format=='DXT5':
 								newfile=open(self.name,'wb')
-								newfile.write(ddsheader())
+								newfile.write(get_dds_header())
 								newfile.seek(0xC)
 								newfile.write(struct.pack('i',self.wys))
 								newfile.seek(0x10)
@@ -146,7 +146,7 @@ class Image():
 								#newfile.write(struct.pack('H',self.szer))
 								#newfile.write('\x20\x20')
 								#newfile.write(
-								RGB565_2_RGB888(self.szer,self.wys,self.data,self.name)
+								rgb565_to_rgb888(self.szer,self.wys,self.data,self.name)
 								#)
 								#newfile.close()
 							else:

@@ -22,14 +22,14 @@ class Model:
 		self.boneNameList=[]
 		self.skeleton=None
 
-def getItem(list,ID):
+def get_item(list,ID):
 	listA=[]
 	for item in list:
 		if item[0]==ID:
 			listA.append(item)
 	return listA
 
-def getList(type,g):
+def get_list(type,g):
 	list=[]
 	if type>=128:
 		countsmall=type-128
@@ -45,7 +45,7 @@ def getList(type,g):
 		listA.append([item[0],pos+item[1]])
 	return listA
 
-def prpParser(filename,g):
+def prp_file_parser(filename,g):
 	texList={}
 	matList=[]
 	meshList=[]
@@ -56,14 +56,14 @@ def prpParser(filename,g):
 	g.word(160)
 
 	type=g.B(1)[0]
-	list=getList(type,g)
-	list26=getItem(list,26)
+	list=get_list(type,g)
+	list26=get_item(list,26)
 	for item in list26:
 		#print item
 		g.seek(item[1])
 		g.B(3)
 		type1=g.B(1)[0]
-		list1=getList(type1,g)
+		list1=get_list(type1,g)
 		for item1 in list1:
 			g.seek(item1[1])
 			flag=g.B(4)
@@ -72,7 +72,7 @@ def prpParser(filename,g):
 			if flag in [(61,0,65,0),(153,0,65,0),(152,0,65,0)]:#image
 				#print 'image'
 				type2=g.B(1)[0]
-				list2=getList(type2,g)
+				list2=get_list(type2,g)
 				for item2 in list2:
 					g.seek(item2[1])
 					if item2[0]==20:
@@ -82,20 +82,20 @@ def prpParser(filename,g):
 						texName=g.word(g.i(1)[0])
 					if item2[0]==1:
 						type3=g.B(1)[0]
-						list3=getList(type3,g)
+						list3=get_list(type3,g)
 						for item3 in list3:
 							g.seek(item3[1])
 							#print item3
 							if item3[0]==20:
 								g.B(3)
 								type4=g.B(1)[0]
-								list4=getList(type4,g)
+								list4=get_list(type4,g)
 								for item4 in list4:
 									g.seek(item4[1])
 									flag=g.B(4)
 									if flag==(36,0,65,0):
 										type5=g.B(1)[0]
-										list5=getList(type5,g)
+										list5=get_list(type5,g)
 										img=imageLib.Image()
 										for item5 in list5:
 											g.seek(item5[1])
@@ -132,12 +132,12 @@ def prpParser(filename,g):
 
 				animDir=g.dirname+os.sep+g.basename
 				sys=Sys(animDir)
-				sys.addDir(sys.base+'_animfiles')
+				sys.add_directory(sys.base+'_animfiles')
 
 				type2=g.B(1)[0]
-				list2=getList(type2,g)
+				list2=get_list(type2,g)
 
-				list21=getItem(list2,21)
+				list21=get_item(list2,21)
 				for item21 in list21:
 					g.seek(item21[1])
 					animName=g.word(g.i(1)[0])
@@ -146,24 +146,24 @@ def prpParser(filename,g):
 				animFile=open(animPath,'wb')
 				p=BinaryReader(animFile)
 
-				list1=getItem(list2,1)
+				list1=get_item(list2,1)
 				for item1 in list1:
 					g.seek(item1[1])
 					type3=g.B(1)[0]
-					list3=getList(type3,g)
-					list10=getItem(list3,10)
+					list3=get_list(type3,g)
+					list10=get_item(list3,10)
 					for item10 in list10:
 						g.seek(item10[1])
 						g.B(3)
 						type4=g.B(1)[0]
-						list4=getList(type4,g)
+						list4=get_list(type4,g)
 						for item4 in list4:
 							g.seek(item4[1])
 							flag=g.B(4)
 							#print flag
 							if flag==(7,0,65,0):#anim
 								type5=g.B(1)[0]
-								list5=getList(type5,g)
+								list5=get_list(type5,g)
 								for item5 in list5:
 									g.seek(item5[1])
 									#print item5
@@ -176,7 +176,7 @@ def prpParser(filename,g):
 										frameCount=None
 										streamOffset=None
 										type6=g.B(1)[0]
-										list6=getList(type6,g)
+										list6=get_list(type6,g)
 										for item6 in list6:
 											g.seek(item6[1])
 											#print '----',item6
@@ -203,13 +203,13 @@ def prpParser(filename,g):
 										frameCount22=None
 										streamOffset23=None
 										type6=g.B(1)[0]
-										list6=getList(type6,g)
+										list6=get_list(type6,g)
 										for item6 in list6:
 											g.seek(item6[1])
 											#print '----',item6
 											if item6[0]==21:
 												type7=g.B(1)[0]
-												list7=getList(type7,g)
+												list7=get_list(type7,g)
 												for item7 in list7:
 													g.seek(item7[1])
 													#print '--------',item7
@@ -249,7 +249,7 @@ def prpParser(filename,g):
 				mesh=Mesh()
 				meshList.append(mesh)
 				type2=g.B(1)[0]
-				list2=getList(type2,g)
+				list2=get_list(type2,g)
 				for item2 in list2:
 					g.seek(item2[1])
 					if item2[0]==20:
@@ -258,12 +258,12 @@ def prpParser(filename,g):
 						mesh.name=g.word(g.i(1)[0])
 					if item2[0]==1:
 						type3=g.B(1)[0]
-						list3=getList(type3,g)
+						list3=get_list(type3,g)
 						for item3 in list3:
 							g.seek(item3[1])
 							if item3[0]==10:
 								type4=g.B(1)[0]
-								list4=getList(type4,g)
+								list4=get_list(type4,g)
 								indiceCount=None
 								for item4 in list4:
 									g.seek(item4[1])
@@ -279,7 +279,7 @@ def prpParser(filename,g):
 
 							if item3[0]==21:
 								type4=g.B(1)[0]
-								list4=getList(type4,g)
+								list4=get_list(type4,g)
 								indiceCount=None
 								for item4 in list4:
 									g.seek(item4[1])
@@ -295,13 +295,13 @@ def prpParser(filename,g):
 
 							if item3[0]==11:
 								type4=g.B(1)[0]
-								list4=getList(type4,g)
+								list4=get_list(type4,g)
 								for item4 in list4:
 									#print item4
 									g.seek(item4[1])
 									if item4[0]==20:
 										type5=g.B(1)[0]
-										list5=getList(type5,g)
+										list5=get_list(type5,g)
 										for item5 in list5:
 											#print item5
 											g.seek(item5[1])
@@ -368,7 +368,7 @@ def prpParser(filename,g):
 			elif flag in [(82,6,65,0),(60,6,65,0),(36,6,65,0),(10,6,65,0),(15,6,65,0),(8,6,65,0),(54,6,65,0),(38,6,65,0),(18,6,65,0),(22,6,65,0),(32,6,65,0)]:#material
 				#print 'material'
 				type2=g.B(1)[0]
-				list2=getList(type2,g)
+				list2=get_list(type2,g)
 				mat=Mat()
 				mat.diffChunk=None
 				matList.append(mat)
@@ -381,7 +381,7 @@ def prpParser(filename,g):
 						mat.name=g.word(g.i(1)[0])
 					if item2[0]==30:
 						type3=g.B(1)[0]
-						list3=getList(type3,g)
+						list3=get_list(type3,g)
 						for item3 in list3:
 							g.seek(item3[1])
 							#print item3
@@ -401,7 +401,7 @@ def prpParser(filename,g):
 				model=Model()
 				modelList.append(model)
 				type2=g.B(1)[0]
-				list2=getList(type2,g)
+				list2=get_list(type2,g)
 				for item2 in list2:
 					g.seek(item2[1])
 					if item2[0]==20:
@@ -410,25 +410,25 @@ def prpParser(filename,g):
 						model.name=g.word(g.i(1)[0])
 					if item2[0]==30:
 						type3=g.B(1)[0]
-						list3=getList(type3,g)
+						list3=get_list(type3,g)
 						for item3 in list3:
 							g.seek(item3[1])
 							#print item3
 							if item3[0]==1:
 								type4=g.B(1)[0]
-								list4=getList(type4,g)
+								list4=get_list(type4,g)
 								for item4 in list4:
 									g.seek(item4[1])
 									flag=g.B(4)
 									if flag==(103,0,65,0):
 										type5=g.B(1)[0]
-										list5=getList(type5,g)
+										list5=get_list(type5,g)
 										meshChunk,matChunk=None,None
 										for item5 in list5:
 											g.seek(item5[1])
 											if item5[0]==31:
 												type6=g.B(1)[0]
-												list6=getList(type6,g)
+												list6=get_list(type6,g)
 												for item6 in list6:
 													g.seek(item6[1])
 													if item6[0]==20:
@@ -437,7 +437,7 @@ def prpParser(filename,g):
 														meshChunk=chunk
 											if item5[0]==33:
 												type6=g.B(1)[0]
-												list6=getList(type6,g)
+												list6=get_list(type6,g)
 												for item6 in list6:
 													g.seek(item6[1])
 													if item6[0]==20:
@@ -448,7 +448,7 @@ def prpParser(filename,g):
 											model.meshList.append([meshChunk,matChunk])
 					if item2[0]==33:
 						type3=g.B(1)[0]
-						list3=getList(type3,g)
+						list3=get_list(type3,g)
 						boneCount=None
 						for item3 in list3:
 							g.seek(item3[1])
@@ -468,7 +468,7 @@ def prpParser(filename,g):
 								tm=g.tell()
 								bone=Bone()
 								bone.name=g.word(32)
-								bone.matrix=Matrix4x4(g.f(16))
+								bone.matrix=matrix_4x4(g.f(16))
 								g.f(4)
 								g.f(3)
 								a,b,c,d,e=g.i(5)
@@ -483,21 +483,21 @@ def prpParser(filename,g):
 								model.boneNameList[skeleton.boneList[m].skinID]=skeleton.boneList[m].name
 					if item2[0]==35:
 						type3=g.B(1)[0]
-						list3=getList(type3,g)
+						list3=get_list(type3,g)
 						boneCount=None
 						for item3 in list3:
 							g.seek(item3[1])
 							#print item3
 							if item3[0]==1:
 								type4=g.B(1)[0]
-								list4=getList(type4,g)
+								list4=get_list(type4,g)
 								for item4 in list4:
 									g.seek(item4[1])
 									flag=g.B(4)
 									#print flag
 									if flag==(160,0,65,0):
 										type5=g.B(1)[0]
-										list5=getList(type5,g)
+										list5=get_list(type5,g)
 										count=None
 										for item5 in list5:
 											g.seek(item5[1])
@@ -556,7 +556,7 @@ def prpParser(filename,g):
 					break
 			i+=1
 
-def animFILEParser(filename,g):
+def anim_file_parser(filename,g):
 	selObjectList=Blender.Object.GetSelected()
 	if len(selObjectList)>0:
 		armature=selObjectList[0]
@@ -568,7 +568,7 @@ def animFILEParser(filename,g):
 		action.UPDATE=False
 
 		while(True):
-			if g.tell()>=g.fileSize():break
+			if g.tell()>=g.file_size():break
 			bone=ActionBone()
 			action.boneList.append(bone)
 			bone.name=g.find('\x00')
@@ -577,7 +577,7 @@ def animFILEParser(filename,g):
 			for m in range(count):
 				frame=g.H(1)[0]
 				bone.posFrameList.append(frame)
-				bone.posKeyList.append(VectorMatrix(g.f(3)))
+				bone.posKeyList.append(vector_matrix(g.f(3)))
 			count=g.i(1)[0]
 			type=g.B(1)[0]
 			if type==22:#not supported
@@ -592,16 +592,16 @@ def animFILEParser(filename,g):
 			if type==30:
 				for m in range(count):
 					bone.rotFrameList.append(m)
-					bone.rotKeyList.append(QuatMatrix(g.short(4,'h',15)).resize4x4())
+					bone.rotKeyList.append(quat_matrix(g.short(4,'h',15)).resize4x4())
 
 		action.draw()
-		action.setContext()
+		action.set_context()
 
 def openFile(flagList):
-	global input,output,txt
-	input=Input(flagList)
-	output=Output(flagList)
-	filename=input.filename
+	global input,output
+	input_file=Input(flagList)
+	output_file=output(flagList)
+	filename=input_file.filename
 	print
 	print '='*70
 	print filename
@@ -612,13 +612,13 @@ def openFile(flagList):
 	if ext=='prp':
 		file=open(filename,'rb')
 		g=BinaryReader(file)
-		prpParser(filename,g)
+		prp_file_parser(filename,g)
 		file.close()
 
 	if ext=='anim':
 		file=open(filename,'rb')
 		g=BinaryReader(file)
-		animFILEParser(filename,g)
+		anim_file_parser(filename,g)
 		file.close()
 
 Blender.Window.FileSelector(openFile,'import','Overlord I and II files: prp - archive, anim - animation')

@@ -24,14 +24,14 @@ class Action:
 		self.FRAMESORT=False
 		self.BONESORT=False
 
-	def boneNameList(self):
+	def bone_name_list(self):
 		if self.skeleton is not None:
 			scene = bpy.data.scenes.active
 			for object in scene.objects:
 				if object.name==self.skeleton:
 					self.boneNameList=object.getData().bones.keys()
 
-	def setContext(self):
+	def set_context(self):
 		scn = Blender.Scene.GetCurrent()
 		context = scn.getRenderingContext()
 		if self.frameCount is not None:

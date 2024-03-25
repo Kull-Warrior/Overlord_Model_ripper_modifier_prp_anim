@@ -1,7 +1,7 @@
 import struct
 import Blender
 
-def HalfToFloat(h):
+def half_to_float(h):
 	s = int((h >> 15) & 0x00000001) # sign
 	e = int((h >> 10) & 0x0000001f) # exponent
 	f = int(h & 0x000003ff)   # fraction
@@ -26,8 +26,8 @@ def HalfToFloat(h):
 	f = f << 13
 	return int((s << 31) | (e << 23) | f)
 
-def converthalf2float(h):
-	id = HalfToFloat(h)
+def convert_half_to_float(h):
+	id = half_to_float(h)
 	str = struct.pack('I',id)
 	return struct.unpack('f', str)[0]
 
@@ -48,7 +48,7 @@ class BinaryReader(file):
 		self.xorOffset=0
 		self.xorData=''
 
-	def XOR(self,data):
+	def xor(self,data):
 			self.xorData=''
 			for m in range(len(data)):
 				ch=ord(chr(data[m] ^ self.xorKey[self.xorOffset]))
@@ -58,16 +58,16 @@ class BinaryReader(file):
 				else:
 					self.xorOffset+=1
 
-	def logOpen(self):
+	def log_open(self):
 		self.log=True
 		self.logfile=open(self.inputFile.name+'.log','w')
 
-	def logClose(self):
+	def log_close(self):
 		self.log=False
 		if self.logfile is not None:
 			self.logfile.close()
 
-	def logWrite(self,data):
+	def log_write(self,data):
 		if self.logfile is not None:
 			self.logfile.write(str(data)+'\n')
 		else:
@@ -99,7 +99,7 @@ class BinaryReader(file):
 				data=struct.unpack(self.endian+n*'i',self.inputFile.read(n*4))
 			else:
 				data=struct.unpack(self.endian+n*4*'B',self.inputFile.read(n*4))
-				self.XOR(data)
+				self.xor(data)
 				data=struct.unpack(self.endian+n*'i',self.xorData)
 
 			if self.debug==True:
@@ -119,7 +119,7 @@ class BinaryReader(file):
 			data=struct.unpack(self.endian+n*'I',self.inputFile.read(n*4))
 		else:
 			data=struct.unpack(self.endian+n*4*'B',self.inputFile.read(n*4))
-			self.XOR(data)
+			self.xor(data)
 			data=struct.unpack(self.endian+n*'I',self.xorData)
 		if self.debug==True:
 			print data
@@ -135,7 +135,7 @@ class BinaryReader(file):
 				data=struct.unpack(self.endian+n*'B',self.inputFile.read(n))
 			else:
 				data=struct.unpack(self.endian+n*'B',self.inputFile.read(n))
-				self.XOR(data)
+				self.xor(data)
 				data=struct.unpack(self.endian+n*'B',self.xorData)
 			if self.debug==True:
 				print data
@@ -155,7 +155,7 @@ class BinaryReader(file):
 				data=struct.unpack(self.endian+n*'b',self.inputFile.read(n))
 			else:
 				data=struct.unpack(self.endian+n*'b',self.inputFile.read(n))
-				self.XOR(data)
+				self.xor(data)
 				data=struct.unpack(self.endian+n*'b',self.xorData)
 			if self.debug==True:
 				print data
@@ -175,7 +175,7 @@ class BinaryReader(file):
 				data=struct.unpack(self.endian+n*'h',self.inputFile.read(n*2))
 			else:
 				data=struct.unpack(self.endian+n*2*'B',self.inputFile.read(n*2))
-				self.XOR(data)
+				self.xor(data)
 				data=struct.unpack(self.endian+n*'h',self.xorData)
 			if self.debug==True:
 				print data
@@ -195,7 +195,7 @@ class BinaryReader(file):
 				data=struct.unpack(self.endian+n*'H',self.inputFile.read(n*2))
 			else:
 				data=struct.unpack(self.endian+n*2*'B',self.inputFile.read(n*2))
-				self.XOR(data)
+				self.xor(data)
 				data=struct.unpack(self.endian+n*'H',self.xorData)
 			if self.debug==True:
 				print data
@@ -215,7 +215,7 @@ class BinaryReader(file):
 				data=struct.unpack(self.endian+n*'f',self.inputFile.read(n*4))
 			else:
 				data=struct.unpack(self.endian+n*4*'B',self.inputFile.read(n*4))
-				self.XOR(data)
+				self.xor(data)
 				data=struct.unpack(self.endian+n*'f',self.xorData)
 			if self.debug==True:
 				print data
@@ -232,8 +232,8 @@ class BinaryReader(file):
 		array = []
 		offset=self.inputFile.tell()
 		for id in range(n):
-			#array.append(converthalf2float(struct.unpack(self.endian+'H',self.inputFile.read(2))[0]))
-			array.append(converthalf2float(struct.unpack(self.endian+h,self.inputFile.read(2))[0]))
+			#array.append(convert_half_to_float(struct.unpack(self.endian+'H',self.inputFile.read(2))[0]))
+			array.append(convert_half_to_float(struct.unpack(self.endian+h,self.inputFile.read(2))[0]))
 		if self.debug==True:
 			print array
 		if self.log==True:
@@ -292,7 +292,7 @@ class BinaryReader(file):
 				self.logfile.write('offset '+str(start)+'	'+s+'\n')
 		return s
 
-	def findAll(self,var,size=100):
+	def find_all(self,var,size=100):
 		list=[]
 		start=self.inputFile.tell()
 		while(True):
@@ -307,11 +307,11 @@ class BinaryReader(file):
 			else:
 				start+=size
 				self.inputFile.seek(start)
-			if self.inputFile.tell()>self.fileSize():
+			if self.inputFile.tell()>self.file_size():
 				break
 		return list
 
-	def findchar(self,var):
+	def find_char(self,var):
 		offset=self.inputFile.find(var)
 		if self.debug==True:
 			print var,'znaleziono',offset
@@ -320,7 +320,7 @@ class BinaryReader(file):
 				self.logfile.write(var+' znaleziono '+str(offset)+'\n')
 		return offset
 
-	def fileSize(self):
+	def file_size(self):
 		back=self.inputFile.tell()
 		self.inputFile.seek(0,2)
 		tell=self.inputFile.tell()
@@ -346,7 +346,7 @@ class BinaryReader(file):
 			return self.inputFile.read(count)
 		else:
 			data=struct.unpack(self.endian+n*'B',self.inputFile.read(n))
-			self.XOR(data)
+			self.xor(data)
 			return self.xorData
 
 	def tell(self):
@@ -366,7 +366,7 @@ class BinaryReader(file):
 						#data=struct.unpack(self.endian+n*'i',self.inputFile.read(n*4))
 					else:
 						data=struct.unpack(self.endian+'B',self.inputFile.read(1))
-						self.XOR(data)
+						self.xor(data)
 						lit=struct.unpack(self.endian+'c',self.xorData)[0]
 						#lit =  struct.unpack('c',self.inputFile.read(1))[0]
 					if ord(lit)!=0:
@@ -386,7 +386,7 @@ class BinaryReader(file):
 				print 'WARNING:too long'
 			#return 1
 
-	def Stream(self,stream_name,element_count,element_size):
+	def stream(self,stream_name,element_count,element_size):
 		self.inputFile.seek(element_count*element_size,1)
 		self.stream[stream_name]['offset']=offset
 		self.stream[stream_name]['element_count']=element_count

@@ -91,7 +91,7 @@ class Mesh():
 	def update(self):
 		pass
 
-	def setBox(self):
+	def set_box(self):
 		E=[[],[],[]]
 		for n in range(len(self.vertPosList)):
 			x,y,z=self.vertPosList[n]
@@ -110,7 +110,7 @@ class Mesh():
 			x,y,z=self.vertPosList[n]
 			self.vertPosList[n]=[trX+x*skX,trY+y*skY,trZ+z*skZ]
 
-	def addMat(self,mat,mesh,matID):
+	def add_material(self,mat,mesh,matID):
 		if mat.name is None:
 			mat.name=self.name+'-mat-'+str(matID)
 		blendMat=Blender.Material.New(mat.name)
@@ -158,7 +158,7 @@ class Mesh():
 			if mat.ao is not None:
 				print 'class<MAt>.ao:',mat.ao
 
-	def addvertexUV(self,blenderMesh,mesh):
+	def add_vertex_uv(self,blenderMesh,mesh):
 		blenderMesh.vertexUV = 1
 		for m in range(len(blenderMesh.verts)):
 			if self.UVFLIP==False:
@@ -166,7 +166,7 @@ class Mesh():
 			else:
 				blenderMesh.verts[m].uvco = Vector(mesh.vertUVList[m])
 
-	def addfaceUV(self,blenderMesh,mesh):
+	def add_face_uv(self,blenderMesh,mesh):
 		if self.WARNING==True:
 			print 'WARNING: blenderMesh.faces:',len(blenderMesh.faces)
 		if len(blenderMesh.faces)>0:
@@ -192,7 +192,7 @@ class Mesh():
 				blenderMesh.calcNormals()
 			blenderMesh.update()
 
-	def addSkinIDList(self):
+	def add_skin_id_list(self):
 		if len(self.skinIDList)==0:
 			for skinID in range(len(self.skinList)):
 				skin=self.skinList[skinID]
@@ -215,7 +215,7 @@ class Mesh():
 					skin=self.skinList[skinID]
 					print '\t','class<Skin>.boneMap:',len(skin.boneMap)
 
-	def addSkin(self,blendMesh,mesh):
+	def add_skin(self,blendMesh,mesh):
 
 		for vertID in range(len(mesh.skinIDList)):
 			indices=mesh.skinIndiceList[vertID]
@@ -242,7 +242,7 @@ class Mesh():
 					blendMesh.assignVertsToGroup(grName,[vertID],w,1)
 		blendMesh.update()
 
-	def addBindPose(self,blendMesh,mesh):
+	def add_bind_pose(self,blendMesh,mesh):
 		#print 'BINDPOSE'
 		poseBones=None
 		poseSkeleton=None
@@ -261,7 +261,7 @@ class Mesh():
 					bindBones=object.getData().bones
 					bindSkeleton=object
 		if poseBones is not None and bindBones is not None:
-			#print 'addBindPose'
+			#print 'add_bind_pose'
 			#bindPoseMatrixList=mesh.bindPoseMatrixList
 			for vert in blendMesh.verts:
 				index=vert.index
@@ -290,7 +290,7 @@ class Mesh():
 			blendMesh.update()
 			Blender.Window.RedrawAll()
 
-	def addFaces(self):
+	def add_faces(self):
 		if self.WARNING==True:
 			print '\t','class<Mesh>.matList count:',len(self.matList)
 			for matID in range(len(self.matList)):
@@ -302,11 +302,11 @@ class Mesh():
 				self.triangleList=self.faceList
 			if len(self.indiceList)!=0:
 				if self.TRIANGLE==True:
-					self.indicesToTriangles(self.indiceList,0)
+					self.indices_to_triangles(self.indiceList,0)
 				elif self.QUAD==True:
-					self.indicesToQuads(self.indiceList,0)
+					self.indices_to_quads(self.indiceList,0)
 				elif self.TRISTRIP==True:
-					self.indicesToTriangleStrips(self.indiceList,0)
+					self.indices_to_triangle_strips(self.indiceList,0)
 				else:
 					if self.WARNING==True:
 						print 'WARNING: class<Mesh>.TRIANGLE:',self.TRIANGLE
@@ -347,18 +347,18 @@ class Mesh():
 						mat.IDCount=len(self.indiceList)
 					indiceList=self.indiceList[mat.IDStart:mat.IDStart+mat.IDCount]
 					if mat.TRIANGLE==True:
-						self.indicesToTriangles(indiceList,matID)
+						self.indices_to_triangles(indiceList,matID)
 					elif mat.QUAD==True:
-						self.indicesToQuads(indiceList,matID)
+						self.indices_to_quads(indiceList,matID)
 					elif mat.TRISTRIP==True:
-						self.indicesToTriangleStrips(indiceList,matID)
+						self.indices_to_triangle_strips(indiceList,matID)
 
 		if self.WARNING==True:
 			print 'OUTPUT:'
 			print '\t','class<Mesh>.triangleList count:',len(self.triangleList)
 			print '\t','class<Mesh>.matIDList count:',len(self.matIDList)
 
-	def buildMesh(self,mesh,mat,meshID):
+	def build_mesh(self,mesh,mat,meshID):
 		if self.WARNING==True:print 'class<Mesh>.name:',mesh.name
 		if self.WARNING==True:print '\t','class<Mesh>.vertPosList count:',len(mesh.vertPosList)
 		if self.WARNING==True:print '\t','class<Mesh>.vertUVList count:',len(mesh.vertUVList)
@@ -367,20 +367,20 @@ class Mesh():
 		blendMesh = bpy.data.meshes.new(mesh.name)
 		blendMesh.verts.extend(mesh.vertPosList)
 		blendMesh.faces.extend(mesh.triangleList)
-		self.addMat(mat,blendMesh,meshID)
+		self.add_material(mat,blendMesh,meshID)
 		if len(mesh.triangleList)>0:
 			if len(mesh.vertUVList)>0:
-				self.addvertexUV(blendMesh,mesh)
-				self.addfaceUV(blendMesh,mesh)
+				self.add_vertex_uv(blendMesh,mesh)
+				self.add_face_uv(blendMesh,mesh)
 			if len(mesh.faceUVList)>0:
-				self.addfaceUV(blendMesh,mesh)
+				self.add_face_uv(blendMesh,mesh)
 		if len(mesh.vertNormList)>0:
 			for i,vert in enumerate(blendMesh.verts):
 				vert.no=Vector(self.vertNormList[i])
 
 		scene = bpy.data.scenes.active
 		meshobject = scene.objects.new(blendMesh,mesh.name)
-		self.addSkin(blendMesh,mesh)
+		self.add_skin(blendMesh,mesh)
 		Blender.Window.RedrawAll()
 		if self.BINDSKELETON is not None:
 			for object in scene.objects:
@@ -391,7 +391,7 @@ class Mesh():
 			meshobject.setMatrix(self.matrix*meshobject.matrixWorld)
 		Blender.Window.RedrawAll()
 
-	def addMesh(self):
+	def add_mesh(self):
 		self.mesh = bpy.data.meshes.new(self.name)
 		self.mesh.verts.extend(self.vertPosList)
 		if len(self.vertNormList)>0:
@@ -409,13 +409,13 @@ class Mesh():
 			self.mesh.update()
 			Blender.Window.Redraw()"""
 
-	def boneTree(self,parent):
+	def bone_tree(self,parent):
 		for bone in parent.children:
 			#self.boneNameList.append(bone.name)
-			self.boneTree(bone)
+			self.bone_tree(bone)
 
 	def draw(self):
-		if self.name is None:self.name=str(ParseID())+'-model-'+str(0)
+		if self.name is None:self.name=str(parse_id())+'-model-'+str(0)
 		if self.WARNING==True:print 'class<Mesh>.name:',self.name
 		if self.WARNING==True:print '\t','class<Mesh>.vertPosList count:',len(self.vertPosList)
 		if self.WARNING==True:print '\t','class<Mesh>.vertUVList count:',len(self.vertUVList)
@@ -423,24 +423,24 @@ class Mesh():
 		if self.WARNING==True:print '\t','class<Mesh>.faceList count:',len(self.faceList)
 		if self.WARNING==True:print '\t','class<Mesh>.triangleList count:',len(self.triangleList)
 		if self.WARNING==True:print '\t','class<Mesh>.faceUVList count:',len(self.faceUVList)
-		self.addFaces()
+		self.add_faces()
 
 		if self.WARNING==True:print '\t','class<Mesh>.SPLIT:',self.SPLIT
-		self.addSkinIDList()
+		self.add_skin_id_list()
 		if self.SETBOX is not None:
-			self.setBox()
+			self.set_box()
 
 		if self.SPLIT==False:
-			self.addMesh()
+			self.add_mesh()
 			if len(self.triangleList)>0:
 				if len(self.vertUVList)>0:
-					self.addvertexUV(self.mesh,self)
-					#self.addfaceUV(self.mesh,self)
+					self.add_vertex_uv(self.mesh,self)
+					#self.add_face_uv(self.mesh,self)
 				#if len(self.faceUVList)>0:
-			self.addfaceUV(self.mesh,self)
+			self.add_face_uv(self.mesh,self)
 			for matID in range(len(self.matList)):
 				mat=self.matList[matID]
-				self.addMat(mat,self.mesh,matID)
+				self.add_material(mat,self.mesh,matID)
 
 			if self.BINDSKELETON is not None:
 				scene = bpy.data.scenes.active
@@ -449,14 +449,14 @@ class Mesh():
 						skeletonMatrix=self.object.getMatrix()*object.mat
 						#self.object.setMatrix(skeletonMatrix)
 						object.makeParentDeform([self.object],1,0)
-			self.addSkin(self.mesh,self)
+			self.add_skin(self.mesh,self)
 
 			if self.matrix is not None:
 				self.object.setMatrix(self.matrix*self.object.matrixWorld)
 
 			if self.BINDPOSE==True:
 				#if len(self.bindPoseMatrixList)>0:
-				self.addBindPose(self.mesh,self)
+				self.add_bind_pose(self.mesh,self)
 				#else:
 				#	print 'WARNING: mesh.bindPoseMatrixList: None'
 			Blender.Window.RedrawAll()
@@ -508,20 +508,20 @@ class Mesh():
 			for meshID in range(len(meshList)):
 				mesh=meshList[meshID]
 				mat=self.matList[meshID]
-				self.buildMesh(mesh,mat,meshID)
+				self.build_mesh(mesh,mat,meshID)
 			Blender.Window.RedrawAll()
 
-	def indicesToQuads(self,indicesList,matID):
+	def indices_to_quads(self,indicesList,matID):
 		for m in range(0, len(indicesList), 4):
 			self.triangleList.append(indicesList[m:m+4] )
 			self.matIDList.append(matID)
 
-	def indicesToTriangles(self,indicesList,matID):
+	def indices_to_triangles(self,indicesList,matID):
 		for m in range(0, len(indicesList), 3):
 			self.triangleList.append(indicesList[m:m+3] )
 			self.matIDList.append(matID)
 
-	def indicesToTriangleStrips(self,indicesList,matID):
+	def indices_to_triangle_strips(self,indicesList,matID):
 		StartDirection = -1
 		id=0
 		f1 = indicesList[id]
@@ -788,7 +788,7 @@ class Mat:
 
 	def draw(self):
 		if self.name is None:
-			self.name=str(ParseID())+'-mat-'+str(0)
+			self.name=str(parse_id())+'-mat-'+str(0)
 		blendMat=Blender.Material.New(self.name)
 		blendMat.diffuseShader=Blender.Material.Shaders.DIFFUSE_ORENNAYAR
 		blendMat.specShader=Blender.Material.Shaders.SPEC_WARDISO
