@@ -23,7 +23,7 @@ class Command():
 		self.exe=None
 		self.start=str(0)
 		self.bms=None
-		self.bmsDir=toolsDir+os.sep+"quickbms"+os.sep+"bms"
+		self.bms_directory=toolsDir+os.sep+"quickbms"+os.sep+"bms"
 
 offzip=Command()
 offzip.option='-a -1'

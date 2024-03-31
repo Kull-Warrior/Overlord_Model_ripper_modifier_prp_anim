@@ -7,71 +7,71 @@ class Bone:
 	def __init__(self):
 		self.ID=None
 		self.name=None
-		self.parentID=None
-		self.parentName=None
+		self.parent_id=None
+		self.parent_name=None
 		self.quat=None
-		self.pos=None
+		self.position=None
 		self.matrix=None
-		self.posMatrix=None
-		self.rotMatrix=None
-		self.scaleMatrix=None
+		self.position_matrix=None
+		self.rotation_matrix=None
+		self.scale_matrix=None
 		self.children=[]
 		self.edit=None
 
 class Skeleton:
 	def __init__(self):
 		self.name='armature'
-		self.boneList=[]
+		self.bone_list=[]
 		self.armature=None
 		self.object=None
-		self.boneNameList=[]
-		self.ARMATURESPACE=False
-		self.BONESPACE=False
+		self.bone_name_list=[]
+		self.armature_space=False
+		self.bone_space=False
 		self.DEL=True
 		self.NICE=False
 		self.IK=False
-		self.BINDMESH=False
-		self.WARNING=False
+		self.bind_mesh=False
+		self.warning=False
 		self.debug=None
-		self.debugFile=None
-		self.SORT=False
+		self.debug_file=None
+		self.is_sorted=False
 		self.matrix=None
 
 	def bone_children(self,parentBlenderBone,parentBone):
 		for child in parentBlenderBone.children:
-			for bone in self.boneList:
+			for bone in self.bone_list:
 				if bone.name==child.name:
 					blenderBone=self.armature.bones[bone.name]
 					bone.matrix*=parentBone.matrix
 					self.bone_children(blenderBone,bone)
 
 	def create_child_list(self):
-		for boneID in range(len(self.boneList)):
-			bone=self.boneList[boneID]
+		for boneID in range(len(self.bone_list)):
+			bone=self.bone_list[boneID]
 			name=bone.name
 			blenderBone=self.armature.bones[name]
 			if blenderBone.parent is None:
 				self.bone_children(blenderBone,bone)
 
 	def draw(self):
-		if self.WARNING==True:
+		if self.warning==True:
 			print 'INPUT:'
 			print 'class<Skeleton>.name:',self.name
-			print 'class<Skeleton>.boneList:',len(self.boneList)
-			print 'class<Skeleton>.ARMATURESPACE:',self.ARMATURESPACE
-			print 'class<Skeleton>.BONESPACE:',self.BONESPACE
+			print 'class<Skeleton>.bone_list:',len(self.bone_list)
+			print 'class<Skeleton>.armature_space:',self.armature_space
+			print 'class<Skeleton>.bone_space:',self.bone_space
 
 		if self.debug is not None:
-			self.debugFile=open(self.debug+'.skeleton','w')
+			self.debug_file=open(self.debug+'.skeleton','w')
 
 		self.check()
-		if len(self.boneList)>0:
+		if len(self.bone_list)>0:
 			self.create_bones()
 			self.create_bone_connection()
-			if self.SORT==True:
+			if self.is_sorted==True:
 				self.create_child_list()
 			self.create_bone_position()
-		if self.BINDMESH is True:
+		if self.bind_mesh is True:
 			scene = bpy.data.scenes.active
 			for object in scene.objects:
 				if object.getType()=='Mesh':
@@ -86,8 +86,8 @@ class Skeleton:
 					self.armature.makeEditable()
 					ebone=self.armature.bones[bone.name]
 					#self.armature.bones[children[0].name].options=Blender.Armature.CONNECTED
-					if ebone.tail!=children[0].head['ARMATURESPACE']:
-						ebone.tail=children[0].head['ARMATURESPACE']
+					if ebone.tail!=children[0].head['armature_space']:
+						ebone.tail=children[0].head['armature_space']
 					self.armature.update()
 			for key in self.armature.bones.keys():
 				bone=self.armature.bones[key]
@@ -100,116 +100,116 @@ class Skeleton:
 			if self.IK==True:
 				self.armature.autoIK=True
 		if self.debug is not None:
-			self.debugFile.close()
+			self.debug_file.close()
 
 	def create_bones(self):
 		self.armature.makeEditable()
-		boneList=[]
+		bone_list=[]
 		for bone in self.armature.bones.values():
-			if bone.name not in boneList:
-				boneList.append(bone.name)
-		for boneID in range(len(self.boneList)):
-			name=self.boneList[boneID].name
+			if bone.name not in bone_list:
+				bone_list.append(bone.name)
+		for boneID in range(len(self.bone_list)):
+			name=self.bone_list[boneID].name
 			if self.debug is not None:
-				self.debugFile.write(name+'\n')
+				self.debug_file.write(name+'\n')
 			if name is None:
 				name=str(boneID)
-				self.boneList[boneID].name=name
-			self.boneNameList.append(name)
-			if name not in boneList:
+				self.bone_list[boneID].name=name
+			self.bone_name_list.append(name)
+			if name not in bone_list:
 				eb = Blender.Armature.Editbone()
 				self.armature.bones[name] = eb
 		self.armature.update()
 
 	def create_bone_connection(self):
 		self.armature.makeEditable()
-		for boneID in range(len(self.boneList)):
-			name=self.boneList[boneID].name
+		for boneID in range(len(self.bone_list)):
+			name=self.bone_list[boneID].name
 			if name is None:
 				name=str(boneID)
 			bone=self.armature.bones[name]
-			parentID=None
-			parentName=None
-			if self.boneList[boneID].parentID is not None:
-				parentID=self.boneList[boneID].parentID
-				if parentID!=-1:
-					parentName=self.boneList[parentID].name
-			if self.boneList[boneID].parentName is not None:
-				parentName=self.boneList[boneID].parentName
-			if parentName is not None:
-				parent=self.armature.bones[parentName]
-				if parentID is not None:
-					if parentID!=-1:
+			parent_id=None
+			parent_name=None
+			if self.bone_list[boneID].parent_id is not None:
+				parent_id=self.bone_list[boneID].parent_id
+				if parent_id!=-1:
+					parent_name=self.bone_list[parent_id].name
+			if self.bone_list[boneID].parent_name is not None:
+				parent_name=self.bone_list[boneID].parent_name
+			if parent_name is not None:
+				parent=self.armature.bones[parent_name]
+				if parent_id is not None:
+					if parent_id!=-1:
 						bone.parent=parent
 				else:
 					bone.parent=parent
 			else:
-				if self.WARNING==True:
-					print 'WARNING: no parent for bone',name
+				if self.warning==True:
+					print 'warning: no parent for bone',name
 		self.armature.update()
 
 	def create_bone_position(self):
 		self.armature.makeEditable()
-		for m in range(len(self.boneList)):
-			name=self.boneList[m].name
-			rotMatrix=self.boneList[m].rotMatrix
-			posMatrix=self.boneList[m].posMatrix
-			scaleMatrix=self.boneList[m].scaleMatrix
-			matrix=self.boneList[m].matrix
+		for m in range(len(self.bone_list)):
+			name=self.bone_list[m].name
+			rotation_matrix=self.bone_list[m].rotation_matrix
+			position_matrix=self.bone_list[m].position_matrix
+			scale_matrix=self.bone_list[m].scale_matrix
+			matrix=self.bone_list[m].matrix
 			bone = self.armature.bones[name]
 			if matrix is not None:
-				if self.ARMATURESPACE==True:
+				if self.armature_space==True:
 					bone.matrix=matrix
 					if self.NICE==True:
 						bvec = bone.tail- bone.head
 						bvec.normalize()
 						bone.tail = bone.head + 0.01 * bvec
-				elif self.BONESPACE==True:
-					rotMatrix=matrix.rotationPart()
-					posMatrix=matrix.translationPart()
+				elif self.bone_space==True:
+					rotation_matrix=matrix.rotationPart()
+					position_matrix=matrix.translationPart()
 					if bone.parent:
-						bone.head = posMatrix * bone.parent.matrix+bone.parent.head
-						tempM = rotMatrix * bone.parent.matrix 
+						bone.head = position_matrix * bone.parent.matrix+bone.parent.head
+						tempM = rotation_matrix * bone.parent.matrix 
 						bone.matrix = tempM
 					else:
-						bone.head = posMatrix
-						bone.matrix = rotMatrix
+						bone.head = position_matrix
+						bone.matrix = rotation_matrix
 					if self.NICE==True:
 						bvec = bone.tail- bone.head
 						bvec.normalize()
 						bone.tail = bone.head + 0.01 * bvec
 				else:
-					if self.WARNING==True:
-						print 'ARMATUREPACE or BONESPACE ?'
-			elif rotMatrix is not None and posMatrix is not None:
-				if self.ARMATURESPACE==True:
-					rotMatrix=round_matrix(rotMatrix,4)
-					posMatrix=round_matrix(posMatrix,4)
-					bone.matrix=rotMatrix*posMatrix
+					if self.warning==True:
+						print 'ARMATUREPACE or bone_space ?'
+			elif rotation_matrix is not None and position_matrix is not None:
+				if self.armature_space==True:
+					rotation_matrix=round_matrix(rotation_matrix,4)
+					position_matrix=round_matrix(position_matrix,4)
+					bone.matrix=rotation_matrix*position_matrix
 					if self.NICE==True:
 						bvec = bone.tail- bone.head
 						bvec.normalize()
 						bone.tail = bone.head + 0.01 * bvec
-				elif self.BONESPACE==True:
-					rotMatrix=round_matrix(rotMatrix,4).rotationPart()
-					posMatrix=round_matrix(posMatrix,4).translationPart()
+				elif self.bone_space==True:
+					rotation_matrix=round_matrix(rotation_matrix,4).rotationPart()
+					position_matrix=round_matrix(position_matrix,4).translationPart()
 					if bone.parent:
-						bone.head = posMatrix * bone.parent.matrix+bone.parent.head
-						tempM = rotMatrix * bone.parent.matrix
+						bone.head = position_matrix * bone.parent.matrix+bone.parent.head
+						tempM = rotation_matrix * bone.parent.matrix
 						bone.matrix = tempM
 					else:
-						bone.head = posMatrix
-						bone.matrix = rotMatrix
+						bone.head = position_matrix
+						bone.matrix = rotation_matrix
 					if self.NICE==True:
 						bvec = bone.tail- bone.head
 						bvec.normalize()
 						bone.tail = bone.head + 0.01 * bvec
 				else:
-					if self.WARNING==True:
-						print 'ARMATUREPACE or BONESPACE ?'
+					if self.warning==True:
+						print 'ARMATUREPACE or bone_space ?'
 			else:
-				if self.WARNING==True:
-					print 'WARNINIG: rotMatrix or posMatrix or matrix is None'
+				if self.warning==True:
+					print 'WARNINIG: rotation_matrix or position_matrix or matrix is None'
 
 		self.armature.update()
 		Blender.Window.RedrawAll()

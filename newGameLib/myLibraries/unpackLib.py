@@ -12,71 +12,71 @@ def inflate(data):
 class Unpacker:
 	"""
 	'Unpacker'
-	self.fileCount=None
-	self.nameList=[]
+	self.file_count=None
+	self.name_list=[]
 	self.offsetlist=[]
-	self.sizeList=[]
+	self.size_list=[]
 	self.filecomtypelist=[]
-	self.ZLIB=True
-	self.outputDir=''
-	self.inputFile=None
+	self.zlib=True
+	self.output_directory=''
+	self.input_file=None
 	"""
 	def __init__(self):
-		self.fileCount=None
-		self.nameList=[]
-		self.offsetList=[]
-		self.sizeList=[]
-		self.dataList=[]
+		self.file_count=None
+		self.name_list=[]
+		self.offset_list=[]
+		self.size_list=[]
+		self.data_list=[]
 		self.compTypeList=[]
-		self.ZLIB=False
-		self.INFLATE=False
-		self.outputDir=None
-		self.inputFile=None
+		self.zlib=False
+		self.inflate=False
+		self.output_directory=None
+		self.input_file=None
 
 	def unpack(self):
-		if self.ZLIB==True:
+		if self.zlib==True:
 			import zlib
-		if self.inputFile is not None:
-			archive=open(self.inputFile,'rb')
-			if self.outputDir is not None:
-				if self.fileCount==len(self.dataList):
-					for m in range(self.fileCount):
-						newfiledir=self.outputDir+os.sep+Blender.sys.dirname(self.nameList[m])
+		if self.input_file is not None:
+			archive=open(self.input_file,'rb')
+			if self.output_directory is not None:
+				if self.file_count==len(self.data_list):
+					for m in range(self.file_count):
+						newfiledir=self.output_directory+os.sep+Blender.sys.dirname(self.name_list[m])
 						try:os.makedirs(newfiledir)
 						except:pass
-						newfile=open(self.outputDir+os.sep+self.nameList[m],'wb')
-						data=self.dataList[m]
+						newfile=open(self.output_directory+os.sep+self.name_list[m],'wb')
+						data=self.data_list[m]
 						newfile.write(data)
-						print self.nameList[m]
+						print self.name_list[m]
 						newfile.close()
 
-				if len(self.offsetList)==len(self.sizeList)==len(self.nameList):
-					self.fileCount=len(self.nameList)
-					for m in range(self.fileCount):
-						archive.seek(self.offsetList[m],0)
-						newfiledir=self.outputDir+os.sep+Blender.sys.dirname(self.nameList[m])
+				if len(self.offset_list)==len(self.size_list)==len(self.name_list):
+					self.file_count=len(self.name_list)
+					for m in range(self.file_count):
+						archive.seek(self.offset_list[m],0)
+						newfiledir=self.output_directory+os.sep+Blender.sys.dirname(self.name_list[m])
 						try:os.makedirs(newfiledir)
 						except:pass
-						newfile=open(self.outputDir+os.sep+self.nameList[m],'wb')
-						if self.ZLIB==True:
+						newfile=open(self.output_directory+os.sep+self.name_list[m],'wb')
+						if self.zlib==True:
 							try:
-								data=zlib.decompress(archive.read(self.sizeList[m]))
+								data=zlib.decompress(archive.read(self.size_list[m]))
 								newfile.write(data)
-								print 'unpackING...',self.nameList[m]
+								print 'unpackING...',self.name_list[m]
 							except:
-								print 'ZLIB WARNING.NOT unpackED',self.nameList[m]
-						elif self.INFLATE==True:
-							data=inflate(archive.read(self.sizeList[m]))
+								print 'zlib warning.NOT unpackED',self.name_list[m]
+						elif self.inflate==True:
+							data=inflate(archive.read(self.size_list[m]))
 							newfile.write(data)
 						else:
-							data=archive.read(self.sizeList[m])
+							data=archive.read(self.size_list[m])
 							newfile.write(data)
-						print self.nameList[m]
+						print self.name_list[m]
 						newfile.close()
 				else:
 					print 'MISSING....'
 			else:
-				print 'NO outputDir DIR'
+				print 'NO output_directory DIR'
 			archive.close()
 		else:
 			print 'NO ARCHIVE'

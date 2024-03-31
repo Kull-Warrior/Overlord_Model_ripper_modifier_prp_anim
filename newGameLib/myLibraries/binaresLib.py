@@ -44,19 +44,19 @@ class BinaryReader(file):
 		self.dirname=Blender.sys.dirname(self.inputFile.name)
 		self.basename=Blender.sys.basename(self.inputFile.name).split('.')[0]
 		self.ext=Blender.sys.basename(self.inputFile.name).split('.')[-1]
-		self.xorKey=None
-		self.xorOffset=0
-		self.xorData=''
+		self.xor_key=None
+		self.xor_offset=0
+		self.xor_data=''
 
 	def xor(self,data):
-			self.xorData=''
+			self.xor_data=''
 			for m in range(len(data)):
-				ch=ord(chr(data[m] ^ self.xorKey[self.xorOffset]))
-				self.xorData+=struct.pack('B',ch)
-				if self.xorOffset==len(self.xorKey)-1:
-					self.xorOffset=0
+				ch=ord(chr(data[m] ^ self.xor_key[self.xor_offset]))
+				self.xor_data+=struct.pack('B',ch)
+				if self.xor_offset==len(self.xor_key)-1:
+					self.xor_offset=0
 				else:
-					self.xorOffset+=1
+					self.xor_offset+=1
 
 	def log_open(self):
 		self.log=True
@@ -71,7 +71,7 @@ class BinaryReader(file):
 		if self.logfile is not None:
 			self.logfile.write(str(data)+'\n')
 		else:
-			print 'WARNING: no log'
+			print 'warning: no log'
 
 	def dirname(self):
 		return Blender.sys.dirname(self.inputFile.name)
@@ -95,12 +95,12 @@ class BinaryReader(file):
 	def i(self,n):
 		if self.inputFile.mode=='rb':
 			offset=self.inputFile.tell()
-			if self.xorKey is None:
+			if self.xor_key is None:
 				data=struct.unpack(self.endian+n*'i',self.inputFile.read(n*4))
 			else:
 				data=struct.unpack(self.endian+n*4*'B',self.inputFile.read(n*4))
 				self.xor(data)
-				data=struct.unpack(self.endian+n*'i',self.xorData)
+				data=struct.unpack(self.endian+n*'i',self.xor_data)
 
 			if self.debug==True:
 				print data
@@ -115,12 +115,12 @@ class BinaryReader(file):
 
 	def I(self,n):
 		offset=self.inputFile.tell()
-		if self.xorKey is None:
+		if self.xor_key is None:
 			data=struct.unpack(self.endian+n*'I',self.inputFile.read(n*4))
 		else:
 			data=struct.unpack(self.endian+n*4*'B',self.inputFile.read(n*4))
 			self.xor(data)
-			data=struct.unpack(self.endian+n*'I',self.xorData)
+			data=struct.unpack(self.endian+n*'I',self.xor_data)
 		if self.debug==True:
 			print data
 		if self.log==True:
@@ -131,12 +131,12 @@ class BinaryReader(file):
 	def B(self,n):
 		if self.inputFile.mode=='rb':
 			offset=self.inputFile.tell()
-			if self.xorKey is None:
+			if self.xor_key is None:
 				data=struct.unpack(self.endian+n*'B',self.inputFile.read(n))
 			else:
 				data=struct.unpack(self.endian+n*'B',self.inputFile.read(n))
 				self.xor(data)
-				data=struct.unpack(self.endian+n*'B',self.xorData)
+				data=struct.unpack(self.endian+n*'B',self.xor_data)
 			if self.debug==True:
 				print data
 			if self.log==True:
@@ -151,12 +151,12 @@ class BinaryReader(file):
 	def b(self,n):
 		if self.inputFile.mode=='rb':
 			offset=self.inputFile.tell()
-			if self.xorKey is None:
+			if self.xor_key is None:
 				data=struct.unpack(self.endian+n*'b',self.inputFile.read(n))
 			else:
 				data=struct.unpack(self.endian+n*'b',self.inputFile.read(n))
 				self.xor(data)
-				data=struct.unpack(self.endian+n*'b',self.xorData)
+				data=struct.unpack(self.endian+n*'b',self.xor_data)
 			if self.debug==True:
 				print data
 			if self.log==True:
@@ -171,12 +171,12 @@ class BinaryReader(file):
 	def h(self,n):
 		if self.inputFile.mode=='rb':
 			offset=self.inputFile.tell()
-			if self.xorKey is None:
+			if self.xor_key is None:
 				data=struct.unpack(self.endian+n*'h',self.inputFile.read(n*2))
 			else:
 				data=struct.unpack(self.endian+n*2*'B',self.inputFile.read(n*2))
 				self.xor(data)
-				data=struct.unpack(self.endian+n*'h',self.xorData)
+				data=struct.unpack(self.endian+n*'h',self.xor_data)
 			if self.debug==True:
 				print data
 			if self.log==True:
@@ -191,12 +191,12 @@ class BinaryReader(file):
 	def H(self,n):
 		if self.inputFile.mode=='rb':
 			offset=self.inputFile.tell()
-			if self.xorKey is None:
+			if self.xor_key is None:
 				data=struct.unpack(self.endian+n*'H',self.inputFile.read(n*2))
 			else:
 				data=struct.unpack(self.endian+n*2*'B',self.inputFile.read(n*2))
 				self.xor(data)
-				data=struct.unpack(self.endian+n*'H',self.xorData)
+				data=struct.unpack(self.endian+n*'H',self.xor_data)
 			if self.debug==True:
 				print data
 			if self.log==True:
@@ -211,12 +211,12 @@ class BinaryReader(file):
 	def f(self,n):
 		if self.inputFile.mode=='rb':
 			offset=self.inputFile.tell()
-			if self.xorKey is None:
+			if self.xor_key is None:
 				data=struct.unpack(self.endian+n*'f',self.inputFile.read(n*4))
 			else:
 				data=struct.unpack(self.endian+n*4*'B',self.inputFile.read(n*4))
 				self.xor(data)
-				data=struct.unpack(self.endian+n*'f',self.xorData)
+				data=struct.unpack(self.endian+n*'f',self.xor_data)
 			if self.debug==True:
 				print data
 			if self.log==True:
@@ -275,11 +275,11 @@ class BinaryReader(file):
 		s=''
 		while(True):
 			data=self.inputFile.read(size)
-			off=data.find(var)
-			#print off
-			if off>=0:
-				s+=data[:off]
-				self.inputFile.seek(start+off+len(var))
+			offset=data.find(var)
+			#print offset
+			if offset>=0:
+				s+=data[:offset]
+				self.inputFile.seek(start+offset+len(var))
 				#print 'znaleziono',var,'offset=',self.inputFile.tell()
 				break
 			else:
@@ -297,13 +297,13 @@ class BinaryReader(file):
 		start=self.inputFile.tell()
 		while(True):
 			data=self.inputFile.read(size)
-			off=data.find(var)
-			#print off,self.inputFile.tell()
-			if off>=0:
-				list.append(start+off)
-				self.inputFile.seek(start+off+len(var))
+			offset=data.find(var)
+			#print offset,self.inputFile.tell()
+			if offset>=0:
+				list.append(start+offset)
+				self.inputFile.seek(start+offset+len(var))
 				if self.debug==True:
-					print start+off
+					print start+offset
 			else:
 				start+=size
 				self.inputFile.seek(start)
@@ -328,8 +328,8 @@ class BinaryReader(file):
 		self.inputFile.seek(back)
 		return tell
 
-	def seek(self,off,a=0):
-		self.inputFile.seek(off,a)
+	def seek(self,offset,a=0):
+		self.inputFile.seek(offset,a)
 
 	def seekpad(self,pad,type=0):
 		''' 16-byte chunk alignment'''
@@ -342,12 +342,12 @@ class BinaryReader(file):
 
 	def read(self,count):
 		back=self.inputFile.tell()
-		if self.xorKey is None:
+		if self.xor_key is None:
 			return self.inputFile.read(count)
 		else:
 			data=struct.unpack(self.endian+n*'B',self.inputFile.read(n))
 			self.xor(data)
-			return self.xorData
+			return self.xor_data
 
 	def tell(self):
 		val=self.inputFile.tell()
@@ -361,13 +361,13 @@ class BinaryReader(file):
 				offset=self.inputFile.tell()
 				s=''
 				for j in range(0,long):
-					if self.xorKey is None:
+					if self.xor_key is None:
 						lit =  struct.unpack('c',self.inputFile.read(1))[0]
 						#data=struct.unpack(self.endian+n*'i',self.inputFile.read(n*4))
 					else:
 						data=struct.unpack(self.endian+'B',self.inputFile.read(1))
 						self.xor(data)
-						lit=struct.unpack(self.endian+'c',self.xorData)[0]
+						lit=struct.unpack(self.endian+'c',self.xor_data)[0]
 						#lit =  struct.unpack('c',self.inputFile.read(1))[0]
 					if ord(lit)!=0:
 						s+=lit
@@ -383,7 +383,7 @@ class BinaryReader(file):
 			#return 0
 		else:
 			if self.debug==True:
-				print 'WARNING:too long'
+				print 'warning:too long'
 			#return 1
 
 	def stream(self,stream_name,element_count,element_size):

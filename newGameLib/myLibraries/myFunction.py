@@ -12,7 +12,7 @@ class Input(object):
 			self.type='instance'
 			self.filename=flagList.assetPath
 			self.imageList=flagList.pluginList[flagList.pluginName]['imageList']
-			self.modelList=flagList.pluginList[flagList.pluginName]['modelList']
+			self.model_list=flagList.pluginList[flagList.pluginName]['model_list']
 			self.animList=flagList.pluginList[flagList.pluginName]['animList']
 			self.archiveList=flagList.pluginList[flagList.pluginName]['archiveList']
 			self.output=flagList
@@ -22,7 +22,7 @@ class Input(object):
 			self.type='string'
 			self.filename=flagList
 			self.imageList=[]
-			self.modelList=[]
+			self.model_list=[]
 			self.animList=[]
 			self.archiveList=[]
 

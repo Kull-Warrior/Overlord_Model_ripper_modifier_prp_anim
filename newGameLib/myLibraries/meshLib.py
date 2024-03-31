@@ -15,30 +15,30 @@ bonesA=armA.getData().bones
 bonesB=armB.getData().bones
 
 for bone in bonesA.values():
-	bone.matrix['ARMATURESPACE']
+	bone.matrix['armature_space']
 
 objC=Blender.Object.Get('Cube')
 
 print
-#matA=bonesA['b'].matrix['ARMATURESPACE']*armA.matrixWorld
+#matA=bonesA['b'].matrix['armature_space']*armA.matrixWorld
 #print matA
 print
-#matB=bonesB['b'].matrix['ARMATURESPACE']*armB.matrixWorld
+#matB=bonesB['b'].matrix['armature_space']*armB.matrixWorld
 #print matB
 
 mesh=objC.getData(mesh=1)
 for vert in mesh.verts:
 	index=vert.index
-	skinList=mesh.getVertexInfluences(index)
+	skin_list=mesh.getVertexInfluences(index)
 	vco=vert.co.copy()*objC.matrixWorld
 	sum=Vector()
 	#print index
-	for skin in skinList:
+	for skin in skin_list:
 		bone=skin[0]
 		weight=skin[1]
 
-		matA=bonesA[bone].matrix['ARMATURESPACE']*armA.matrixWorld
-		matB=bonesB[bone].matrix['ARMATURESPACE']*armB.matrixWorld
+		matA=bonesA[bone].matrix['armature_space']*armA.matrixWorld
+		matB=bonesB[bone].matrix['armature_space']*armB.matrixWorld
 		sum+=vco*matA.invert()*matB*weight
 
 		#print vco
@@ -53,62 +53,62 @@ Blender.Window.RedrawAll()	"""
 class Mesh():
 	
 	def __init__(self):
-		self.vertPosList=[]
-		self.vertNormList=[]
+		self.vertice_position_list=[]
+		self.vertice_normal_list=[]
 
-		self.indiceList=[]
-		self.faceList=[]
-		self.triangleList=[]
+		self.indice_list=[]
+		self.face_list=[]
+		self.triangle_list=[]
 
-		self.matList=[]
-		self.matIDList=[]
-		self.vertUVList=[]
-		self.faceUVList=[]
+		self.material_list=[]
+		self.material_id_list=[]
+		self.vertice_uv_list=[]
+		self.face_uv_list=[]
 
-		self.skinList=[]
-		self.skinWeightList=[]
-		self.skinIndiceList=[]
-		self.skinIDList=[]
-		self.bindPoseMatrixList=[]
-		self.boneNameList=[]
+		self.skin_list=[]
+		self.skin_weight_list=[]
+		self.skin_indice_list=[]
+		self.skin_id_list=[]
+		self.bind_pose_matrix_list=[]
+		self.bone_name_list=[]
 
 		self.name=None
 		self.mesh=None
 		self.object=None
-		self.TRIANGLE=False
-		self.QUAD=False
-		self.TRISTRIP=False
-		self.BINDSKELETON=None
-		self.BINDPOSESKELETON=None
+		self.is_triangle=False
+		self.is_quad=False
+		self.is_triangle_strip=False
+		self.bind_skeleton=None
+		self.bind_pose_skeleton=None
 		self.matrix=None
-		self.SPLIT=False
-		self.WARNING=False
-		self.DRAW=False
-		self.SETBOX=None
-		self.BINDPOSE=False
-		self.UVFLIP=False
+		self.split=False
+		self.warning=False
+		self.is_drawing_active=False
+		self.set_box_values=None
+		self.bind_pose=False
+		self.uv_flip=False
 
 	def update(self):
 		pass
 
 	def set_box(self):
 		E=[[],[],[]]
-		for n in range(len(self.vertPosList)):
-			x,y,z=self.vertPosList[n]
+		for n in range(len(self.vertice_position_list)):
+			x,y,z=self.vertice_position_list[n]
 			E[0].append(x)
 			E[1].append(y)
 			E[2].append(z)
-		skX=(self.SETBOX[3]-self.SETBOX[0])/(max(E[0])-min(E[0]))
-		skY=(self.SETBOX[4]-self.SETBOX[1])/(max(E[1])-min(E[1]))
-		skZ=(self.SETBOX[5]-self.SETBOX[2])/(max(E[2])-min(E[2]))
+		skX=(self.set_box_values[3]-self.set_box_values[0])/(max(E[0])-min(E[0]))
+		skY=(self.set_box_values[4]-self.set_box_values[1])/(max(E[1])-min(E[1]))
+		skZ=(self.set_box_values[5]-self.set_box_values[2])/(max(E[2])-min(E[2]))
 		sk=min(skX,skY,skZ)
-		trX=(self.SETBOX[3]+self.SETBOX[0])/2
-		trY=(self.SETBOX[4]+self.SETBOX[1])/2
-		trZ=(self.SETBOX[5]+self.SETBOX[2])/2
+		trX=(self.set_box_values[3]+self.set_box_values[0])/2
+		trY=(self.set_box_values[4]+self.set_box_values[1])/2
+		trZ=(self.set_box_values[5]+self.set_box_values[2])/2
 
-		for n in range(len(self.vertPosList)):
-			x,y,z=self.vertPosList[n]
-			self.vertPosList[n]=[trX+x*skX,trY+y*skY,trZ+z*skZ]
+		for n in range(len(self.vertice_position_list)):
+			x,y,z=self.vertice_position_list[n]
+			self.vertice_position_list[n]=[trX+x*skX,trY+y*skY,trZ+z*skZ]
 
 	def add_material(self,mat,mesh,matID):
 		if mat.name is None:
@@ -121,7 +121,7 @@ class Mesh():
 		blendMat.rgbCol=mat.rgba[:3]
 		#print blendMat.rgbCol
 		blendMat.alpha = mat.rgba[3]
-		if mat.ZTRANS==True:
+		if mat.ztrans==True:
 			blendMat.mode |= Blender.Material.Modes.ZTRANSP
 			blendMat.mode |= Blender.Material.Modes.TRANSPSHADOW
 			blendMat.alpha = 0.0
@@ -141,142 +141,142 @@ class Mesh():
 			normal1(blendMat,mat)
 		if mat.normal2 is not None:
 			normal2(blendMat,mat)
-		if mat.ao is not None:
+		if mat.ambient_occlusion is not None:
 			ao(blendMat,mat)
 		if mat.alpha is not None:
 			alpha(blendMat,mat)
 		mesh.materials+=[blendMat]
-		if self.WARNING==True:
+		if self.warning==True:
 			print 'class<MAt>.name:',mat.name
-			print 'class<MAt>.ZTRANS:',mat.ZTRANS
+			print 'class<MAt>.ztrans:',mat.ztrans
 			if mat.diffuse is not None:
 				print 'class<MAt>.diffuse:',mat.diffuse
 			if mat.specular is not None:
 				print 'class<MAt>.specular:',mat.specular
 			if mat.normal is not None:
 				print 'class<MAt>.normal:',mat.normal
-			if mat.ao is not None:
-				print 'class<MAt>.ao:',mat.ao
+			if mat.ambient_occlusion is not None:
+				print 'class<MAt>.ambient_occlusion:',mat.ambient_occlusion
 
 	def add_vertex_uv(self,blenderMesh,mesh):
 		blenderMesh.vertexUV = 1
 		for m in range(len(blenderMesh.verts)):
-			if self.UVFLIP==False:
-				blenderMesh.verts[m].uvco = Vector(mesh.vertUVList[m][0],1-mesh.vertUVList[m][1])
+			if self.uv_flip==False:
+				blenderMesh.verts[m].uvco = Vector(mesh.vertice_uv_list[m][0],1-mesh.vertice_uv_list[m][1])
 			else:
-				blenderMesh.verts[m].uvco = Vector(mesh.vertUVList[m])
+				blenderMesh.verts[m].uvco = Vector(mesh.vertice_uv_list[m])
 
 	def add_face_uv(self,blenderMesh,mesh):
-		if self.WARNING==True:
-			print 'WARNING: blenderMesh.faces:',len(blenderMesh.faces)
+		if self.warning==True:
+			print 'warning: blenderMesh.faces:',len(blenderMesh.faces)
 		if len(blenderMesh.faces)>0:
 			blenderMesh.faceUV = 1
-			if len(mesh.vertUVList)>0:
+			if len(mesh.vertice_uv_list)>0:
 				for ID in range(len(blenderMesh.faces)):
 					face=blenderMesh.faces[ID]
 					face.uv = [v.uvco for v in face.verts]
 					face.smooth = 1
-					if len(mesh.matIDList)>0:
-						face.mat=mesh.matIDList[ID]
-			if len(mesh.matIDList)>0:
+					if len(mesh.material_id_list)>0:
+						face.mat=mesh.material_id_list[ID]
+			if len(mesh.material_id_list)>0:
 				for ID in range(len(blenderMesh.faces)):
 					face=blenderMesh.faces[ID]
 					face.smooth = 1
-					face.mat=mesh.matIDList[ID]
-			if len(mesh.faceUVList)>0:
+					face.mat=mesh.material_id_list[ID]
+			if len(mesh.face_uv_list)>0:
 				for ID in range(len(blenderMesh.faces)):
 					face=blenderMesh.faces[ID]
-					if mesh.faceUVList[ID] is not None:
-						face.uv=mesh.faceUVList[ID]
-			if len(self.vertNormList)==0:
+					if mesh.face_uv_list[ID] is not None:
+						face.uv=mesh.face_uv_list[ID]
+			if len(self.vertice_normal_list)==0:
 				blenderMesh.calcNormals()
 			blenderMesh.update()
 
 	def add_skin_id_list(self):
-		if len(self.skinIDList)==0:
-			for skinID in range(len(self.skinList)):
-				skin=self.skinList[skinID]
-				if skin.IDStart==None:
-					skin.IDStart=0
-				if skin.IDCount==None:
-					skin.IDCount=len(self.skinIndiceList)
-				for vertID in range(skin.IDCount):
-					self.skinIDList.append(skinID)
-				if self.WARNING==True:
-					print '\t','class<Skin>.boneMap:',len(skin.boneMap)
-					print '\t'*2,'class<Skin>.IDStart:',skin.IDStart
-					print '\t'*2,'class<Skin>.IDCount:',skin.IDCount
-					print '\t'*2,'class<Skin>.skinIDList:',len(self.skinIDList)
+		if len(self.skin_id_list)==0:
+			for skinID in range(len(self.skin_list)):
+				skin=self.skin_list[skinID]
+				if skin.id_start==None:
+					skin.id_start=0
+				if skin.id_count==None:
+					skin.id_count=len(self.skin_indice_list)
+				for vertID in range(skin.id_count):
+					self.skin_id_list.append(skinID)
+				if self.warning==True:
+					print '\t','class<Skin>.bone_map:',len(skin.bone_map)
+					print '\t'*2,'class<Skin>.id_start:',skin.id_start
+					print '\t'*2,'class<Skin>.id_count:',skin.id_count
+					print '\t'*2,'class<Skin>.skin_id_list:',len(self.skin_id_list)
 
 		else:
-			if self.WARNING==True:
-				print '\t'*2,'class<Skin>.skinIDList:',len(self.skinIDList)
-				for skinID in range(len(self.skinList)):
-					skin=self.skinList[skinID]
-					print '\t','class<Skin>.boneMap:',len(skin.boneMap)
+			if self.warning==True:
+				print '\t'*2,'class<Skin>.skin_id_list:',len(self.skin_id_list)
+				for skinID in range(len(self.skin_list)):
+					skin=self.skin_list[skinID]
+					print '\t','class<Skin>.bone_map:',len(skin.bone_map)
 
 	def add_skin(self,blendMesh,mesh):
 
-		for vertID in range(len(mesh.skinIDList)):
-			indices=mesh.skinIndiceList[vertID]
-			weights=mesh.skinWeightList[vertID]
-			skinID=mesh.skinIDList[vertID]
+		for vertID in range(len(mesh.skin_id_list)):
+			indices=mesh.skin_indice_list[vertID]
+			weights=mesh.skin_weight_list[vertID]
+			skinID=mesh.skin_id_list[vertID]
 			for n in range(len(indices)):
 				w  = weights[n]
 				if type(w)==int:w=w/255.0
 				if w!=0:
 					grID = indices[n]
-					if len(self.boneNameList)==0:
-						if len(self.skinList[skinID].boneMap)>0:
-							grName = str(self.skinList[skinID].boneMap[grID])
+					if len(self.bone_name_list)==0:
+						if len(self.skin_list[skinID].bone_map)>0:
+							grName = str(self.skin_list[skinID].bone_map[grID])
 						else:
 							grName = str(grID)
 					else:
-						if len(self.skinList[skinID].boneMap)>0:
-							grNameID = self.skinList[skinID].boneMap[grID]
-							grName=self.boneNameList[grNameID]
+						if len(self.skin_list[skinID].bone_map)>0:
+							grNameID = self.skin_list[skinID].bone_map[grID]
+							grName=self.bone_name_list[grNameID]
 						else:
-							grName=self.boneNameList[grID]
+							grName=self.bone_name_list[grID]
 					if grName not in blendMesh.getVertGroupNames():
 						blendMesh.addVertGroup(grName)
 					blendMesh.assignVertsToGroup(grName,[vertID],w,1)
 		blendMesh.update()
 
 	def add_bind_pose(self,blendMesh,mesh):
-		#print 'BINDPOSE'
+		#print 'bind_pose'
 		poseBones=None
 		poseSkeleton=None
 		bindBones=None
 		bindSkeleton=None
-		if self.BINDPOSESKELETON is not None:
+		if self.bind_pose_skeleton is not None:
 			scene = bpy.data.scenes.active
 			for object in scene.objects:
-				if object.name==self.BINDPOSESKELETON:
+				if object.name==self.bind_pose_skeleton:
 					poseBones=object.getData().bones
 					poseSkeleton=object
-		if self.BINDSKELETON is not None:
+		if self.bind_skeleton is not None:
 			scene = bpy.data.scenes.active
 			for object in scene.objects:
-				if object.name==self.BINDSKELETON:
+				if object.name==self.bind_skeleton:
 					bindBones=object.getData().bones
 					bindSkeleton=object
 		if poseBones is not None and bindBones is not None:
 			#print 'add_bind_pose'
-			#bindPoseMatrixList=mesh.bindPoseMatrixList
+			#bind_pose_matrix_list=mesh.bind_pose_matrix_list
 			for vert in blendMesh.verts:
 				index=vert.index
-				skinList=blendMesh.getVertexInfluences(index)
+				skin_list=blendMesh.getVertexInfluences(index)
 				vco=vert.co.copy()*self.object.matrixWorld
 				vector=Vector()
 				#print index
-				for skin in skinList:
+				for skin in skin_list:
 					bone=skin[0]
 					weight=skin[1]
 
-					#matrixIndex=mesh.boneNameList.index(bone)
-					#matA=bindPoseMatrixList[matrixIndex]*self.object.matrixWorld
-					matB=bindBones[bone].matrix['ARMATURESPACE']*bindSkeleton.matrixWorld
-					matA=poseBones[bone].matrix['ARMATURESPACE']*poseSkeleton.matrixWorld
+					#matrixIndex=mesh.bone_name_list.index(bone)
+					#matA=bind_pose_matrix_list[matrixIndex]*self.object.matrixWorld
+					matB=bindBones[bone].matrix['armature_space']*bindSkeleton.matrixWorld
+					matA=poseBones[bone].matrix['armature_space']*poseSkeleton.matrixWorld
 					#matB=TranslationMatrix(matB.translationPart())
 					#matA=TranslationMatrix(matA.translationPart())
 					vector+=vco*matA.invert()*matB*weight
@@ -291,100 +291,100 @@ class Mesh():
 			Blender.Window.RedrawAll()
 
 	def add_faces(self):
-		if self.WARNING==True:
-			print '\t','class<Mesh>.matList count:',len(self.matList)
-			for matID in range(len(self.matList)):
-				print '\t'*2,'class<Mat>.name:',self.matList[matID].name
-				print '\t'*3,'class<Mat>.IDStart:',self.matList[matID].IDStart
-				print '\t'*3,'class<Mat>.IDCount:',self.matList[matID].IDCount
-		if len(self.matList)==0:
-			if len(self.faceList)!=0:
-				self.triangleList=self.faceList
-			if len(self.indiceList)!=0:
-				if self.TRIANGLE==True:
-					self.indices_to_triangles(self.indiceList,0)
-				elif self.QUAD==True:
-					self.indices_to_quads(self.indiceList,0)
-				elif self.TRISTRIP==True:
-					self.indices_to_triangle_strips(self.indiceList,0)
+		if self.warning==True:
+			print '\t','class<Mesh>.material_list count:',len(self.material_list)
+			for matID in range(len(self.material_list)):
+				print '\t'*2,'class<Mat>.name:',self.material_list[matID].name
+				print '\t'*3,'class<Mat>.id_start:',self.material_list[matID].id_start
+				print '\t'*3,'class<Mat>.id_count:',self.material_list[matID].id_count
+		if len(self.material_list)==0:
+			if len(self.face_list)!=0:
+				self.triangle_list=self.face_list
+			if len(self.indice_list)!=0:
+				if self.is_triangle==True:
+					self.indices_to_triangles(self.indice_list,0)
+				elif self.is_quad==True:
+					self.indices_to_quads(self.indice_list,0)
+				elif self.is_triangle_strip==True:
+					self.indices_to_triangle_strips(self.indice_list,0)
 				else:
-					if self.WARNING==True:
-						print 'WARNING: class<Mesh>.TRIANGLE:',self.TRIANGLE
-						print 'WARNING: class<Mesh>.TRISTRIP:',self.TRISTRIP
+					if self.warning==True:
+						print 'warning: class<Mesh>.is_triangle:',self.is_triangle
+						print 'warning: class<Mesh>.is_triangle_strip:',self.is_triangle_strip
 
 		else:
-			if len(self.faceList)>0:
-				if len(self.matIDList)==0:
-					for matID in range(len(self.matList)):
-						mat=self.matList[matID]
-						if mat.IDStart is not None and mat.IDCount is not None:
-							for faceID in range(mat.IDCount):
-								self.triangleList.append(self.faceList[mat.IDStart+faceID])
-								self.matIDList.append(matID)
+			if len(self.face_list)>0:
+				if len(self.material_id_list)==0:
+					for matID in range(len(self.material_list)):
+						mat=self.material_list[matID]
+						if mat.id_start is not None and mat.id_count is not None:
+							for faceID in range(mat.id_count):
+								self.triangle_list.append(self.face_list[mat.id_start+faceID])
+								self.material_id_list.append(matID)
 						else:
-							if mat.IDStart==None:
-								mat.IDStart=0
-							if mat.IDCount==None:
-								mat.IDCount=len(self.faceList)
-							for faceID in range(mat.IDCount):
-								self.triangleList.append(self.faceList[mat.IDStart+faceID])
-								self.matIDList.append(matID)
-					#self.triangleList=self.faceList
+							if mat.id_start==None:
+								mat.id_start=0
+							if mat.id_count==None:
+								mat.id_count=len(self.face_list)
+							for faceID in range(mat.id_count):
+								self.triangle_list.append(self.face_list[mat.id_start+faceID])
+								self.material_id_list.append(matID)
+					#self.triangle_list=self.face_list
 
 				else:
-					self.triangleList=self.faceList
-					#for ID in range(len(self.matIDList)):
-					#	mat=self.matList[matID] 
-						#if self.matIDList[ID]==matID:
-					#	self.triangleList.append(self.faceList[ID])
+					self.triangle_list=self.face_list
+					#for ID in range(len(self.material_id_list)):
+					#	mat=self.material_list[matID] 
+						#if self.material_id_list[ID]==matID:
+					#	self.triangle_list.append(self.face_list[ID])
 
-			if len(self.indiceList)>0:
-				for matID in range(len(self.matList)):
-					mat=self.matList[matID]
-					if mat.IDStart==None:
-						mat.IDStart=0
-					if mat.IDCount==None:
-						mat.IDCount=len(self.indiceList)
-					indiceList=self.indiceList[mat.IDStart:mat.IDStart+mat.IDCount]
-					if mat.TRIANGLE==True:
-						self.indices_to_triangles(indiceList,matID)
-					elif mat.QUAD==True:
-						self.indices_to_quads(indiceList,matID)
-					elif mat.TRISTRIP==True:
-						self.indices_to_triangle_strips(indiceList,matID)
+			if len(self.indice_list)>0:
+				for matID in range(len(self.material_list)):
+					mat=self.material_list[matID]
+					if mat.id_start==None:
+						mat.id_start=0
+					if mat.id_count==None:
+						mat.id_count=len(self.indice_list)
+					indice_list=self.indice_list[mat.id_start:mat.id_start+mat.id_count]
+					if mat.is_triangle==True:
+						self.indices_to_triangles(indice_list,matID)
+					elif mat.is_quad==True:
+						self.indices_to_quads(indice_list,matID)
+					elif mat.is_triangle_strip==True:
+						self.indices_to_triangle_strips(indice_list,matID)
 
-		if self.WARNING==True:
+		if self.warning==True:
 			print 'OUTPUT:'
-			print '\t','class<Mesh>.triangleList count:',len(self.triangleList)
-			print '\t','class<Mesh>.matIDList count:',len(self.matIDList)
+			print '\t','class<Mesh>.triangle_list count:',len(self.triangle_list)
+			print '\t','class<Mesh>.material_id_list count:',len(self.material_id_list)
 
 	def build_mesh(self,mesh,mat,meshID):
-		if self.WARNING==True:print 'class<Mesh>.name:',mesh.name
-		if self.WARNING==True:print '\t','class<Mesh>.vertPosList count:',len(mesh.vertPosList)
-		if self.WARNING==True:print '\t','class<Mesh>.vertUVList count:',len(mesh.vertUVList)
-		if self.WARNING==True:print '\t','class<Mesh>.triangleList count:',len(mesh.triangleList)
-		if self.WARNING==True:print '\t','class<Mesh>.indiceList count:',len(mesh.indiceList)
+		if self.warning==True:print 'class<Mesh>.name:',mesh.name
+		if self.warning==True:print '\t','class<Mesh>.vertice_position_list count:',len(mesh.vertice_position_list)
+		if self.warning==True:print '\t','class<Mesh>.vertice_uv_list count:',len(mesh.vertice_uv_list)
+		if self.warning==True:print '\t','class<Mesh>.triangle_list count:',len(mesh.triangle_list)
+		if self.warning==True:print '\t','class<Mesh>.indice_list count:',len(mesh.indice_list)
 		blendMesh = bpy.data.meshes.new(mesh.name)
-		blendMesh.verts.extend(mesh.vertPosList)
-		blendMesh.faces.extend(mesh.triangleList)
+		blendMesh.verts.extend(mesh.vertice_position_list)
+		blendMesh.faces.extend(mesh.triangle_list)
 		self.add_material(mat,blendMesh,meshID)
-		if len(mesh.triangleList)>0:
-			if len(mesh.vertUVList)>0:
+		if len(mesh.triangle_list)>0:
+			if len(mesh.vertice_uv_list)>0:
 				self.add_vertex_uv(blendMesh,mesh)
 				self.add_face_uv(blendMesh,mesh)
-			if len(mesh.faceUVList)>0:
+			if len(mesh.face_uv_list)>0:
 				self.add_face_uv(blendMesh,mesh)
-		if len(mesh.vertNormList)>0:
+		if len(mesh.vertice_normal_list)>0:
 			for i,vert in enumerate(blendMesh.verts):
-				vert.no=Vector(self.vertNormList[i])
+				vert.no=Vector(self.vertice_normal_list[i])
 
 		scene = bpy.data.scenes.active
 		meshobject = scene.objects.new(blendMesh,mesh.name)
 		self.add_skin(blendMesh,mesh)
 		Blender.Window.RedrawAll()
-		if self.BINDSKELETON is not None:
+		if self.bind_skeleton is not None:
 			for object in scene.objects:
-				if object.name==self.BINDSKELETON:
+				if object.name==self.bind_skeleton:
 					#meshobject.mat*=object.mat
 					object.makeParentDeform([meshobject],1,0)
 		if self.matrix is not None:
@@ -393,59 +393,59 @@ class Mesh():
 
 	def add_mesh(self):
 		self.mesh = bpy.data.meshes.new(self.name)
-		self.mesh.verts.extend(self.vertPosList)
-		if len(self.vertNormList)>0:
+		self.mesh.verts.extend(self.vertice_position_list)
+		if len(self.vertice_normal_list)>0:
 			for i,vert in enumerate(self.mesh.verts):
-				vert.no=Vector(self.vertNormList[i])
+				vert.no=Vector(self.vertice_normal_list[i])
 		#else:
 		#	self.mesh.calcNormals()
 
-		self.mesh.faces.extend(self.triangleList,ignoreDups=True)
+		self.mesh.faces.extend(self.triangle_list,ignoreDups=True)
 		scene = bpy.data.scenes.active
 		self.object = scene.objects.new(self.mesh,self.name)
 		#print len(self.mesh.faces)	
-		"""for m in range(len(self.triangleList)):
-			self.mesh.faces.extend(self.triangleList[m],ignoreDups=True)
+		"""for m in range(len(self.triangle_list)):
+			self.mesh.faces.extend(self.triangle_list[m],ignoreDups=True)
 			self.mesh.update()
 			Blender.Window.Redraw()"""
 
 	def bone_tree(self,parent):
 		for bone in parent.children:
-			#self.boneNameList.append(bone.name)
+			#self.bone_name_list.append(bone.name)
 			self.bone_tree(bone)
 
 	def draw(self):
 		if self.name is None:self.name=str(parse_id())+'-model-'+str(0)
-		if self.WARNING==True:print 'class<Mesh>.name:',self.name
-		if self.WARNING==True:print '\t','class<Mesh>.vertPosList count:',len(self.vertPosList)
-		if self.WARNING==True:print '\t','class<Mesh>.vertUVList count:',len(self.vertUVList)
-		if self.WARNING==True:print '\t','class<Mesh>.indiceList count:',len(self.indiceList)
-		if self.WARNING==True:print '\t','class<Mesh>.faceList count:',len(self.faceList)
-		if self.WARNING==True:print '\t','class<Mesh>.triangleList count:',len(self.triangleList)
-		if self.WARNING==True:print '\t','class<Mesh>.faceUVList count:',len(self.faceUVList)
+		if self.warning==True:print 'class<Mesh>.name:',self.name
+		if self.warning==True:print '\t','class<Mesh>.vertice_position_list count:',len(self.vertice_position_list)
+		if self.warning==True:print '\t','class<Mesh>.vertice_uv_list count:',len(self.vertice_uv_list)
+		if self.warning==True:print '\t','class<Mesh>.indice_list count:',len(self.indice_list)
+		if self.warning==True:print '\t','class<Mesh>.face_list count:',len(self.face_list)
+		if self.warning==True:print '\t','class<Mesh>.triangle_list count:',len(self.triangle_list)
+		if self.warning==True:print '\t','class<Mesh>.face_uv_list count:',len(self.face_uv_list)
 		self.add_faces()
 
-		if self.WARNING==True:print '\t','class<Mesh>.SPLIT:',self.SPLIT
+		if self.warning==True:print '\t','class<Mesh>.split:',self.split
 		self.add_skin_id_list()
-		if self.SETBOX is not None:
+		if self.set_box_values is not None:
 			self.set_box()
 
-		if self.SPLIT==False:
+		if self.split==False:
 			self.add_mesh()
-			if len(self.triangleList)>0:
-				if len(self.vertUVList)>0:
+			if len(self.triangle_list)>0:
+				if len(self.vertice_uv_list)>0:
 					self.add_vertex_uv(self.mesh,self)
 					#self.add_face_uv(self.mesh,self)
-				#if len(self.faceUVList)>0:
+				#if len(self.face_uv_list)>0:
 			self.add_face_uv(self.mesh,self)
-			for matID in range(len(self.matList)):
-				mat=self.matList[matID]
+			for matID in range(len(self.material_list)):
+				mat=self.material_list[matID]
 				self.add_material(mat,self.mesh,matID)
 
-			if self.BINDSKELETON is not None:
+			if self.bind_skeleton is not None:
 				scene = bpy.data.scenes.active
 				for object in scene.objects:
-					if object.name==self.BINDSKELETON:
+					if object.name==self.bind_skeleton:
 						skeletonMatrix=self.object.getMatrix()*object.mat
 						#self.object.setMatrix(skeletonMatrix)
 						object.makeParentDeform([self.object],1,0)
@@ -454,72 +454,72 @@ class Mesh():
 			if self.matrix is not None:
 				self.object.setMatrix(self.matrix*self.object.matrixWorld)
 
-			if self.BINDPOSE==True:
-				#if len(self.bindPoseMatrixList)>0:
+			if self.bind_pose==True:
+				#if len(self.bind_pose_matrix_list)>0:
 				self.add_bind_pose(self.mesh,self)
 				#else:
-				#	print 'WARNING: mesh.bindPoseMatrixList: None'
+				#	print 'warning: mesh.bind_pose_matrix_list: None'
 			Blender.Window.RedrawAll()
 
-		if self.SPLIT==True:
-			if self.WARNING==True:
+		if self.split==True:
+			if self.warning==True:
 				print 'MESH SPLITING PROCCES:'
 			print 'split:True'
-			meshList=[]
-			for matID in range(len(self.matList)):
+			mesh_list=[]
+			for matID in range(len(self.material_list)):
 				mesh=Mesh()
 				mesh.idList={}
 				mesh.id=0
 				mesh.name=self.name+'-'+str(matID)
-				meshList.append(mesh)
-				for n in range(len(self.vertPosList)):
+				mesh_list.append(mesh)
+				for n in range(len(self.vertice_position_list)):
 					mesh.idList[str(n)]=None
 
-			for faceID in range(len(self.matIDList)):
-				matID=self.matIDList[faceID]
+			for faceID in range(len(self.material_id_list)):
+				matID=self.material_id_list[faceID]
 				#print matID
-				mesh=meshList[matID]
+				mesh=mesh_list[matID]
 				face=[]
-				for v in range(len(self.triangleList[faceID])):
-					vid=self.triangleList[faceID][v]
+				for v in range(len(self.triangle_list[faceID])):
+					vid=self.triangle_list[faceID][v]
 					if mesh.idList[str(vid)]==None:
 						mesh.idList[str(vid)]=mesh.id
-						mesh.vertPosList.append(self.vertPosList[vid])
-						if len(self.vertUVList)>0:
-							mesh.vertUVList.append(self.vertUVList[vid])
-						if len(self.vertNormList)>0:
-							mesh.vertNormList.append(self.vertNormList[vid])
-						#if len(self.faceUVList)>0:
-						#	mesh.faceUVList.append(self.faceUVList[vid])
-						if len(self.skinIndiceList)>0 and len(self.skinWeightList)>0:
-							mesh.skinWeightList.append(self.skinWeightList[vid])
-							mesh.skinIndiceList.append(self.skinIndiceList[vid])
-							mesh.skinIDList.append(self.skinIDList[vid])
+						mesh.vertice_position_list.append(self.vertice_position_list[vid])
+						if len(self.vertice_uv_list)>0:
+							mesh.vertice_uv_list.append(self.vertice_uv_list[vid])
+						if len(self.vertice_normal_list)>0:
+							mesh.vertice_normal_list.append(self.vertice_normal_list[vid])
+						#if len(self.face_uv_list)>0:
+						#	mesh.face_uv_list.append(self.face_uv_list[vid])
+						if len(self.skin_indice_list)>0 and len(self.skin_weight_list)>0:
+							mesh.skin_weight_list.append(self.skin_weight_list[vid])
+							mesh.skin_indice_list.append(self.skin_indice_list[vid])
+							mesh.skin_id_list.append(self.skin_id_list[vid])
 						face.append(mesh.id)
 						mesh.id+=1
 					else:
 						oldid=mesh.idList[str(vid)]
 						face.append(oldid)
-				mesh.triangleList.append(face)
-				if len(self.faceUVList)>0:
-					mesh.faceUVList.append(self.faceUVList[faceID])
-				mesh.matIDList.append(0)
+				mesh.triangle_list.append(face)
+				if len(self.face_uv_list)>0:
+					mesh.face_uv_list.append(self.face_uv_list[faceID])
+				mesh.material_id_list.append(0)
 
-			for meshID in range(len(meshList)):
-				mesh=meshList[meshID]
-				mat=self.matList[meshID]
+			for meshID in range(len(mesh_list)):
+				mesh=mesh_list[meshID]
+				mat=self.material_list[meshID]
 				self.build_mesh(mesh,mat,meshID)
 			Blender.Window.RedrawAll()
 
 	def indices_to_quads(self,indicesList,matID):
 		for m in range(0, len(indicesList), 4):
-			self.triangleList.append(indicesList[m:m+4] )
-			self.matIDList.append(matID)
+			self.triangle_list.append(indicesList[m:m+4] )
+			self.material_id_list.append(matID)
 
 	def indices_to_triangles(self,indicesList,matID):
 		for m in range(0, len(indicesList), 3):
-			self.triangleList.append(indicesList[m:m+3] )
-			self.matIDList.append(matID)
+			self.triangle_list.append(indicesList[m:m+3] )
+			self.material_id_list.append(matID)
 
 	def indices_to_triangle_strips(self,indicesList,matID):
 		StartDirection = -1
@@ -545,12 +545,12 @@ class Mesh():
 				FaceDirection *= -1
 				if (f1!=f2) and (f2!=f3) and (f3!=f1):
 					if FaceDirection > 0:
-						self.triangleList.append([(f1),(f2),(f3)])
-						self.matIDList.append(matID)
+						self.triangle_list.append([(f1),(f2),(f3)])
+						self.material_id_list.append(matID)
 					else:
-						self.triangleList.append([(f1),(f3),(f2)])
-						self.matIDList.append(matID)
-					if self.DRAW==True:
+						self.triangle_list.append([(f1),(f3),(f2)])
+						self.material_id_list.append(matID)
+					if self.is_drawing_active==True:
 						f1,f2,f3
 				f1 = f2
 				f2 = f3
@@ -558,227 +558,227 @@ class Mesh():
 
 def diffuse(blendMat,data):
 		if os.path.exists(data.diffuse)==True:
-			img=Blender.Image.Load(data.diffuse)
+			image=Blender.Image.Load(data.diffuse)
 			imgName=blendMat.name.replace('-mat-','-diff-')
-			img.setName(imgName)
-			texname=blendMat.name.replace('-mat-','-diff-')
-			tex = Blender.Texture.New(texname)
+			image.setName(imgName)
+			texture_name=blendMat.name.replace('-mat-','-diff-')
+			tex = Blender.Texture.New(texture_name)
 			tex.setType('Image')
-			tex.image = img
-			blendMat.setTexture(data.DIFFUSESLOT,tex,Blender.Texture.TexCo.UV,\
+			tex.image = image
+			blendMat.setTexture(data.diffuse_slot,tex,Blender.Texture.TexCo.UV,\
 			Blender.Texture.MapTo.COL| Blender.Texture.MapTo.ALPHA|Blender.Texture.MapTo.CSP)
 		#else:
-		#	if self.WARNING==True:
+		#	if self.warning==True:
 		#		print 'failed...',data.diffuse
 
 def reflection(blendMat,data):
 		if os.path.exists(data.reflection)==True:
-			img=Blender.Image.Load(data.reflection)
+			image=Blender.Image.Load(data.reflection)
 			imgName=blendMat.name.replace('-mat-','-refl-')
-			img.setName(imgName)
-			texname=blendMat.name.replace('-mat-','-refl-')
-			tex = Blender.Texture.New(texname)
+			image.setName(imgName)
+			texture_name=blendMat.name.replace('-mat-','-refl-')
+			tex = Blender.Texture.New(texture_name)
 			tex.setType('Image')
-			tex.image = img
-			blendMat.setTexture(data.REFLECTIONSLOT,tex,Blender.Texture.TexCo.REFL,Blender.Texture.MapTo.COL)
+			tex.image = image
+			blendMat.setTexture(data.reflection_slot,tex,Blender.Texture.TexCo.REFL,Blender.Texture.MapTo.COL)
 			mtextures = blendMat.getTextures()
-			mtex=mtextures[data.REFLECTIONSLOT]
-			mtex.colfac=data.REFLECTIONSTRONG
+			mtex=mtextures[data.reflection_slot]
+			mtex.colfac=data.reflection_strong
 		#else:
-		#	if self.WARNING==True:
+		#	if self.warning==True:
 		#		print 'failed...',data.reflection
 
 def alpha(blendMat,data):
 		if os.path.exists(data.alpha)==True:
-			img=Blender.Image.Load(data.alpha)
+			image=Blender.Image.Load(data.alpha)
 			imgName=blendMat.name.replace('-mat-','-alpha-')
-			img.setName(imgName)
-			texname=blendMat.name.replace('-mat-','-alpha-')
-			tex = Blender.Texture.New(texname)
+			image.setName(imgName)
+			texture_name=blendMat.name.replace('-mat-','-alpha-')
+			tex = Blender.Texture.New(texture_name)
 			tex.setType('Image')
 			tex.setImageFlags('CalcAlpha')
-			tex.image = img
-			blendMat.setTexture(data.ALPHASLOT,tex,Blender.Texture.TexCo.UV,\
+			tex.image = image
+			blendMat.setTexture(data.alpha_slot,tex,Blender.Texture.TexCo.UV,\
 			Blender.Texture.MapTo.ALPHA)
-			#blendMat.getTextures()[data.DIFFUSESLOT].mtAlpha=0
+			#blendMat.getTextures()[data.diffuse_slot].mtAlpha=0
 		#else:
-		#	if self.WARNING==True:
+		#	if self.warning==True:
 		#		print 'failed...',data.diffuse
 
 def diffuse1(blendMat,data):
 		if os.path.exists(data.diffuse1)==True:
-			img=Blender.Image.Load(data.diffuse1)
+			image=Blender.Image.Load(data.diffuse1)
 			imgName=blendMat.name.replace('-mat-','-diff-')
-			img.setName(imgName)
-			texname=blendMat.name.replace('-mat-','-diff-')
-			tex = Blender.Texture.New(texname)
+			image.setName(imgName)
+			texture_name=blendMat.name.replace('-mat-','-diff-')
+			tex = Blender.Texture.New(texture_name)
 			tex.setType('Image')
-			tex.image = img
-			blendMat.setTexture(data.DIFFUSE1SLOT,tex,Blender.Texture.TexCo.UV,\
+			tex.image = image
+			blendMat.setTexture(data.diffuse1_slot,tex,Blender.Texture.TexCo.UV,\
 			Blender.Texture.MapTo.COL|Blender.Texture.MapTo.CSP)
 		#else:
-		#	if self.WARNING==True:
+		#	if self.warning==True:
 		#		print 'failed...',data.diffuse1
 
 def diffuse2(blendMat,data):
 		if os.path.exists(data.diffuse2)==True:
-			img=Blender.Image.Load(data.diffuse2)
+			image=Blender.Image.Load(data.diffuse2)
 			imgName=blendMat.name.replace('-mat-','-diff-')
-			img.setName(imgName)
-			texname=blendMat.name.replace('-mat-','-diff-')
-			tex = Blender.Texture.New(texname)
+			image.setName(imgName)
+			texture_name=blendMat.name.replace('-mat-','-diff-')
+			tex = Blender.Texture.New(texture_name)
 			tex.setType('Image')
-			tex.image = img
-			blendMat.setTexture(data.DIFFUSE2SLOT,tex,Blender.Texture.TexCo.UV,\
+			tex.image = image
+			blendMat.setTexture(data.diffuse2_slot,tex,Blender.Texture.TexCo.UV,\
 			Blender.Texture.MapTo.COL|Blender.Texture.MapTo.CSP)
 		#else:
-		#	if self.WARNING==True:
+		#	if self.warning==True:
 		#		print 'failed...',data.diffuse1
 
 def normal(blendMat,data):
 		if os.path.exists(data.normal)==True:
-			img=Blender.Image.Load(data.normal)
+			image=Blender.Image.Load(data.normal)
 			imgName=blendMat.name.replace('-mat-','-norm-')
-			img.setName(imgName)
-			texname=blendMat.name.replace('-mat-','-norm-')
-			tex = Blender.Texture.New(texname)
+			image.setName(imgName)
+			texture_name=blendMat.name.replace('-mat-','-norm-')
+			tex = Blender.Texture.New(texture_name)
 			tex.setType('Image')
-			tex.image = img
+			tex.image = image
 			tex.setImageFlags('NormalMap')
-			blendMat.setTexture(data.NORMALSLOT,tex,Blender.Texture.TexCo.UV,Blender.Texture.MapTo.NOR)
-			blendMat.getTextures()[data.NORMALSLOT].norfac=data.NORMALSTRONG
-			blendMat.getTextures()[data.NORMALSLOT].mtNor=data.NORMALDIRECTION
-			blendMat.getTextures()[data.NORMALSLOT].size=data.NORMALSIZE
+			blendMat.setTexture(data.normal_slot,tex,Blender.Texture.TexCo.UV,Blender.Texture.MapTo.NOR)
+			blendMat.getTextures()[data.normal_slot].norfac=data.normal_strong
+			blendMat.getTextures()[data.normal_slot].mtNor=data.normal_direction
+			blendMat.getTextures()[data.normal_slot].size=data.normal_size
 		#else:
-		#	if self.WARNING==True:
+		#	if self.warning==True:
 		#		print 'failed...',data.normal
 
 def specular(blendMat,data):
 		if os.path.exists(data.specular)==True:
-			img=Blender.Image.Load(data.specular)
+			image=Blender.Image.Load(data.specular)
 			imgName=blendMat.name.replace('-mat-','-spec-')
-			img.setName(imgName)
-			texname=blendMat.name.replace('-mat-','-spec-')
-			tex = Blender.Texture.New(texname)
+			image.setName(imgName)
+			texture_name=blendMat.name.replace('-mat-','-spec-')
+			tex = Blender.Texture.New(texture_name)
 			tex.setType('Image')
-			tex.image = img
-			blendMat.setTexture(data.SPECULARSLOT,tex,Blender.Texture.TexCo.UV,Blender.Texture.MapTo.CSP)
+			tex.image = image
+			blendMat.setTexture(data.specular_slot,tex,Blender.Texture.TexCo.UV,Blender.Texture.MapTo.CSP)
 			mtextures = blendMat.getTextures()
-			mtex=mtextures[data.SPECULARSLOT]
+			mtex=mtextures[data.specular_slot]
 			mtex.neg=True
 		#else:
-		#	if self.WARNING==True:
+		#	if self.warning==True:
 		#		print 'failed...',data.specular
 
 def ao(blendMat,data):
-		if os.path.exists(data.ao)==True:
-			img=Blender.Image.Load(data.ao)
+		if os.path.exists(data.ambient_occlusion)==True:
+			image=Blender.Image.Load(data.ambient_occlusion)
 			imgName=blendMat.name.replace('-mat-','-ao-')
-			img.setName(imgName)
-			texname=blendMat.name.replace('-mat-','-ao-')
-			tex = Blender.Texture.New(texname)
+			image.setName(imgName)
+			texture_name=blendMat.name.replace('-mat-','-ao-')
+			tex = Blender.Texture.New(texture_name)
 			tex.setType('Image')
-			tex.image = img
-			blendMat.setTexture(data.AOSLOT,tex,Blender.Texture.TexCo.UV,Blender.Texture.MapTo.COL)
-			mtex=blendMat.getTextures()[data.AOSLOT]
+			tex.image = image
+			blendMat.setTexture(data.ambient_occlusion_slot,tex,Blender.Texture.TexCo.UV,Blender.Texture.MapTo.COL)
+			mtex=blendMat.getTextures()[data.ambient_occlusion_slot]
 			mtex.blendmode=Blender.Texture.BlendModes.MULTIPLY
 		#else:
-		#	if self.WARNING==True:
-		#		print 'failed...',data.ao
+		#	if self.warning==True:
+		#		print 'failed...',data.ambient_occlusion
 
 def normal1(blendMat,data):
 		if os.path.exists(data.normal1)==True:
-			img=Blender.Image.Load(data.normal1)
+			image=Blender.Image.Load(data.normal1)
 			imgName=blendMat.name.replace('-mat-','-norm1-')
-			img.setName(imgName)
-			texname=blendMat.name.replace('-mat-','-norm1-')
-			tex = Blender.Texture.New(texname)
+			image.setName(imgName)
+			texture_name=blendMat.name.replace('-mat-','-norm1-')
+			tex = Blender.Texture.New(texture_name)
 			tex.setType('Image')
-			tex.image = img
+			tex.image = image
 			tex.setImageFlags('NormalMap')
-			blendMat.setTexture(data.NORMAL1SLOT,tex,Blender.Texture.TexCo.UV,Blender.Texture.MapTo.NOR)
-			blendMat.getTextures()[data.NORMAL1SLOT].norfac=data.NORMAL1STRONG
-			blendMat.getTextures()[data.NORMAL1SLOT].mtNor=data.NORMAL1DIRECTION
-			blendMat.getTextures()[data.NORMAL1SLOT].size=data.NORMAL1SIZE
+			blendMat.setTexture(data.normal1_slot,tex,Blender.Texture.TexCo.UV,Blender.Texture.MapTo.NOR)
+			blendMat.getTextures()[data.normal1_slot].norfac=data.normal1_strong
+			blendMat.getTextures()[data.normal1_slot].mtNor=data.normal1_direction
+			blendMat.getTextures()[data.normal1_slot].size=data.normal1_size
 		##else:
-		#	if self.WARNING==True:
+		#	if self.warning==True:
 		#		print 'failed...',data.normal1
 
 def normal2(blendMat,data):
 		if os.path.exists(data.normal2)==True:
-			img=Blender.Image.Load(data.normal2)
+			image=Blender.Image.Load(data.normal2)
 			imgName=blendMat.name.replace('-mat-','-norm2-')
-			img.setName(imgName)
-			texname=blendMat.name.replace('-mat-','-norm2-')
-			tex = Blender.Texture.New(texname)
+			image.setName(imgName)
+			texture_name=blendMat.name.replace('-mat-','-norm2-')
+			tex = Blender.Texture.New(texture_name)
 			tex.setType('Image')
-			tex.image = img
+			tex.image = image
 			tex.setImageFlags('NormalMap')
-			blendMat.setTexture(data.NORMAL2SLOT,tex,Blender.Texture.TexCo.UV,Blender.Texture.MapTo.NOR)
-			blendMat.getTextures()[data.NORMAL2SLOT].norfac=data.NORMAL2STRONG
-			blendMat.getTextures()[data.NORMAL2SLOT].mtNor=data.NORMAL2DIRECTION
-			blendMat.getTextures()[data.NORMAL2SLOT].size=data.NORMAL2SIZE
+			blendMat.setTexture(data.normal2_slot,tex,Blender.Texture.TexCo.UV,Blender.Texture.MapTo.NOR)
+			blendMat.getTextures()[data.normal2_slot].norfac=data.normal2_strong
+			blendMat.getTextures()[data.normal2_slot].mtNor=data.normal2_direction
+			blendMat.getTextures()[data.normal2_slot].size=data.normal2_size
 		#else:
-		#	if self.WARNING==True:
+		#	if self.warning==True:
 		#		print 'failed...',data.normal2
 
 class Skin:
 	def __init__(self):
-		self.boneMap=[]
-		self.IDStart=None
-		self.IDCount=None
+		self.bone_map=[]
+		self.id_start=None
+		self.id_count=None
 		self.skeleton=None
-		self.skeletonFile=None
+		self.skeleton_file=None
 
 class Mat:
 	def __init__(self):#0,1,2,3,4,5,6,7,
 		self.name=None
-		self.ZTRANS=False
+		self.ztrans=False
 
 		self.diffuse=None
-		self.DIFFUSESLOT=0
+		self.diffuse_slot=0
 
 		self.diffuse1=None
-		self.DIFFUSE1SLOT=6
+		self.diffuse1_slot=6
 		self.diffuse2=None
-		self.DIFFUSE2SLOT=7
+		self.diffuse2_slot=7
 		self.alpha=None
-		self.ALPHASLOT=8
+		self.alpha_slot=8
 
 		self.normal=None
-		self.NORMALSLOT=1
-		self.NORMALSTRONG=0.5
-		self.NORMALDIRECTION=1
-		self.NORMALSIZE=(1,1,1)
+		self.normal_slot=1
+		self.normal_strong=0.5
+		self.normal_direction=1
+		self.normal_size=(1,1,1)
 
 		self.specular=None
-		self.SPECULARSLOT=2
+		self.specular_slot=2
 
-		self.ao=None
-		self.AOSLOT=3
+		self.ambient_occlusion=None
+		self.ambient_occlusion_slot=3
 
 		self.normal1=None
-		self.NORMAL1SLOT=4
-		self.NORMAL1STRONG=0.8
-		self.NORMAL1DIRECTION=1
-		self.NORMAL1SIZE=(15,15,15)
+		self.normal1_slot=4
+		self.normal1_strong=0.8
+		self.normal1_direction=1
+		self.normal1_size=(15,15,15)
 
 		self.normal2=None
-		self.NORMAL2SLOT=5
-		self.NORMAL2STRONG=0.8
-		self.NORMAL2DIRECTION=1
-		self.NORMAL2SIZE=(15,15,15)
+		self.normal2_slot=5
+		self.normal2_strong=0.8
+		self.normal2_direction=1
+		self.normal2_size=(15,15,15)
 
 		self.reflection=None
-		self.REFLECTIONSLOT=8
-		self.REFLECTIONSTRONG=1.0
+		self.reflection_slot=8
+		self.reflection_strong=1.0
 
 		#self.USEDTRIANGLES=[None,None]
-		self.TRIANGLE=False
-		self.TRISTRIP=False
-		self.QUAD=False
-		self.IDStart=None
-		self.IDCount=None
+		self.is_triangle=False
+		self.is_triangle_strip=False
+		self.is_quad=False
+		self.id_start=None
+		self.id_count=None
 		self.faceIDList=[]
 
 		r=random.randint(0,255)
@@ -794,7 +794,7 @@ class Mat:
 		blendMat.specShader=Blender.Material.Shaders.SPEC_WARDISO
 		blendMat.setRms(0.04)
 		blendMat.shadeMode=Blender.Material.ShadeModes.CUBIC
-		if self.ZTRANS==True:
+		if self.ztrans==True:
 			blendMat.mode |= Blender.Material.Modes.ZTRANSP
 			blendMat.mode |= Blender.Material.Modes.TRANSPSHADOW
 			blendMat.alpha = 0.0
@@ -806,5 +806,5 @@ class Mat:
 		if self.normal is not None:normal(blendMat,self)
 		if self.normal1 is not None:normal1(blendMat,self)
 		if self.normal2 is not None:normal2(blendMat,self)
-		if self.ao is not None:ao(blendMat,self)
+		if self.ambient_occlusion is not None:ao(blendMat,self)
 		if self.alpha is not None:alpha(blendMat,self)
