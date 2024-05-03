@@ -89,24 +89,6 @@ def matrix_3x3(data):
 					data[3:6],\
 					data[6:9])
 
-class Searcher():
-	def __init__(self):
-		self.dir=None
-		self.list=[]
-		self.what=None
-	def run(self):
-		dir=self.dir
-		def tree(dir):
-			list_dir = os.listdir(dir)
-			olddir = dir
-			for m in list_dir:
-				if self.what.lower() in m.lower():
-					self.list.append(olddir+os.sep+m)
-				if os.path.isdir(olddir+os.sep+m)==True:
-					dir = olddir+os.sep+m
-					tree(dir)
-		tree(dir)
-
 def parse_id():
 	ids = []
 	scene = bpy.data.scenes.active
