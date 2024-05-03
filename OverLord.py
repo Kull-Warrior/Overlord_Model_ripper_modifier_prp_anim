@@ -83,6 +83,8 @@ def prp_file_parser(filename,g):
 						#print 'texture chunk:',texture_chunk
 					if item2[0]==21:
 						texture_name=g.word(g.i(1)[0])
+						if '.' not in texture_name:
+							texture_name=texture_name+".dds"
 					if item2[0]==1:
 						type3=g.B(1)[0]
 						list3=get_list(type3,g)
