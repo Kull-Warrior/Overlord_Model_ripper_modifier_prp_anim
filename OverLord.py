@@ -1,6 +1,6 @@
-import newGameLib
-reload(newGameLib)
-from newGameLib import *
+import prpUnpackerLibraries
+reload(prpUnpackerLibraries)
+from prpUnpackerLibraries import *
 import Blender
 import math
 from math import *
