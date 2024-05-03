@@ -69,8 +69,6 @@ class Image():
 				if self.szer is not None:
 					if self.name is not None:
 						if self.data is not None:
-							if os.path.exists(Blender.sys.dirname(self.name))==False:
-								os.makedirs(Blender.sys.dirname(self.name))
 							if self.format=='DXT1':
 								newfile=open(self.name,'wb')
 								newfile.write(get_dds_header())

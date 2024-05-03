@@ -71,6 +71,9 @@ def prp_file_parser(filename,g):
 
 			if flag in [(61,0,65,0),(153,0,65,0),(152,0,65,0)]:#image
 				#print 'image'
+				
+				create_new_directory(file_directory+os.sep+file_basename+'_imagefiles')
+				
 				type2=g.B(1)[0]
 				list2=get_list(type2,g)
 				for item2 in list2:
@@ -119,7 +122,7 @@ def prp_file_parser(filename,g):
 										else:
 											print 'warning:format:',format,texture_name
 										#print texture_name
-										image.name=g.dirname+os.sep+g.basename.split('.')[0]+'_files'+os.sep+texture_name
+										image.name=file_directory+os.sep+file_basename+'_imagefiles'+os.sep+texture_name
 										image.data=g.read(image.szer*image.wys*4)
 										image.draw()
 										texture_list[texture_chunk]=image.name
