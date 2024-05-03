@@ -130,9 +130,7 @@ def prp_file_parser(filename,g):
 			elif flag==(5,0,65,0):#anim
 				#print 'anim'
 
-				animation_directory=g.dirname+os.sep+g.basename
-				sys=Sys(animation_directory)
-				sys.add_directory(sys.base+'_animfiles')
+				create_new_directory(file_directory+os.sep+file_basename+'_animfiles')
 
 				type2=g.B(1)[0]
 				list2=get_list(type2,g)
@@ -142,7 +140,7 @@ def prp_file_parser(filename,g):
 					g.seek(item21[1])
 					animation_name=g.word(g.i(1)[0])
 
-				animation_path=sys.dir+os.sep+sys.base+'_animfiles'+os.sep+animation_name+'.anim'
+				animation_path=file_directory+os.sep+file_basename+'_animfiles'+os.sep+animation_name+'.anim'
 				animation_file=open(animation_path,'wb')
 				p=BinaryReader(animation_file)
 
@@ -243,7 +241,6 @@ def prp_file_parser(filename,g):
 				animation_file.close()
 				#break
 
-				#break
 			elif flag==(53,0,65,0):#mesh
 				#print 'mesh'
 				mesh=Mesh()
@@ -597,28 +594,28 @@ def anim_file_parser(filename,g):
 		action.draw()
 		action.set_context()
 
-def openFile(flagList):
-	global input,output
-	input_file=Input(flagList)
-	output_file=output(flagList)
-	filename=input_file.filename
-	print
-	print '='*70
-	print filename
-	print '='*70
-	print
-	ext=filename.split('.')[-1].lower()
+def openFile(full_file_path):
+	global file_directory,file_basename,file_extension
+	file_directory=os.path.dirname(full_file_path)
+	file_extension=os.path.basename(full_file_path).split('.')[-1]
+	file_basename=os.path.basename(full_file_path).split('.'+file_extension)[0]
 
-	if ext=='prp':
-		file=open(filename,'rb')
+	print
+	print '='*70
+	print full_file_path
+	print '='*70
+	print
+
+	if file_extension=='prp':
+		file=open(full_file_path,'rb')
 		g=BinaryReader(file)
-		prp_file_parser(filename,g)
+		prp_file_parser(full_file_path,g)
 		file.close()
 
-	if ext=='anim':
-		file=open(filename,'rb')
+	if file_extension=='anim':
+		file=open(full_file_path,'rb')
 		g=BinaryReader(file)
-		anim_file_parser(filename,g)
+		anim_file_parser(full_file_path,g)
 		file.close()
 
 Blender.Window.FileSelector(openFile,'import','Overlord I and II files: prp - archive, anim - animation')

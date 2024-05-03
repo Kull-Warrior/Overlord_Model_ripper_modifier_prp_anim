@@ -1,60 +1,16 @@
 import bpy
 import Blender,os
 from Blender.Mathutils import *
-import types
 
-class Input(object):
-	def __init__(self,flagList):
-		self.flagList=flagList
-		self.type=None
-		self.debug=None
-		if type(flagList)==types.InstanceType:
-			self.type='instance'
-			self.filename=flagList.assetPath
-			self.imageList=flagList.pluginList[flagList.pluginName]['imageList']
-			self.model_list=flagList.pluginList[flagList.pluginName]['model_list']
-			self.animList=flagList.pluginList[flagList.pluginName]['animList']
-			self.archiveList=flagList.pluginList[flagList.pluginName]['archiveList']
-			self.output=flagList
-			self.returnList=self.flagList.returnList
-			self.returnKey=self.flagList.returnKey
-		if type(flagList)==types.StringType:
-			self.type='string'
-			self.filename=flagList
-			self.imageList=[]
-			self.model_list=[]
-			self.animList=[]
-			self.archiveList=[]
-
-def input1(object):
-	return object
-
-def output(object):
-	return object
+def	create_new_directory(new_directory_path):
+	if os.path.exists(new_directory_path)==False:
+		os.makedirs(new_directory_path)
 
 def float255(data):
 	list=[]
 	for get in data:
 		list.append(get/255.0)
 	return list
-
-class Sys(object):
-	def __init__(self,input):
-		self.input=input
-		if '.' in os.path.basename(input):
-			self.ext=os.path.basename(input).split('.')[-1]
-		else:
-			self.ext=''
-		if '.' in os.path.basename(input):
-			self.base=os.path.basename(input).split('.'+self.ext)[0]
-		else:
-			self.base=os.path.basename(input)+'Dir'
-		self.dir=os.path.dirname(input)
-		self.blendFile=Blender.Get('filename')
-	def	add_directory(self,base):
-		newDir=self.dir+os.sep+base
-		if os.path.exists(newDir)==False:
-			os.makedirs(newDir)
 
 def is_quat(quat):
 	sum=quat[1]**2+quat[2]**2+quat[3]**2
