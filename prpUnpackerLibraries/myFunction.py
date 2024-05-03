@@ -51,10 +51,6 @@ class Sys(object):
 			self.base=os.path.basename(input)+'Dir'
 		self.dir=os.path.dirname(input)
 		self.blendFile=Blender.Get('filename')
-	def	directory(self,base):
-		newDir=self.dir+os.sep+base
-		if os.path.exists(newDir)==False:
-			os.makedirs(newDir)
 	def	add_directory(self,base):
 		newDir=self.dir+os.sep+base
 		if os.path.exists(newDir)==False:
