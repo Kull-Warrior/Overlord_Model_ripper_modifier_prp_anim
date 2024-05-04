@@ -1,10 +1,35 @@
 import struct
-import os
 import Blender
 
 def get_dds_header():
 	dds_header = '\x44\x44\x53\x20\x7C\x00\x00\x00\x07\x10\x0A\x00\x00\x04\x00\x00\x00\x04\x00\x00\x00\x00\x08\x00\x00\x00\x00\x00\x0B\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x20\x00\x00\x00\x05\x00\x00\x00\x44\x58\x54\x31\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x08\x10\x40\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
 	return dds_header
+
+def get_tga_header():
+	tga_header = '\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+	return tga_header
+
+def write_to_dxt_file(self):
+	newfile=open(self.name,'wb')
+	newfile.write(get_dds_header())
+	newfile.seek(0xC)
+	newfile.write(struct.pack('i',self.wys))
+	newfile.seek(0x10)
+	newfile.write(struct.pack('i',self.szer))
+	newfile.seek(0x54)
+	newfile.write(self.format)
+	newfile.seek(128)
+	newfile.write(self.data)
+	newfile.close()
+
+def write_to_tga_file(self,offset,data):
+	newfile=open(self.name,'wb')
+	newfile.write(get_tga_header())
+	newfile.write(struct.pack('H',self.wys))
+	newfile.write(struct.pack('H',self.szer))
+	newfile.write(offset)
+	newfile.write(data)
+	newfile.close()
 
 def tga_16(data):
 	newdata=''
@@ -38,8 +63,6 @@ def rgb565_to_rgb888(szer,wys,data,outname):
 			else:
 				pa=0
 			image.setPixelI(n, 511-m, (pr, pg, pb,pa))
-			#newdata+=struct.pack('iii',pr,pg,pb)
-	#return newdata
 	image.save()
 
 def argb1555_to_argb8888(data):
@@ -64,88 +87,21 @@ class Image():
 		self.data=None
 
 	def draw(self):
-		if self.format is not None:
-			if self.wys is not None:
-				if self.szer is not None:
-					if self.name is not None:
-						if self.data is not None:
-							if self.format=='DXT1':
-								newfile=open(self.name,'wb')
-								newfile.write(get_dds_header())
-								newfile.seek(0xC)
-								newfile.write(struct.pack('i',self.wys))
-								newfile.seek(0x10)
-								newfile.write(struct.pack('i',self.szer))
-								newfile.seek(0x54)
-								newfile.write('DXT1')
-								newfile.seek(128)
-								newfile.write(self.data)
-								newfile.close()
-							elif self.format=='DXT3':
-								newfile=open(self.name,'wb')
-								newfile.write(get_dds_header())
-								newfile.seek(0xC)
-								newfile.write(struct.pack('i',self.wys))
-								newfile.seek(0x10)
-								newfile.write(struct.pack('i',self.szer))
-								newfile.seek(0x54)
-								newfile.write('DXT3')
-								newfile.seek(128)
-								newfile.write(self.data)
-								newfile.close()
-							elif self.format=='DXT5':
-								newfile=open(self.name,'wb')
-								newfile.write(get_dds_header())
-								newfile.seek(0xC)
-								newfile.write(struct.pack('i',self.wys))
-								newfile.seek(0x10)
-								newfile.write(struct.pack('i',self.szer))
-								newfile.seek(0x54)
-								newfile.write('DXT5')
-								newfile.seek(128)
-								newfile.write(self.data)
-								newfile.close()
-							elif self.format=='tga32':
-								newfile=open(self.name,'wb')
-								newfile.write('\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00')
-								newfile.write(struct.pack('H',self.wys))
-								newfile.write(struct.pack('H',self.szer))
-								newfile.write('\x20\x20')
-								newfile.write(self.data)
-								newfile.close()
-							elif self.format=='tga16':
-								newfile=open(self.name,'wb')
-								newfile.write('\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00')
-								newfile.write(struct.pack('H',self.wys))
-								newfile.write(struct.pack('H',self.szer))
-								newfile.write('\x20\x20')
-								newfile.write(tga_16(self.data))
-								newfile.close()
-							elif self.format=='tga24':
-								newfile=open(self.name,'wb')
-								newfile.write('\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00')
-								newfile.write(struct.pack('H',self.wys))
-								newfile.write(struct.pack('H',self.szer))
-								newfile.write('\x18\x20')
-								"""id=0
-								for m in range(self.szer):
-									for n in range(self.wys):
-										data=self.data[id*3:id*3+3]
-										newfile.write(data)
-										newfile.write('\x00')
-										id+=1"""
-								newfile.write(self.data)
-								#newfile.write(tga_16(self.data))
-								newfile.close()
-							elif self.format=='565to888':
-								#newfile=open(self.name,'wb')
-								#newfile.write('\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00')
-								#newfile.write(struct.pack('H',self.wys))
-								#newfile.write(struct.pack('H',self.szer))
-								#newfile.write('\x20\x20')
-								#newfile.write(
-								rgb565_to_rgb888(self.szer,self.wys,self.data,self.name)
-								#)
-								#newfile.close()
-							else:
-								print 'warning: unknown format',self.format
+		if None not in (self.format, self.wys, self.szer, self.name,self.data):
+			if 'DXT' in self.format:
+				write_to_dxt_file(self)
+			elif 'tga' in self.format:
+				if self.format=='tga32':
+					offset='\x20\x20'
+					data=self.data
+				elif self.format=='tga16':
+					offset='\x20\x20'
+					data=tga_16(self.data)
+				elif self.format=='tga24':
+					offset='\x18\x20'
+					data=self.data
+				write_to_tga_file(self,offset,data)
+			elif self.format=='565to888':
+				rgb565_to_rgb888(self.szer,self.wys,self.data,self.name)
+			else:
+				print 'warning: unknown format',self.format
