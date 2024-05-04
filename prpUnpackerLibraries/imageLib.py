@@ -148,4 +148,4 @@ class Image():
 								#)
 								#newfile.close()
 							else:
-								print 'warning: nieznany format',self.format
+								print 'warning: unknown format',self.format

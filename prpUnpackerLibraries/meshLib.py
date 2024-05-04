@@ -82,7 +82,6 @@ class Mesh():
 		self.bind_pose_skeleton=None
 		self.matrix=None
 		self.split=False
-		self.warning=False
 		self.is_drawing_active=False
 		self.set_box_values=None
 		self.bind_pose=False
@@ -146,17 +145,6 @@ class Mesh():
 		if mat.alpha is not None:
 			alpha(blendMat,mat)
 		mesh.materials+=[blendMat]
-		if self.warning==True:
-			print 'class<MAt>.name:',mat.name
-			print 'class<MAt>.ztrans:',mat.ztrans
-			if mat.diffuse is not None:
-				print 'class<MAt>.diffuse:',mat.diffuse
-			if mat.specular is not None:
-				print 'class<MAt>.specular:',mat.specular
-			if mat.normal is not None:
-				print 'class<MAt>.normal:',mat.normal
-			if mat.ambient_occlusion is not None:
-				print 'class<MAt>.ambient_occlusion:',mat.ambient_occlusion
 
 	def add_vertex_uv(self,blenderMesh,mesh):
 		blenderMesh.vertexUV = 1
@@ -167,8 +155,6 @@ class Mesh():
 				blenderMesh.verts[m].uvco = Vector(mesh.vertice_uv_list[m])
 
 	def add_face_uv(self,blenderMesh,mesh):
-		if self.warning==True:
-			print 'warning: blenderMesh.faces:',len(blenderMesh.faces)
 		if len(blenderMesh.faces)>0:
 			blenderMesh.faceUV = 1
 			if len(mesh.vertice_uv_list)>0:
@@ -202,18 +188,6 @@ class Mesh():
 					skin.id_count=len(self.skin_indice_list)
 				for vertID in range(skin.id_count):
 					self.skin_id_list.append(skinID)
-				if self.warning==True:
-					print '\t','class<Skin>.bone_map:',len(skin.bone_map)
-					print '\t'*2,'class<Skin>.id_start:',skin.id_start
-					print '\t'*2,'class<Skin>.id_count:',skin.id_count
-					print '\t'*2,'class<Skin>.skin_id_list:',len(self.skin_id_list)
-
-		else:
-			if self.warning==True:
-				print '\t'*2,'class<Skin>.skin_id_list:',len(self.skin_id_list)
-				for skinID in range(len(self.skin_list)):
-					skin=self.skin_list[skinID]
-					print '\t','class<Skin>.bone_map:',len(skin.bone_map)
 
 	def add_skin(self,blendMesh,mesh):
 
@@ -291,12 +265,6 @@ class Mesh():
 			Blender.Window.RedrawAll()
 
 	def add_faces(self):
-		if self.warning==True:
-			print '\t','class<Mesh>.material_list count:',len(self.material_list)
-			for matID in range(len(self.material_list)):
-				print '\t'*2,'class<Mat>.name:',self.material_list[matID].name
-				print '\t'*3,'class<Mat>.id_start:',self.material_list[matID].id_start
-				print '\t'*3,'class<Mat>.id_count:',self.material_list[matID].id_count
 		if len(self.material_list)==0:
 			if len(self.face_list)!=0:
 				self.triangle_list=self.face_list
@@ -307,10 +275,6 @@ class Mesh():
 					self.indices_to_quads(self.indice_list,0)
 				elif self.is_triangle_strip==True:
 					self.indices_to_triangle_strips(self.indice_list,0)
-				else:
-					if self.warning==True:
-						print 'warning: class<Mesh>.is_triangle:',self.is_triangle
-						print 'warning: class<Mesh>.is_triangle_strip:',self.is_triangle_strip
 
 		else:
 			if len(self.face_list)>0:
@@ -353,17 +317,7 @@ class Mesh():
 					elif mat.is_triangle_strip==True:
 						self.indices_to_triangle_strips(indice_list,matID)
 
-		if self.warning==True:
-			print 'OUTPUT:'
-			print '\t','class<Mesh>.triangle_list count:',len(self.triangle_list)
-			print '\t','class<Mesh>.material_id_list count:',len(self.material_id_list)
-
 	def build_mesh(self,mesh,mat,meshID):
-		if self.warning==True:print 'class<Mesh>.name:',mesh.name
-		if self.warning==True:print '\t','class<Mesh>.vertice_position_list count:',len(mesh.vertice_position_list)
-		if self.warning==True:print '\t','class<Mesh>.vertice_uv_list count:',len(mesh.vertice_uv_list)
-		if self.warning==True:print '\t','class<Mesh>.triangle_list count:',len(mesh.triangle_list)
-		if self.warning==True:print '\t','class<Mesh>.indice_list count:',len(mesh.indice_list)
 		blendMesh = bpy.data.meshes.new(mesh.name)
 		blendMesh.verts.extend(mesh.vertice_position_list)
 		blendMesh.faces.extend(mesh.triangle_list)
@@ -416,17 +370,9 @@ class Mesh():
 
 	def draw(self):
 		if self.name is None:self.name=str(parse_id())+'-model-'+str(0)
-		if self.warning==True:print 'class<Mesh>.name:',self.name
-		if self.warning==True:print '\t','class<Mesh>.vertice_position_list count:',len(self.vertice_position_list)
-		if self.warning==True:print '\t','class<Mesh>.vertice_uv_list count:',len(self.vertice_uv_list)
-		if self.warning==True:print '\t','class<Mesh>.indice_list count:',len(self.indice_list)
-		if self.warning==True:print '\t','class<Mesh>.face_list count:',len(self.face_list)
-		if self.warning==True:print '\t','class<Mesh>.triangle_list count:',len(self.triangle_list)
-		if self.warning==True:print '\t','class<Mesh>.face_uv_list count:',len(self.face_uv_list)
 		self.add_faces()
-
-		if self.warning==True:print '\t','class<Mesh>.split:',self.split
 		self.add_skin_id_list()
+
 		if self.set_box_values is not None:
 			self.set_box()
 
@@ -455,16 +401,10 @@ class Mesh():
 				self.object.setMatrix(self.matrix*self.object.matrixWorld)
 
 			if self.bind_pose==True:
-				#if len(self.bind_pose_matrix_list)>0:
 				self.add_bind_pose(self.mesh,self)
-				#else:
-				#	print 'warning: mesh.bind_pose_matrix_list: None'
 			Blender.Window.RedrawAll()
 
 		if self.split==True:
-			if self.warning==True:
-				print 'MESH SPLITING PROCCES:'
-			print 'split:True'
 			mesh_list=[]
 			for matID in range(len(self.material_list)):
 				mesh=Mesh()
@@ -567,9 +507,6 @@ def diffuse(blendMat,data):
 			tex.image = image
 			blendMat.setTexture(data.diffuse_slot,tex,Blender.Texture.TexCo.UV,\
 			Blender.Texture.MapTo.COL| Blender.Texture.MapTo.ALPHA|Blender.Texture.MapTo.CSP)
-		#else:
-		#	if self.warning==True:
-		#		print 'failed...',data.diffuse
 
 def reflection(blendMat,data):
 		if os.path.exists(data.reflection)==True:
@@ -584,9 +521,6 @@ def reflection(blendMat,data):
 			mtextures = blendMat.getTextures()
 			mtex=mtextures[data.reflection_slot]
 			mtex.colfac=data.reflection_strong
-		#else:
-		#	if self.warning==True:
-		#		print 'failed...',data.reflection
 
 def alpha(blendMat,data):
 		if os.path.exists(data.alpha)==True:
@@ -601,9 +535,6 @@ def alpha(blendMat,data):
 			blendMat.setTexture(data.alpha_slot,tex,Blender.Texture.TexCo.UV,\
 			Blender.Texture.MapTo.ALPHA)
 			#blendMat.getTextures()[data.diffuse_slot].mtAlpha=0
-		#else:
-		#	if self.warning==True:
-		#		print 'failed...',data.diffuse
 
 def diffuse1(blendMat,data):
 		if os.path.exists(data.diffuse1)==True:
@@ -616,9 +547,6 @@ def diffuse1(blendMat,data):
 			tex.image = image
 			blendMat.setTexture(data.diffuse1_slot,tex,Blender.Texture.TexCo.UV,\
 			Blender.Texture.MapTo.COL|Blender.Texture.MapTo.CSP)
-		#else:
-		#	if self.warning==True:
-		#		print 'failed...',data.diffuse1
 
 def diffuse2(blendMat,data):
 		if os.path.exists(data.diffuse2)==True:
@@ -631,9 +559,6 @@ def diffuse2(blendMat,data):
 			tex.image = image
 			blendMat.setTexture(data.diffuse2_slot,tex,Blender.Texture.TexCo.UV,\
 			Blender.Texture.MapTo.COL|Blender.Texture.MapTo.CSP)
-		#else:
-		#	if self.warning==True:
-		#		print 'failed...',data.diffuse1
 
 def normal(blendMat,data):
 		if os.path.exists(data.normal)==True:
@@ -649,9 +574,6 @@ def normal(blendMat,data):
 			blendMat.getTextures()[data.normal_slot].norfac=data.normal_strong
 			blendMat.getTextures()[data.normal_slot].mtNor=data.normal_direction
 			blendMat.getTextures()[data.normal_slot].size=data.normal_size
-		#else:
-		#	if self.warning==True:
-		#		print 'failed...',data.normal
 
 def specular(blendMat,data):
 		if os.path.exists(data.specular)==True:
@@ -666,9 +588,6 @@ def specular(blendMat,data):
 			mtextures = blendMat.getTextures()
 			mtex=mtextures[data.specular_slot]
 			mtex.neg=True
-		#else:
-		#	if self.warning==True:
-		#		print 'failed...',data.specular
 
 def ao(blendMat,data):
 		if os.path.exists(data.ambient_occlusion)==True:
@@ -682,9 +601,6 @@ def ao(blendMat,data):
 			blendMat.setTexture(data.ambient_occlusion_slot,tex,Blender.Texture.TexCo.UV,Blender.Texture.MapTo.COL)
 			mtex=blendMat.getTextures()[data.ambient_occlusion_slot]
 			mtex.blendmode=Blender.Texture.BlendModes.MULTIPLY
-		#else:
-		#	if self.warning==True:
-		#		print 'failed...',data.ambient_occlusion
 
 def normal1(blendMat,data):
 		if os.path.exists(data.normal1)==True:
@@ -700,9 +616,6 @@ def normal1(blendMat,data):
 			blendMat.getTextures()[data.normal1_slot].norfac=data.normal1_strong
 			blendMat.getTextures()[data.normal1_slot].mtNor=data.normal1_direction
 			blendMat.getTextures()[data.normal1_slot].size=data.normal1_size
-		##else:
-		#	if self.warning==True:
-		#		print 'failed...',data.normal1
 
 def normal2(blendMat,data):
 		if os.path.exists(data.normal2)==True:
@@ -718,9 +631,6 @@ def normal2(blendMat,data):
 			blendMat.getTextures()[data.normal2_slot].norfac=data.normal2_strong
 			blendMat.getTextures()[data.normal2_slot].mtNor=data.normal2_direction
 			blendMat.getTextures()[data.normal2_slot].size=data.normal2_size
-		#else:
-		#	if self.warning==True:
-		#		print 'failed...',data.normal2
 
 class Skin:
 	def __init__(self):

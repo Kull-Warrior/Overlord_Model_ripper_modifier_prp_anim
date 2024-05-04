@@ -37,13 +37,7 @@ class BinaryReader(file):
 	def __init__(self, inputFile):
 		self.inputFile=inputFile
 		self.endian='<'
-		self.debug=False
 		self.stream={}
-		self.logfile=None
-		self.log=False
-		self.dirname=Blender.sys.dirname(self.inputFile.name)
-		self.basename=Blender.sys.basename(self.inputFile.name).split('.')[0]
-		self.ext=Blender.sys.basename(self.inputFile.name).split('.')[-1]
 		self.xor_key=None
 		self.xor_offset=0
 		self.xor_data=''
@@ -58,38 +52,9 @@ class BinaryReader(file):
 				else:
 					self.xor_offset+=1
 
-	def log_open(self):
-		self.log=True
-		self.logfile=open(self.inputFile.name+'.log','w')
-
-	def log_close(self):
-		self.log=False
-		if self.logfile is not None:
-			self.logfile.close()
-
-	def log_write(self,data):
-		if self.logfile is not None:
-			self.logfile.write(str(data)+'\n')
-		else:
-			print 'warning: no log'
-
-	def dirname(self):
-		return Blender.sys.dirname(self.inputFile.name)
-
-	def basename(self):
-		return Blender.sys.basename(self.inputFile.name).split('.')[0]
-
-	def ext(self):
-		return Blender.sys.basename(self.inputFile.name).split('.')[-1]
-
 	def q(self,n):
 		offset=self.inputFile.tell()
 		data=struct.unpack(self.endian+n*'q',self.inputFile.read(n*8))
-		if self.debug==True:
-			print data
-		if self.log==True:
-			if self.logfile is not None:
-				self.logfile.write('offset '+str(offset)+'	'+str(data)+'\n')
 		return data
 
 	def i(self,n):
@@ -101,12 +66,6 @@ class BinaryReader(file):
 				data=struct.unpack(self.endian+n*4*'B',self.inputFile.read(n*4))
 				self.xor(data)
 				data=struct.unpack(self.endian+n*'i',self.xor_data)
-
-			if self.debug==True:
-				print data
-			if self.log==True:
-				if self.logfile is not None:
-					self.logfile.write('offset '+str(offset)+'	'+str(data)+'\n')
 			return data
 		if self.inputFile.mode=='wb':
 			for m in range(len(n)):
@@ -121,11 +80,6 @@ class BinaryReader(file):
 			data=struct.unpack(self.endian+n*4*'B',self.inputFile.read(n*4))
 			self.xor(data)
 			data=struct.unpack(self.endian+n*'I',self.xor_data)
-		if self.debug==True:
-			print data
-		if self.log==True:
-			if self.logfile is not None:
-				self.logfile.write('offset '+str(offset)+'	'+str(data)+'\n')
 		return data
 
 	def B(self,n):
@@ -137,11 +91,6 @@ class BinaryReader(file):
 				data=struct.unpack(self.endian+n*'B',self.inputFile.read(n))
 				self.xor(data)
 				data=struct.unpack(self.endian+n*'B',self.xor_data)
-			if self.debug==True:
-				print data
-			if self.log==True:
-				if self.logfile is not None:
-					self.logfile.write('offset '+str(offset)+'	'+str(data)+'\n')
 			return data
 		if self.inputFile.mode=='wb':
 			for m in range(len(n)):
@@ -157,11 +106,6 @@ class BinaryReader(file):
 				data=struct.unpack(self.endian+n*'b',self.inputFile.read(n))
 				self.xor(data)
 				data=struct.unpack(self.endian+n*'b',self.xor_data)
-			if self.debug==True:
-				print data
-			if self.log==True:
-				if self.logfile is not None:
-					self.logfile.write('offset '+str(offset)+'	'+str(data)+'\n')
 			return data
 		if self.inputFile.mode=='wb':
 			for m in range(len(n)):
@@ -177,11 +121,6 @@ class BinaryReader(file):
 				data=struct.unpack(self.endian+n*2*'B',self.inputFile.read(n*2))
 				self.xor(data)
 				data=struct.unpack(self.endian+n*'h',self.xor_data)
-			if self.debug==True:
-				print data
-			if self.log==True:
-				if self.logfile is not None:
-					self.logfile.write('offset '+str(offset)+'	'+str(data)+'\n')
 			return data
 		if self.inputFile.mode=='wb':
 			for m in range(len(n)):
@@ -197,11 +136,6 @@ class BinaryReader(file):
 				data=struct.unpack(self.endian+n*2*'B',self.inputFile.read(n*2))
 				self.xor(data)
 				data=struct.unpack(self.endian+n*'H',self.xor_data)
-			if self.debug==True:
-				print data
-			if self.log==True:
-				if self.logfile is not None:
-					self.logfile.write('offset '+str(offset)+'	'+str(data)+'\n')
 			return data
 		if self.inputFile.mode=='wb':
 			for m in range(len(n)):
@@ -217,11 +151,6 @@ class BinaryReader(file):
 				data=struct.unpack(self.endian+n*4*'B',self.inputFile.read(n*4))
 				self.xor(data)
 				data=struct.unpack(self.endian+n*'f',self.xor_data)
-			if self.debug==True:
-				print data
-			if self.log==True:
-				if self.logfile is not None:
-					self.logfile.write('offset '+str(offset)+'	'+str(data)+'\n')
 			return data
 		if self.inputFile.mode=='wb':
 			for m in range(len(n)):
@@ -234,11 +163,6 @@ class BinaryReader(file):
 		for id in range(n):
 			#array.append(convert_half_to_float(struct.unpack(self.endian+'H',self.inputFile.read(2))[0]))
 			array.append(convert_half_to_float(struct.unpack(self.endian+h,self.inputFile.read(2))[0]))
-		if self.debug==True:
-			print array
-		if self.log==True:
-			if self.logfile is not None:
-				self.logfile.write('offset '+str(offset)+'	'+str(array)+'\n')
 		return array
 
 	def short(self,n,h='h',exp=12):
@@ -247,11 +171,6 @@ class BinaryReader(file):
 		for id in range(n):
 			array.append(struct.unpack(self.endian+h,self.inputFile.read(2))[0]*2**-exp)
 			#array.append(self.H(1)[0]*2**-exp)
-		if self.debug==True:
-			print array
-		if self.log==True:
-			if self.logfile is not None:
-				self.logfile.write('offset '+str(offset)+'	'+str(array)+'\n')
 		return array
 
 	def i12(self,n):
@@ -263,11 +182,6 @@ class BinaryReader(file):
 			if self.endian=='<':
 				var=self.inputFile.read(3)+'\x00'
 			array.append(struct.unpack(self.endian+'i',var)[0])
-		if self.debug==True:
-			print array
-		if self.log==True:
-			if self.logfile is not None:
-				self.logfile.write('offset '+str(offset)+'	'+str(array)+'\n')
 		return array
 
 	def find(self,var,size=1000):
@@ -285,11 +199,6 @@ class BinaryReader(file):
 			else:
 				s+=data
 				start+=size
-		if self.debug==True:
-			print s
-		if self.log==True:
-			if self.logfile is not None:
-				self.logfile.write('offset '+str(start)+'	'+s+'\n')
 		return s
 
 	def find_all(self,var,size=100):
@@ -313,11 +222,6 @@ class BinaryReader(file):
 
 	def find_char(self,var):
 		offset=self.inputFile.find(var)
-		if self.debug==True:
-			print var,'znaleziono',offset
-		if self.log==True:
-			if self.logfile is not None:
-				self.logfile.write(var+' znaleziono '+str(offset)+'\n')
 		return offset
 
 	def file_size(self):
@@ -351,8 +255,6 @@ class BinaryReader(file):
 
 	def tell(self):
 		val=self.inputFile.tell()
-		if self.debug==True:
-			print 'current offset is',val
 		return val
 
 	def word(self,long):
@@ -371,25 +273,14 @@ class BinaryReader(file):
 						#lit =  struct.unpack('c',self.inputFile.read(1))[0]
 					if ord(lit)!=0:
 						s+=lit
-				if self.debug==True:
-					print s
-				if self.log==True:
-					if self.logfile is not None:
-						self.logfile.write('offset '+str(offset)+'	'+s+'\n')
 				return s
 			if self.inputFile.mode=='wb':
 				#data=self.inputFile.read(long)
 				self.inputFile.write(long)
 			#return 0
-		else:
-			if self.debug==True:
-				print 'warning:too long'
-			#return 1
 
 	def stream(self,stream_name,element_count,element_size):
 		self.inputFile.seek(element_count*element_size,1)
 		self.stream[stream_name]['offset']=offset
 		self.stream[stream_name]['element_count']=element_count
 		self.stream[stream_name]['element_size']=element_size
-
-	#def getFrom(self,stream_name,)

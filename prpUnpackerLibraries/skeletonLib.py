@@ -31,9 +31,6 @@ class Skeleton:
 		self.NICE=False
 		self.IK=False
 		self.bind_mesh=False
-		self.warning=False
-		self.debug=None
-		self.debug_file=None
 		self.is_sorted=False
 		self.matrix=None
 
@@ -54,16 +51,6 @@ class Skeleton:
 				self.bone_children(blenderBone,bone)
 
 	def draw(self):
-		if self.warning==True:
-			print 'INPUT:'
-			print 'class<Skeleton>.name:',self.name
-			print 'class<Skeleton>.bone_list:',len(self.bone_list)
-			print 'class<Skeleton>.armature_space:',self.armature_space
-			print 'class<Skeleton>.bone_space:',self.bone_space
-
-		if self.debug is not None:
-			self.debug_file=open(self.debug+'.skeleton','w')
-
 		self.check()
 		if len(self.bone_list)>0:
 			self.create_bones()
@@ -99,8 +86,6 @@ class Skeleton:
 					self.armature.update()
 			if self.IK==True:
 				self.armature.autoIK=True
-		if self.debug is not None:
-			self.debug_file.close()
 
 	def create_bones(self):
 		self.armature.makeEditable()
@@ -110,8 +95,6 @@ class Skeleton:
 				bone_list.append(bone.name)
 		for boneID in range(len(self.bone_list)):
 			name=self.bone_list[boneID].name
-			if self.debug is not None:
-				self.debug_file.write(name+'\n')
 			if name is None:
 				name=str(boneID)
 				self.bone_list[boneID].name=name
@@ -144,8 +127,7 @@ class Skeleton:
 				else:
 					bone.parent=parent
 			else:
-				if self.warning==True:
-					print 'warning: no parent for bone',name
+				print 'warning: no parent for bone',name
 		self.armature.update()
 
 	def create_bone_position(self):
@@ -179,8 +161,7 @@ class Skeleton:
 						bvec.normalize()
 						bone.tail = bone.head + 0.01 * bvec
 				else:
-					if self.warning==True:
-						print 'ARMATUREPACE or bone_space ?'
+					print 'ARMATUREPACE or bone_space ?'
 			elif rotation_matrix is not None and position_matrix is not None:
 				if self.armature_space==True:
 					rotation_matrix=round_matrix(rotation_matrix,4)
@@ -205,11 +186,9 @@ class Skeleton:
 						bvec.normalize()
 						bone.tail = bone.head + 0.01 * bvec
 				else:
-					if self.warning==True:
-						print 'ARMATUREPACE or bone_space ?'
+					print 'ARMATUREPACE or bone_space ?'
 			else:
-				if self.warning==True:
-					print 'WARNINIG: rotation_matrix or position_matrix or matrix is None'
+				print 'WARNINIG: rotation_matrix or position_matrix or matrix is None'
 
 		self.armature.update()
 		Blender.Window.RedrawAll()
