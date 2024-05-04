@@ -6,6 +6,20 @@ def	create_new_directory(new_directory_path):
 	if os.path.exists(new_directory_path)==False:
 		os.makedirs(new_directory_path)
 
+def set_image_format(image_format,image):
+	if image_format==7:
+		image.format='DXT1'
+	elif image_format==11:
+		image.format='DXT5'
+	elif image_format==9:
+		image.format='DXT3'
+	elif image_format==5:
+		image.format='tga32'
+	else:
+		image.format=image_format
+		print 'warning:image_format:',image_format,texture_name
+	return image.format
+
 def float255(data):
 	list=[]
 	for get in data:

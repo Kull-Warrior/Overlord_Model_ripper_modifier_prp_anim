@@ -113,16 +113,7 @@ def prp_file_parser(filename,g):
 											if item5[0]==22:
 												offset=g.tell()
 										g.seek(offset)
-										if format==7:
-											image.format='DXT1'
-										elif format==11:
-											image.format='DXT5'
-										elif format==9:
-											image.format='DXT3'
-										elif format==5:
-											image.format='tga32'
-										else:
-											print 'warning:format:',format,texture_name
+										image.format=set_image_format(format,image)
 										#print texture_name
 										image.name=file_directory+os.sep+file_basename+'_imagefiles'+os.sep+texture_name
 										image.data=g.read(image.szer*image.wys*4)
