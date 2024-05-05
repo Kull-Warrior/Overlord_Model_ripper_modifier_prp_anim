@@ -29,6 +29,21 @@ def convert_half_to_float(h):
 	str = struct.pack('I',id)
 	return struct.unpack('f', str)[0]
 
+def unknown_reading_functionality_needs_to_be_renamed(self,n,first_multiplier,second_multiplier,third_multiplier,first_read_value,second_read_value):
+	offset=self.inputFile.tell()
+	if self.xor_key is None:
+		data=struct.unpack(self.endian+n*first_multiplier,self.inputFile.read(first_read_value))
+	else:
+		data=struct.unpack(self.endian+n*second_multiplier,self.inputFile.read(second_read_value))
+		self.xor(data)
+		data=struct.unpack(self.endian+n*third_multiplier,self.xor_data)
+	return data
+
+def unknown_writing_functionality_needs_to_be_renamed(self,n,adder):
+	for m in range(len(n)):
+		data=struct.pack(self.endian+adder,n[m])
+		self.inputFile.write(data)
+
 class BinaryReader(file):
 	"""general BinaryReader
 	"""
@@ -51,109 +66,52 @@ class BinaryReader(file):
 					self.xor_offset+=1
 
 	def q(self,n):
-		offset=self.inputFile.tell()
-		data=struct.unpack(self.endian+n*'q',self.inputFile.read(n*8))
-		return data
+		if self.inputFile.mode=='rb':
+			return unknown_reading_functionality_needs_to_be_renamed(self,n,'q',8*'B','q',n*8,n*8)
+		if self.inputFile.mode=='wb':
+			unknown_writing_functionality_needs_to_be_renamed(self,n,'q')
 
 	def i(self,n):
 		if self.inputFile.mode=='rb':
-			offset=self.inputFile.tell()
-			if self.xor_key is None:
-				data=struct.unpack(self.endian+n*'i',self.inputFile.read(n*4))
-			else:
-				data=struct.unpack(self.endian+n*4*'B',self.inputFile.read(n*4))
-				self.xor(data)
-				data=struct.unpack(self.endian+n*'i',self.xor_data)
-			return data
+			return unknown_reading_functionality_needs_to_be_renamed(self,n,'i',4*'B','i',n*4,n*4)
 		if self.inputFile.mode=='wb':
-			for m in range(len(n)):
-				data=struct.pack(self.endian+'i',n[m])
-				self.inputFile.write(data)
+			unknown_writing_functionality_needs_to_be_renamed(self,n,'i')
 
 	def I(self,n):
-		offset=self.inputFile.tell()
-		if self.xor_key is None:
-			data=struct.unpack(self.endian+n*'I',self.inputFile.read(n*4))
-		else:
-			data=struct.unpack(self.endian+n*4*'B',self.inputFile.read(n*4))
-			self.xor(data)
-			data=struct.unpack(self.endian+n*'I',self.xor_data)
-		return data
+		if self.inputFile.mode=='rb':
+			return unknown_reading_functionality_needs_to_be_renamed(self,n,'I',4*'B','I',n*4,n*4)
+		if self.inputFile.mode=='wb':
+			unknown_writing_functionality_needs_to_be_renamed(self,n,'I')
 
 	def B(self,n):
 		if self.inputFile.mode=='rb':
-			offset=self.inputFile.tell()
-			if self.xor_key is None:
-				data=struct.unpack(self.endian+n*'B',self.inputFile.read(n))
-			else:
-				data=struct.unpack(self.endian+n*'B',self.inputFile.read(n))
-				self.xor(data)
-				data=struct.unpack(self.endian+n*'B',self.xor_data)
-			return data
+			return unknown_reading_functionality_needs_to_be_renamed(self,n,'B','B','B',n,n)
 		if self.inputFile.mode=='wb':
-			for m in range(len(n)):
-				data=struct.pack(self.endian+'B',n[m])
-				self.inputFile.write(data)
+			unknown_writing_functionality_needs_to_be_renamed(self,n,'B')
 
 	def b(self,n):
 		if self.inputFile.mode=='rb':
-			offset=self.inputFile.tell()
-			if self.xor_key is None:
-				data=struct.unpack(self.endian+n*'b',self.inputFile.read(n))
-			else:
-				data=struct.unpack(self.endian+n*'b',self.inputFile.read(n))
-				self.xor(data)
-				data=struct.unpack(self.endian+n*'b',self.xor_data)
-			return data
+			return unknown_reading_functionality_needs_to_be_renamed(self,n,'b','b','b',n,n)
 		if self.inputFile.mode=='wb':
-			for m in range(len(n)):
-				data=struct.pack(self.endian+'b',n[m])
-				self.inputFile.write(data)
+			unknown_writing_functionality_needs_to_be_renamed(self,n,'b')
 
 	def h(self,n):
 		if self.inputFile.mode=='rb':
-			offset=self.inputFile.tell()
-			if self.xor_key is None:
-				data=struct.unpack(self.endian+n*'h',self.inputFile.read(n*2))
-			else:
-				data=struct.unpack(self.endian+n*2*'B',self.inputFile.read(n*2))
-				self.xor(data)
-				data=struct.unpack(self.endian+n*'h',self.xor_data)
-			return data
+			return unknown_reading_functionality_needs_to_be_renamed(self,n,'h',2*'B','h',n*2,n*2)
 		if self.inputFile.mode=='wb':
-			for m in range(len(n)):
-				data=struct.pack(self.endian+'h',n[m])
-				self.inputFile.write(data)
+			unknown_writing_functionality_needs_to_be_renamed(self,n,'h')
 
 	def H(self,n):
 		if self.inputFile.mode=='rb':
-			offset=self.inputFile.tell()
-			if self.xor_key is None:
-				data=struct.unpack(self.endian+n*'H',self.inputFile.read(n*2))
-			else:
-				data=struct.unpack(self.endian+n*2*'B',self.inputFile.read(n*2))
-				self.xor(data)
-				data=struct.unpack(self.endian+n*'H',self.xor_data)
-			return data
+			return unknown_reading_functionality_needs_to_be_renamed(self,n,'H',2*'B','H',n*2,n*2)
 		if self.inputFile.mode=='wb':
-			for m in range(len(n)):
-				data=struct.pack(self.endian+'H',n[m])
-				self.inputFile.write(data)
+			unknown_writing_functionality_needs_to_be_renamed(self,n,'H')
 
 	def f(self,n):
 		if self.inputFile.mode=='rb':
-			offset=self.inputFile.tell()
-			if self.xor_key is None:
-				data=struct.unpack(self.endian+n*'f',self.inputFile.read(n*4))
-			else:
-				data=struct.unpack(self.endian+n*4*'B',self.inputFile.read(n*4))
-				self.xor(data)
-				data=struct.unpack(self.endian+n*'f',self.xor_data)
-			return data
+			return unknown_reading_functionality_needs_to_be_renamed(self,n,'f',4*'B','f',n*4,n*4)
 		if self.inputFile.mode=='wb':
-			for m in range(len(n)):
-				data=struct.pack(self.endian+'f',n[m])
-				self.inputFile.write(data)
+			unknown_writing_functionality_needs_to_be_renamed(self,n,'f')
 
 	def half(self,n,h='h'):
 		array = []
