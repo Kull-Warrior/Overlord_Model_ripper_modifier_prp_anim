@@ -1,5 +1,4 @@
 import struct
-import Blender
 
 def half_to_float(h):
 	s = int((h >> 15) & 0x00000001) # sign
@@ -15,7 +14,6 @@ def half_to_float(h):
 				e -= 1
 			e += 1
 			f &= ~0x00000400
-			#print s,e,f
 	elif e == 31:
 		if f == 0:
 			return int((s << 31) | 0x7f800000)
@@ -161,7 +159,6 @@ class BinaryReader(file):
 		array = []
 		offset=self.inputFile.tell()
 		for id in range(n):
-			#array.append(convert_half_to_float(struct.unpack(self.endian+'H',self.inputFile.read(2))[0]))
 			array.append(convert_half_to_float(struct.unpack(self.endian+h,self.inputFile.read(2))[0]))
 		return array
 
@@ -170,7 +167,6 @@ class BinaryReader(file):
 		offset=self.inputFile.tell()
 		for id in range(n):
 			array.append(struct.unpack(self.endian+h,self.inputFile.read(2))[0]*2**-exp)
-			#array.append(self.H(1)[0]*2**-exp)
 		return array
 
 	def i12(self,n):
@@ -190,11 +186,9 @@ class BinaryReader(file):
 		while(True):
 			data=self.inputFile.read(size)
 			offset=data.find(var)
-			#print offset
 			if offset>=0:
 				s+=data[:offset]
 				self.inputFile.seek(start+offset+len(var))
-				#print 'znaleziono',var,'offset=',self.inputFile.tell()
 				break
 			else:
 				s+=data
@@ -207,7 +201,6 @@ class BinaryReader(file):
 		while(True):
 			data=self.inputFile.read(size)
 			offset=data.find(var)
-			#print offset,self.inputFile.tell()
 			if offset>=0:
 				list.append(start+offset)
 				self.inputFile.seek(start+offset+len(var))
@@ -228,7 +221,6 @@ class BinaryReader(file):
 		back=self.inputFile.tell()
 		self.inputFile.seek(0,2)
 		tell=self.inputFile.tell()
-		#self.inputFile.seek(0)
 		self.inputFile.seek(back)
 		return tell
 
@@ -265,19 +257,15 @@ class BinaryReader(file):
 				for j in range(0,long):
 					if self.xor_key is None:
 						lit =  struct.unpack('c',self.inputFile.read(1))[0]
-						#data=struct.unpack(self.endian+n*'i',self.inputFile.read(n*4))
 					else:
 						data=struct.unpack(self.endian+'B',self.inputFile.read(1))
 						self.xor(data)
 						lit=struct.unpack(self.endian+'c',self.xor_data)[0]
-						#lit =  struct.unpack('c',self.inputFile.read(1))[0]
 					if ord(lit)!=0:
 						s+=lit
 				return s
 			if self.inputFile.mode=='wb':
-				#data=self.inputFile.read(long)
 				self.inputFile.write(long)
-			#return 0
 
 	def stream(self,stream_name,element_count,element_size):
 		self.inputFile.seek(element_count*element_size,1)

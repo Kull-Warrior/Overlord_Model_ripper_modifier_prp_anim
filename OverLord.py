@@ -59,7 +59,6 @@ def prp_file_parser(filename,g):
 	list=get_list(type,g)
 	list26=get_item(list,26)
 	for item in list26:
-		#print item
 		g.seek(item[1])
 		g.B(3)
 		type1=g.B(1)[0]
@@ -67,11 +66,8 @@ def prp_file_parser(filename,g):
 		for item1 in list1:
 			g.seek(item1[1])
 			flag=g.B(4)
-			#print flag,g.tell(),
 
 			if flag in [(61,0,65,0),(153,0,65,0),(152,0,65,0)]:#image
-				#print 'image'
-				
 				create_new_directory(file_directory+os.sep+file_basename+'_imagefiles')
 				
 				type2=g.B(1)[0]
@@ -80,7 +76,6 @@ def prp_file_parser(filename,g):
 					g.seek(item2[1])
 					if item2[0]==20:
 						texture_chunk=g.word(g.i(1)[0])
-						#print 'texture chunk:',texture_chunk
 					if item2[0]==21:
 						texture_name=g.word(g.i(1)[0])
 						if '.' not in texture_name:
@@ -90,7 +85,6 @@ def prp_file_parser(filename,g):
 						list3=get_list(type3,g)
 						for item3 in list3:
 							g.seek(item3[1])
-							#print item3
 							if item3[0]==20:
 								g.B(3)
 								type4=g.B(1)[0]
@@ -114,7 +108,6 @@ def prp_file_parser(filename,g):
 												offset=g.tell()
 										g.seek(offset)
 										image.format=set_image_format(format,image)
-										#print texture_name
 										image.name=file_directory+os.sep+file_basename+'_imagefiles'+os.sep+texture_name
 										image.data=g.read(image.szer*image.wys*4)
 										image.draw()
@@ -124,8 +117,6 @@ def prp_file_parser(filename,g):
 										print 'unknow image flag:',flag,g.tell()
 
 			elif flag==(5,0,65,0):#anim
-				#print 'anim'
-
 				create_new_directory(file_directory+os.sep+file_basename+'_animfiles')
 
 				type2=g.B(1)[0]
@@ -154,16 +145,13 @@ def prp_file_parser(filename,g):
 						for item4 in list4:
 							g.seek(item4[1])
 							flag=g.B(4)
-							#print flag
 							if flag==(7,0,65,0):#anim
 								type5=g.B(1)[0]
 								list5=get_list(type5,g)
 								for item5 in list5:
 									g.seek(item5[1])
-									#print item5
 									if item5[0]==20:
 										boneName=g.word(g.i(1)[0])
-										#print boneName
 										animation_file.write(boneName)
 										animation_file.write('\x00')
 									if item5[0]==24:
@@ -173,10 +161,8 @@ def prp_file_parser(filename,g):
 										list6=get_list(type6,g)
 										for item6 in list6:
 											g.seek(item6[1])
-											#print '----',item6
 											if item6[0]==21:
 												frame_count=g.i(1)[0]
-												#print '----position:',frame_count
 											if item6[0]==22:
 												stream_offset=g.tell()
 										if (frame_count and stream_offset) is not None:
@@ -187,7 +173,6 @@ def prp_file_parser(filename,g):
 												animation_file.write(g.read(14))
 										else:
 											p.i([0])
-										#print frame_count
 
 									if item5[0]==25:
 
@@ -200,13 +185,11 @@ def prp_file_parser(filename,g):
 										list6=get_list(type6,g)
 										for item6 in list6:
 											g.seek(item6[1])
-											#print '----',item6
 											if item6[0]==21:
 												type7=g.B(1)[0]
 												list7=get_list(type7,g)
 												for item7 in list7:
 													g.seek(item7[1])
-													#print '--------',item7
 													if item7[0]==22:
 														frameCount22=g.i(1)[0]
 													if item7[0]==23:
@@ -215,14 +198,12 @@ def prp_file_parser(filename,g):
 														frameCount30=g.i(1)[0]
 													if item7[0]==31:
 														streamOffset31=g.tell()
-										#print frame_count
 										if (frameCount22 and streamOffset23) is not None:
 											g.seek(streamOffset23)
 											p.i([frameCount22])
 											p.B([22])
 											for mC in range(frameCount22):
 												animation_file.write(g.read(6))
-												#print Euler(g.short(3,'h',15)).toQuat()
 
 										elif (frameCount30 and streamOffset31) is not None:
 											g.seek(streamOffset31)
@@ -235,10 +216,8 @@ def prp_file_parser(filename,g):
 											p.B([0])
 
 				animation_file.close()
-				#break
 
 			elif flag==(53,0,65,0):#mesh
-				#print 'mesh'
 				mesh=Mesh()
 				mesh_list.append(mesh)
 				type2=g.B(1)[0]
@@ -262,7 +241,6 @@ def prp_file_parser(filename,g):
 									g.seek(item4[1])
 									if item4[0]==21:
 										indice_count=g.i(1)[0]
-										#print indice_count
 									if item4[0]==22:
 										indice_offset=g.tell()
 								if indice_count is not None:
@@ -278,7 +256,6 @@ def prp_file_parser(filename,g):
 									g.seek(item4[1])
 									if item4[0]==21:
 										indice_count=g.i(1)[0]
-										#print indice_count
 									if item4[0]==22:
 										indice_offset=g.tell()
 
@@ -290,23 +267,18 @@ def prp_file_parser(filename,g):
 								type4=g.B(1)[0]
 								list4=get_list(type4,g)
 								for item4 in list4:
-									#print item4
 									g.seek(item4[1])
 									if item4[0]==20:
 										type5=g.B(1)[0]
 										list5=get_list(type5,g)
 										for item5 in list5:
-											#print item5
 											g.seek(item5[1])
 											if item5[0]==21:
 												vertice_stride_size=g.i(1)[0]
-												#print 'vertice_stride_size:',vertice_stride_size
 											if item5[0]==22:
 												vertice_item_count=g.i(1)[0]
-												#print 'vertice_item_count:',vertice_item_count
 											if item5[0]==23:
 												vertice_item_offset=g.tell()
-												#print 'vertice_item_offset:',vertice_item_offset
 										g.seek(vertice_item_offset)
 										vertice_position_offset=None
 										vertice_uv_offset=None
@@ -315,11 +287,9 @@ def prp_file_parser(filename,g):
 										offset=0
 										for k in range(vertice_item_count):
 											a,b,c,d=g.B(4)
-											#print k,a,b,c,d,vertice_stride_size
 											if c==1:vertice_position_offset=offset
 											if c==5 and a==0:
 												vertice_uv_offset=offset
-												#print k,a,b,c,d,vertice_stride_size
 											if c==11:skin_indice_offset=offset
 											if c==10:skin_weight_offset=offset
 											if d==2:offset+=12
@@ -330,18 +300,14 @@ def prp_file_parser(filename,g):
 											if d==15:offset+=4
 									if item4[0]==21:
 										vertice_count=g.i(1)[0]
-										#print 'vertice_count:',vertice_count
 									if item4[0]==21:
 										stream_offset=g.tell()
-										#print 'stream_offset:',stream_offset
 				g.seek(stream_offset)
 				for k in range(vertice_count):
 					tk=g.tell()
 					if vertice_position_offset is not None:
 						g.seek(tk+vertice_position_offset)
 						mesh.vertice_position_list.append(g.f(3))
-					#g.seek(tk+30)
-					#print g.B(7),g.f(4)
 					if vertice_uv_offset is not None:
 						g.seek(tk+vertice_uv_offset)
 						mesh.vertice_uv_list.append(g.f(2))
@@ -351,15 +317,10 @@ def prp_file_parser(filename,g):
 					if skin_weight_offset is not None:
 						w1,w2=g.B(2)
 						w3=255-(w1+w2)
-						#print weightList
 						mesh.skin_weight_list.append([w1,w2])
 					g.seek(tk+vertice_stride_size)
-				#if vertice_uv_offset is not None:
-				#	mesh.name=str(vertice_stride_size)
-				#	mesh.draw()
 
 			elif flag in [(82,6,65,0),(60,6,65,0),(36,6,65,0),(10,6,65,0),(15,6,65,0),(8,6,65,0),(54,6,65,0),(38,6,65,0),(18,6,65,0),(22,6,65,0),(32,6,65,0)]:#material
-				#print 'material'
 				type2=g.B(1)[0]
 				list2=get_list(type2,g)
 				material=Mat()
@@ -369,7 +330,6 @@ def prp_file_parser(filename,g):
 					g.seek(item2[1])
 					if item2[0]==20:
 						material.chunk=g.word(g.i(1)[0])
-						#print 'material chunk:',material.chunk
 					if item2[0]==21:
 						material.name=g.word(g.i(1)[0])
 					if item2[0]==30:
@@ -377,20 +337,13 @@ def prp_file_parser(filename,g):
 						list3=get_list(type3,g)
 						for item3 in list3:
 							g.seek(item3[1])
-							#print item3
 							if item3[0]==20:
 								chunk=g.word(g.i(1)[0])
-								#print 'diff chunk:',chunk
 								material.diffChunk=chunk
-								#if chunk in texture_list.keys():
-								#	material.diffuse=texture_list[chunk]
-								#	print material.diffuse
 							if item3[0]==21:
 								name=g.word(g.i(1)[0])
-								#print name
 
 			elif flag in [(75,0,65,0)]:#model
-				#print 'model'
 				model=Model()
 				model_list.append(model)
 				type2=g.B(1)[0]
@@ -406,7 +359,6 @@ def prp_file_parser(filename,g):
 						list3=get_list(type3,g)
 						for item3 in list3:
 							g.seek(item3[1])
-							#print item3
 							if item3[0]==1:
 								type4=g.B(1)[0]
 								list4=get_list(type4,g)
@@ -426,7 +378,6 @@ def prp_file_parser(filename,g):
 													g.seek(item6[1])
 													if item6[0]==20:
 														chunk=g.word(g.i(1)[0])
-														#print chunk
 														mesh_chunk=chunk
 											if item5[0]==33:
 												type6=g.B(1)[0]
@@ -435,7 +386,6 @@ def prp_file_parser(filename,g):
 													g.seek(item6[1])
 													if item6[0]==20:
 														chunk=g.word(g.i(1)[0])
-														#print chunk
 														material_Chunk=chunk
 										if (mesh_chunk and material_Chunk) is not None:
 											model.mesh_list.append([mesh_chunk,material_Chunk])
@@ -445,7 +395,6 @@ def prp_file_parser(filename,g):
 						bone_count=None
 						for item3 in list3:
 							g.seek(item3[1])
-							#print item3
 							if item3[0]==20:
 								g.i(1)[0]
 							if item3[0]==21:
@@ -480,14 +429,12 @@ def prp_file_parser(filename,g):
 						bone_count=None
 						for item3 in list3:
 							g.seek(item3[1])
-							#print item3
 							if item3[0]==1:
 								type4=g.B(1)[0]
 								list4=get_list(type4,g)
 								for item4 in list4:
 									g.seek(item4[1])
 									flag=g.B(4)
-									#print flag
 									if flag==(160,0,65,0):
 										type5=g.B(1)[0]
 										list5=get_list(type5,g)
@@ -496,7 +443,6 @@ def prp_file_parser(filename,g):
 											g.seek(item5[1])
 											if item5[0]==22:
 												count=g.i(1)[0]
-												#print count
 											if item5[0]==23:
 												stream_offset=g.tell()
 										if count is not None:
@@ -535,16 +481,11 @@ def prp_file_parser(filename,g):
 					if i<len(model.bone_map_list):
 						skin=Skin()
 						skin.bone_map=model.bone_map_list[i]
-						#print len(skin.bone_map)
 						mesh.skin_list.append(skin)
 
 					mesh.bind_skeleton=model.skeleton
-					#print len(mesh.vertice_position_list),len(mesh.skin_indice_list),len(mesh.skin_weight_list),len(mesh.bone_name_list)
-					#mesh.name=mesh.chunk
-					#print mesh.name,mat.name
 					try:mesh.draw()
 					except:
-						#print 'warning:mesh:',mesh.name
 						pass
 					break
 			i+=1
@@ -556,7 +497,6 @@ def anim_file_parser(filename,g):
 		action=Action()
 		action.skeleton=armature.name
 		action.bone_space=True
-		#action.armature_space=True
 		action.bone_sort=True
 		action.UPDATE=False
 
@@ -565,7 +505,6 @@ def anim_file_parser(filename,g):
 			bone=ActionBone()
 			action.bone_list.append(bone)
 			bone.name=g.find('\x00')
-			#print bone.name
 			count=g.i(1)[0]
 			for m in range(count):
 				frame=g.H(1)[0]
@@ -580,7 +519,6 @@ def anim_file_parser(filename,g):
 					x=degrees(x)
 					y=degrees(y)
 					z=degrees(z)
-					#print x,y,z
 					bone.rotation_key_list.append(Euler(x,y,z).toMatrix().resize4x4())
 			if type==30:
 				for m in range(count):

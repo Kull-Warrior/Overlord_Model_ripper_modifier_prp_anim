@@ -3,52 +3,6 @@ import Blender
 from Blender.Mathutils import *
 from myFunction import *
 import random
-#print 'meshLib'
-
-"""import Blender
-from Blender.Mathutils import *
-
-armA=Blender.Object.Get('A')
-armB=Blender.Object.Get('B')
-
-bonesA=armA.getData().bones
-bonesB=armB.getData().bones
-
-for bone in bonesA.values():
-	bone.matrix['armature_space']
-
-objC=Blender.Object.Get('Cube')
-
-print
-#matA=bonesA['b'].matrix['armature_space']*armA.matrixWorld
-#print matA
-print
-#matB=bonesB['b'].matrix['armature_space']*armB.matrixWorld
-#print matB
-
-mesh=objC.getData(mesh=1)
-for vert in mesh.verts:
-	index=vert.index
-	skin_list=mesh.getVertexInfluences(index)
-	vco=vert.co.copy()*objC.matrixWorld
-	sum=Vector()
-	#print index
-	for skin in skin_list:
-		bone=skin[0]
-		weight=skin[1]
-
-		matA=bonesA[bone].matrix['armature_space']*armA.matrixWorld
-		matB=bonesB[bone].matrix['armature_space']*armB.matrixWorld
-		sum+=vco*matA.invert()*matB*weight
-
-		#print vco
-		#print vco*matA.invert()*matB*weight
-
-	vert.co=sum
-	#vert.co=vco
-
-mesh.update()
-Blender.Window.RedrawAll()	"""
 
 class Mesh():
 	
@@ -118,7 +72,6 @@ class Mesh():
 		blendMat.setRms(0.04)
 		blendMat.shadeMode=Blender.Material.ShadeModes.CUBIC
 		blendMat.rgbCol=mat.rgba[:3]
-		#print blendMat.rgbCol
 		blendMat.alpha = mat.rgba[3]
 		if mat.ztrans==True:
 			blendMat.mode |= Blender.Material.Modes.ZTRANSP
@@ -351,21 +304,13 @@ class Mesh():
 		if len(self.vertice_normal_list)>0:
 			for i,vert in enumerate(self.mesh.verts):
 				vert.no=Vector(self.vertice_normal_list[i])
-		#else:
-		#	self.mesh.calcNormals()
 
 		self.mesh.faces.extend(self.triangle_list,ignoreDups=True)
 		scene = bpy.data.scenes.active
 		self.object = scene.objects.new(self.mesh,self.name)
-		#print len(self.mesh.faces)	
-		"""for m in range(len(self.triangle_list)):
-			self.mesh.faces.extend(self.triangle_list[m],ignoreDups=True)
-			self.mesh.update()
-			Blender.Window.Redraw()"""
 
 	def bone_tree(self,parent):
 		for bone in parent.children:
-			#self.bone_name_list.append(bone.name)
 			self.bone_tree(bone)
 
 	def draw(self):
@@ -381,8 +326,6 @@ class Mesh():
 			if len(self.triangle_list)>0:
 				if len(self.vertice_uv_list)>0:
 					self.add_vertex_uv(self.mesh,self)
-					#self.add_face_uv(self.mesh,self)
-				#if len(self.face_uv_list)>0:
 			self.add_face_uv(self.mesh,self)
 			for matID in range(len(self.material_list)):
 				mat=self.material_list[matID]
@@ -393,7 +336,6 @@ class Mesh():
 				for object in scene.objects:
 					if object.name==self.bind_skeleton:
 						skeletonMatrix=self.object.getMatrix()*object.mat
-						#self.object.setMatrix(skeletonMatrix)
 						object.makeParentDeform([self.object],1,0)
 			self.add_skin(self.mesh,self)
 
@@ -417,7 +359,6 @@ class Mesh():
 
 			for faceID in range(len(self.material_id_list)):
 				matID=self.material_id_list[faceID]
-				#print matID
 				mesh=mesh_list[matID]
 				face=[]
 				for v in range(len(self.triangle_list[faceID])):
@@ -429,8 +370,6 @@ class Mesh():
 							mesh.vertice_uv_list.append(self.vertice_uv_list[vid])
 						if len(self.vertice_normal_list)>0:
 							mesh.vertice_normal_list.append(self.vertice_normal_list[vid])
-						#if len(self.face_uv_list)>0:
-						#	mesh.face_uv_list.append(self.face_uv_list[vid])
 						if len(self.skin_indice_list)>0 and len(self.skin_weight_list)>0:
 							mesh.skin_weight_list.append(self.skin_weight_list[vid])
 							mesh.skin_indice_list.append(self.skin_indice_list[vid])
@@ -469,10 +408,8 @@ class Mesh():
 		f2 = indicesList[id]
 		FaceDirection = StartDirection
 		while(True):
-		#for m in range(len(indicesList)-2):
 			id+=1
 			f3 = indicesList[id]
-			#print f3
 			if (f3==0xFFFF):
 				if id==len(indicesList)-1:break
 				id+=1
@@ -481,7 +418,6 @@ class Mesh():
 				f2 = indicesList[id]
 				FaceDirection = StartDirection
 			else:
-				#f3 += 1
 				FaceDirection *= -1
 				if (f1!=f2) and (f2!=f3) and (f3!=f1):
 					if FaceDirection > 0:
@@ -534,7 +470,6 @@ def alpha(blendMat,data):
 			tex.image = image
 			blendMat.setTexture(data.alpha_slot,tex,Blender.Texture.TexCo.UV,\
 			Blender.Texture.MapTo.ALPHA)
-			#blendMat.getTextures()[data.diffuse_slot].mtAlpha=0
 
 def diffuse1(blendMat,data):
 		if os.path.exists(data.diffuse1)==True:
@@ -683,7 +618,6 @@ class Mat:
 		self.reflection_slot=8
 		self.reflection_strong=1.0
 
-		#self.USEDTRIANGLES=[None,None]
 		self.is_triangle=False
 		self.is_triangle_strip=False
 		self.is_quad=False

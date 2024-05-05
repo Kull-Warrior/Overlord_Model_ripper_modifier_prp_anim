@@ -67,18 +67,15 @@ class Skeleton:
 			self.armature.drawType=Blender.Armature.OCTAHEDRON
 			for key in self.armature.bones.keys():
 				bone=self.armature.bones[key]
-				#print bone
 				children=bone.children
 				if len(children)==1:
 					self.armature.makeEditable()
 					ebone=self.armature.bones[bone.name]
-					#self.armature.bones[children[0].name].options=Blender.Armature.CONNECTED
 					if ebone.tail!=children[0].head['armature_space']:
 						ebone.tail=children[0].head['armature_space']
 					self.armature.update()
 			for key in self.armature.bones.keys():
 				bone=self.armature.bones[key]
-				#print bone
 				children=bone.children
 				if len(children)==1:
 					self.armature.makeEditable()

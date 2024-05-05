@@ -96,7 +96,6 @@ class Action:
 											pbone.poseMatrix=bonematrix
 										pbone.insertKey(skeleton, frame,\
 											[Blender.Object.Pose.LOC],True)
-										#pose.update()
 
 							for n in range(len(actionbone.rotation_frame_list)):
 								if frame==actionbone.rotation_frame_list[n]:
@@ -124,7 +123,6 @@ class Action:
 										pbone.poseMatrix=matrix
 										pbone.insertKey(skeleton, 1+frame,\
 											[Blender.Object.Pose.ROT,Blender.Object.Pose.LOC],True)
-											#[Blender.Object.Pose.LOC],True)
 										pose.update()
 									if self.bone_space is True:
 										if pbone.parent:
@@ -134,7 +132,6 @@ class Action:
 										pbone.insertKey(skeleton, 1+frame,\
 											[Blender.Object.Pose.ROT,Blender.Object.Pose.LOC],True)
 										pose.update()
-					#pose.update()
 
 			elif self.bone_sort is True:
 
@@ -145,7 +142,6 @@ class Action:
 					Blender.Window.RedrawAll()
 
 					if pbone is not None:
-						#matrix=armature.bones[name].matrix['armature_space']
 						pbone.insertKey(skeleton,0,[Blender.Object.Pose.ROT,Blender.Object.Pose.LOC],True)
 						pose.update()
 						
@@ -156,17 +152,14 @@ class Action:
 							bonematrix=poskey#TranslationMatrix(Vector(poskey))#.resize4x4()
 							if self.armature_space is True:
 								pbone.poseMatrix=bonematrix
-								#pbone.loc=bonematrix
 								pbone.insertKey(skeleton, 1+frame,\
 									[Blender.Object.Pose.LOC],True)
 								pose.update()
 							if self.bone_space is True:
 								if pbone.parent:
 									pbone.poseMatrix=bonematrix*pbone.parent.poseMatrix
-									#pbone.loc=bonematrix*pbone.parent.poseMatrix+pbone.parent.head
 								else:
 									pbone.poseMatrix=bonematrix
-									#pbone.loc=bonematrix
 								pbone.insertKey(skeleton, 1+frame,\
 									[Blender.Object.Pose.LOC],True)
 								pose.update()
@@ -178,7 +171,6 @@ class Action:
 							bonematrix=rotkey
 							if self.armature_space is True:
 								pbone.poseMatrix=bonematrix
-								#pbone.quat=bonematrix
 								pbone.insertKey(skeleton, 1+frame,\
 									[Blender.Object.Pose.ROT],True)
 								pose.update()
@@ -187,7 +179,6 @@ class Action:
 									pbone.poseMatrix=bonematrix*pbone.parent.poseMatrix
 								else:
 									pbone.poseMatrix=bonematrix
-									#pbone.quat=bonematrix
 								pbone.insertKey(skeleton, 1+frame,\
 									[Blender.Object.Pose.ROT],True)
 								pose.update()
@@ -210,7 +201,6 @@ class Action:
 								pbone.insertKey(skeleton, 1+frame,\
 									[Blender.Object.Pose.ROT,Blender.Object.Pose.LOC],True)
 								pose.update()
-						#pose.update()
 			else:
 				print 'warning: missing bone_sort or frame_sort'
 			if len(timeList)>0:

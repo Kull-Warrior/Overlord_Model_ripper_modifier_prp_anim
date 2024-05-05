@@ -63,7 +63,6 @@ def parse_id():
 	ids = []
 	scene = bpy.data.scenes.active
 	for mat in Blender.Material.Get():
-		#print mat.name
 		try:
 			model_id = int(mat.name.split('-')[0])
 			ids.append(model_id)
