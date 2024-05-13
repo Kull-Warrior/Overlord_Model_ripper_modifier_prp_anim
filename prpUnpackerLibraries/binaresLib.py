@@ -71,6 +71,12 @@ class BinaryReader(file):
 		if self.inputFile.mode=='wb':
 			unknown_writing_functionality_needs_to_be_renamed(self,n,'q')
 
+	def uint64(self,n):
+		if self.inputFile.mode=='rb':
+			return unknown_reading_functionality_needs_to_be_renamed(self,n,'Q',8*'B','Q',n*8,n*8)
+		if self.inputFile.mode=='wb':
+			unknown_writing_functionality_needs_to_be_renamed(self,n,'Q')
+
 	def int32(self,n):
 		if self.inputFile.mode=='rb':
 			return unknown_reading_functionality_needs_to_be_renamed(self,n,'i',4*'B','i',n*4,n*4)
@@ -112,6 +118,12 @@ class BinaryReader(file):
 			return unknown_reading_functionality_needs_to_be_renamed(self,n,'f',4*'B','f',n*4,n*4)
 		if self.inputFile.mode=='wb':
 			unknown_writing_functionality_needs_to_be_renamed(self,n,'f')
+
+	def double(self,n):
+		if self.inputFile.mode=='rb':
+			return unknown_reading_functionality_needs_to_be_renamed(self,n,'d',8*'B','d',n*8,n*8)
+		if self.inputFile.mode=='wb':
+			unknown_writing_functionality_needs_to_be_renamed(self,n,'d')
 
 	def half(self,n,h='h'):
 		array = []
