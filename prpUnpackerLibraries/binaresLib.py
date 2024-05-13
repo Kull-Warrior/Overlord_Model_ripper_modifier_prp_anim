@@ -65,49 +65,49 @@ class BinaryReader(file):
 				else:
 					self.xor_offset+=1
 
-	def q(self,n):
+	def int64(self,n):
 		if self.inputFile.mode=='rb':
 			return unknown_reading_functionality_needs_to_be_renamed(self,n,'q',8*'B','q',n*8,n*8)
 		if self.inputFile.mode=='wb':
 			unknown_writing_functionality_needs_to_be_renamed(self,n,'q')
 
-	def i(self,n):
+	def int32(self,n):
 		if self.inputFile.mode=='rb':
 			return unknown_reading_functionality_needs_to_be_renamed(self,n,'i',4*'B','i',n*4,n*4)
 		if self.inputFile.mode=='wb':
 			unknown_writing_functionality_needs_to_be_renamed(self,n,'i')
 
-	def I(self,n):
+	def uint32(self,n):
 		if self.inputFile.mode=='rb':
 			return unknown_reading_functionality_needs_to_be_renamed(self,n,'I',4*'B','I',n*4,n*4)
 		if self.inputFile.mode=='wb':
 			unknown_writing_functionality_needs_to_be_renamed(self,n,'I')
 
-	def B(self,n):
+	def uint8(self,n):
 		if self.inputFile.mode=='rb':
 			return unknown_reading_functionality_needs_to_be_renamed(self,n,'B','B','B',n,n)
 		if self.inputFile.mode=='wb':
 			unknown_writing_functionality_needs_to_be_renamed(self,n,'B')
 
-	def b(self,n):
+	def int8(self,n):
 		if self.inputFile.mode=='rb':
 			return unknown_reading_functionality_needs_to_be_renamed(self,n,'b','b','b',n,n)
 		if self.inputFile.mode=='wb':
 			unknown_writing_functionality_needs_to_be_renamed(self,n,'b')
 
-	def h(self,n):
+	def int16(self,n):
 		if self.inputFile.mode=='rb':
 			return unknown_reading_functionality_needs_to_be_renamed(self,n,'h',2*'B','h',n*2,n*2)
 		if self.inputFile.mode=='wb':
 			unknown_writing_functionality_needs_to_be_renamed(self,n,'h')
 
-	def H(self,n):
+	def uint16(self,n):
 		if self.inputFile.mode=='rb':
 			return unknown_reading_functionality_needs_to_be_renamed(self,n,'H',2*'B','H',n*2,n*2)
 		if self.inputFile.mode=='wb':
 			unknown_writing_functionality_needs_to_be_renamed(self,n,'H')
 
-	def f(self,n):
+	def float(self,n):
 		if self.inputFile.mode=='rb':
 			return unknown_reading_functionality_needs_to_be_renamed(self,n,'f',4*'B','f',n*4,n*4)
 		if self.inputFile.mode=='wb':
