@@ -78,25 +78,25 @@ class Mesh():
 			blendMat.mode |= Blender.Material.Modes.TRANSPSHADOW
 			blendMat.alpha = 0.0
 		if mat.diffuse is not None:
-			diffuse(blendMat,mat)
+			set_blender_material_texture(blendMat,mat,"diffuse","diff")
 		if mat.reflection is not None:
-			reflection(blendMat,mat)
+			set_blender_material_texture(blendMat,mat,"reflection","refl")
 		if mat.diffuse1 is not None:
-			diffuse1(blendMat,mat)
+			set_blender_material_texture(blendMat,mat,"diffuse1","diff")
 		if mat.diffuse2 is not None:
-			diffuse2(blendMat,mat)
+			set_blender_material_texture(blendMat,mat,"diffuse2","diff")
 		if mat.specular is not None:
-			specular(blendMat,mat)
+			set_blender_material_texture(blendMat,mat,"specular","spec")
 		if mat.normal is not None:
-			normal(blendMat,mat)
+			set_blender_material_texture(blendMat,mat,"normal","norm")
 		if mat.normal1 is not None:
-			normal1(blendMat,mat)
+			set_blender_material_texture(blendMat,mat,"normal1","norm")
 		if mat.normal2 is not None:
-			normal2(blendMat,mat)
+			set_blender_material_texture(blendMat,mat,"norma2","norm")
 		if mat.ambient_occlusion is not None:
-			ao(blendMat,mat)
+			set_blender_material_texture(blendMat,mat,"ambient_occlusion","ao")
 		if mat.alpha is not None:
-			alpha(blendMat,mat)
+			set_blender_material_texture(blendMat,mat,"alpha","alpha")
 		mesh.materials+=[blendMat]
 
 	def add_vertex_uv(self,blenderMesh,mesh):
@@ -432,141 +432,6 @@ class Mesh():
 				f2 = f3
 			if id==len(indicesList)-1:break
 
-def diffuse(blendMat,data):
-		if os.path.exists(data.diffuse)==True:
-			image=Blender.Image.Load(data.diffuse)
-			imgName=blendMat.name.replace('-mat-','-diff-')
-			image.setName(imgName)
-			texture_name=blendMat.name.replace('-mat-','-diff-')
-			tex = Blender.Texture.New(texture_name)
-			tex.setType('Image')
-			tex.image = image
-			blendMat.setTexture(data.diffuse_slot,tex,Blender.Texture.TexCo.UV,\
-			Blender.Texture.MapTo.COL| Blender.Texture.MapTo.ALPHA|Blender.Texture.MapTo.CSP)
-
-def reflection(blendMat,data):
-		if os.path.exists(data.reflection)==True:
-			image=Blender.Image.Load(data.reflection)
-			imgName=blendMat.name.replace('-mat-','-refl-')
-			image.setName(imgName)
-			texture_name=blendMat.name.replace('-mat-','-refl-')
-			tex = Blender.Texture.New(texture_name)
-			tex.setType('Image')
-			tex.image = image
-			blendMat.setTexture(data.reflection_slot,tex,Blender.Texture.TexCo.REFL,Blender.Texture.MapTo.COL)
-			mtextures = blendMat.getTextures()
-			mtex=mtextures[data.reflection_slot]
-			mtex.colfac=data.reflection_strong
-
-def alpha(blendMat,data):
-		if os.path.exists(data.alpha)==True:
-			image=Blender.Image.Load(data.alpha)
-			imgName=blendMat.name.replace('-mat-','-alpha-')
-			image.setName(imgName)
-			texture_name=blendMat.name.replace('-mat-','-alpha-')
-			tex = Blender.Texture.New(texture_name)
-			tex.setType('Image')
-			tex.setImageFlags('CalcAlpha')
-			tex.image = image
-			blendMat.setTexture(data.alpha_slot,tex,Blender.Texture.TexCo.UV,\
-			Blender.Texture.MapTo.ALPHA)
-
-def diffuse1(blendMat,data):
-		if os.path.exists(data.diffuse1)==True:
-			image=Blender.Image.Load(data.diffuse1)
-			imgName=blendMat.name.replace('-mat-','-diff-')
-			image.setName(imgName)
-			texture_name=blendMat.name.replace('-mat-','-diff-')
-			tex = Blender.Texture.New(texture_name)
-			tex.setType('Image')
-			tex.image = image
-			blendMat.setTexture(data.diffuse1_slot,tex,Blender.Texture.TexCo.UV,\
-			Blender.Texture.MapTo.COL|Blender.Texture.MapTo.CSP)
-
-def diffuse2(blendMat,data):
-		if os.path.exists(data.diffuse2)==True:
-			image=Blender.Image.Load(data.diffuse2)
-			imgName=blendMat.name.replace('-mat-','-diff-')
-			image.setName(imgName)
-			texture_name=blendMat.name.replace('-mat-','-diff-')
-			tex = Blender.Texture.New(texture_name)
-			tex.setType('Image')
-			tex.image = image
-			blendMat.setTexture(data.diffuse2_slot,tex,Blender.Texture.TexCo.UV,\
-			Blender.Texture.MapTo.COL|Blender.Texture.MapTo.CSP)
-
-def normal(blendMat,data):
-		if os.path.exists(data.normal)==True:
-			image=Blender.Image.Load(data.normal)
-			imgName=blendMat.name.replace('-mat-','-norm-')
-			image.setName(imgName)
-			texture_name=blendMat.name.replace('-mat-','-norm-')
-			tex = Blender.Texture.New(texture_name)
-			tex.setType('Image')
-			tex.image = image
-			tex.setImageFlags('NormalMap')
-			blendMat.setTexture(data.normal_slot,tex,Blender.Texture.TexCo.UV,Blender.Texture.MapTo.NOR)
-			blendMat.getTextures()[data.normal_slot].norfac=data.normal_strong
-			blendMat.getTextures()[data.normal_slot].mtNor=data.normal_direction
-			blendMat.getTextures()[data.normal_slot].size=data.normal_size
-
-def specular(blendMat,data):
-		if os.path.exists(data.specular)==True:
-			image=Blender.Image.Load(data.specular)
-			imgName=blendMat.name.replace('-mat-','-spec-')
-			image.setName(imgName)
-			texture_name=blendMat.name.replace('-mat-','-spec-')
-			tex = Blender.Texture.New(texture_name)
-			tex.setType('Image')
-			tex.image = image
-			blendMat.setTexture(data.specular_slot,tex,Blender.Texture.TexCo.UV,Blender.Texture.MapTo.CSP)
-			mtextures = blendMat.getTextures()
-			mtex=mtextures[data.specular_slot]
-			mtex.neg=True
-
-def ao(blendMat,data):
-		if os.path.exists(data.ambient_occlusion)==True:
-			image=Blender.Image.Load(data.ambient_occlusion)
-			imgName=blendMat.name.replace('-mat-','-ao-')
-			image.setName(imgName)
-			texture_name=blendMat.name.replace('-mat-','-ao-')
-			tex = Blender.Texture.New(texture_name)
-			tex.setType('Image')
-			tex.image = image
-			blendMat.setTexture(data.ambient_occlusion_slot,tex,Blender.Texture.TexCo.UV,Blender.Texture.MapTo.COL)
-			mtex=blendMat.getTextures()[data.ambient_occlusion_slot]
-			mtex.blendmode=Blender.Texture.BlendModes.MULTIPLY
-
-def normal1(blendMat,data):
-		if os.path.exists(data.normal1)==True:
-			image=Blender.Image.Load(data.normal1)
-			imgName=blendMat.name.replace('-mat-','-norm1-')
-			image.setName(imgName)
-			texture_name=blendMat.name.replace('-mat-','-norm1-')
-			tex = Blender.Texture.New(texture_name)
-			tex.setType('Image')
-			tex.image = image
-			tex.setImageFlags('NormalMap')
-			blendMat.setTexture(data.normal1_slot,tex,Blender.Texture.TexCo.UV,Blender.Texture.MapTo.NOR)
-			blendMat.getTextures()[data.normal1_slot].norfac=data.normal1_strong
-			blendMat.getTextures()[data.normal1_slot].mtNor=data.normal1_direction
-			blendMat.getTextures()[data.normal1_slot].size=data.normal1_size
-
-def normal2(blendMat,data):
-		if os.path.exists(data.normal2)==True:
-			image=Blender.Image.Load(data.normal2)
-			imgName=blendMat.name.replace('-mat-','-norm2-')
-			image.setName(imgName)
-			texture_name=blendMat.name.replace('-mat-','-norm2-')
-			tex = Blender.Texture.New(texture_name)
-			tex.setType('Image')
-			tex.image = image
-			tex.setImageFlags('NormalMap')
-			blendMat.setTexture(data.normal2_slot,tex,Blender.Texture.TexCo.UV,Blender.Texture.MapTo.NOR)
-			blendMat.getTextures()[data.normal2_slot].norfac=data.normal2_strong
-			blendMat.getTextures()[data.normal2_slot].mtNor=data.normal2_direction
-			blendMat.getTextures()[data.normal2_slot].size=data.normal2_size
-
 class Skin:
 	def __init__(self):
 		self.bone_map=[]
@@ -642,13 +507,23 @@ class Mat:
 			blendMat.mode |= Blender.Material.Modes.ZTRANSP
 			blendMat.mode |= Blender.Material.Modes.TRANSPSHADOW
 			blendMat.alpha = 0.0
-		if self.diffuse is not None:diffuse(blendMat,self)
-		if self.reflection is not None:reflection(blendMat,self)
-		if self.diffuse1 is not None:diffuse1(blendMat,self)
-		if self.diffuse2 is not None:diffuse2(blendMat,self)
-		if self.specular is not None:specular(blendMat,self)
-		if self.normal is not None:normal(blendMat,self)
-		if self.normal1 is not None:normal1(blendMat,self)
-		if self.normal2 is not None:normal2(blendMat,self)
-		if self.ambient_occlusion is not None:ao(blendMat,self)
-		if self.alpha is not None:alpha(blendMat,self)
+		if self.diffuse is not None:
+			set_blender_material_texture(blendMat,self,"diffuse","diff")
+		if self.reflection is not None:
+			set_blender_material_texture(blendMat,self,"reflection","refl")
+		if self.diffuse1 is not None:
+			set_blender_material_texture(blendMat,self,"diffuse1","diff")
+		if self.diffuse2 is not None:
+			set_blender_material_texture(blendMat,self,"diffuse2","diff")
+		if self.specular is not None:
+			set_blender_material_texture(blendMat,self,"specular","spec")
+		if self.normal is not None:
+			set_blender_material_texture(blendMat,self,"normal","norm")
+		if self.normal1 is not None:
+			set_blender_material_texture(blendMat,self,"normal1","norm")
+		if self.normal2 is not None:
+			set_blender_material_texture(blendMat,self,"normal2","norm")
+		if self.ambient_occlusion is not None:
+			set_blender_material_texture(blendMat,self,"ambient_occlusion","ao")
+		if self.alpha is not None:
+			set_blender_material_texture(blendMat,self,"alpha","alpha")

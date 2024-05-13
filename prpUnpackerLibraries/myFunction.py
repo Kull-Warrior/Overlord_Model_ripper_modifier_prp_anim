@@ -83,3 +83,48 @@ def parse_id():
 	except:
 		model_id = 0
 	return model_id
+
+def set_blender_material_texture(blendMat,data,texture_type,short_type):
+	if os.path.exists(getattr(data,texture_type))==True:
+		image=Blender.Image.Load(getattr(data,texture_type))
+		imgName=blendMat.name.replace('-mat-','-'+getattr(data,texture_type)+'-')
+		image.setName(imgName)
+		texture_name=blendMat.name.replace('-mat-','-'+getattr(data,texture_type)+'-')
+		tex = Blender.Texture.New(texture_name)
+		tex.setType('Image')
+		if "normal" in texture_type:
+			tex.setImageFlags('NormalMap')
+		elif "alpha" in texture_type:
+			tex.setImageFlags('CalcAlpha')
+		tex.image = image
+		
+		if "normal" in texture_type:
+			blendMat.setTexture(getattr(data,texture_type+'_slot'),tex,Blender.Texture.TexCo.UV,Blender.Texture.MapTo.NOR)
+			blendMat.getTextures()[getattr(data,texture_type+'_slot')].norfac=getattr(data,texture_type+'_strong')
+			blendMat.getTextures()[getattr(data,texture_type+'_slot')].mtNor=getattr(data,texture_type+'_direction')
+			blendMat.getTextures()[getattr(data,texture_type+'_slot')].size=getattr(data,texture_type+'_size')
+		elif "diffuse" in texture_type:
+			if texture_type == "diffuse":
+				blendMat.setTexture(data.diffuse_slot,tex,Blender.Texture.TexCo.UV,\
+				Blender.Texture.MapTo.COL| Blender.Texture.MapTo.ALPHA|Blender.Texture.MapTo.CSP)
+			else:
+				blendMat.setTexture(getattr(data,texture_type+'_slot'),tex,Blender.Texture.TexCo.UV,\
+				Blender.Texture.MapTo.COL|Blender.Texture.MapTo.CSP)
+		elif "ambient_occlusion" in texture_type:
+			blendMat.setTexture(data.ambient_occlusion_slot,tex,Blender.Texture.TexCo.UV,Blender.Texture.MapTo.COL)
+			mtex=blendMat.getTextures()[data.ambient_occlusion_slot]
+			mtex.blendmode=Blender.Texture.BlendModes.MULTIPLY
+		elif "specular" in texture_type:
+			blendMat.setTexture(data.specular_slot,tex,Blender.Texture.TexCo.UV,Blender.Texture.MapTo.CSP)
+			mtextures = blendMat.getTextures()
+			mtex=mtextures[data.specular_slot]
+			mtex.neg=True
+		elif "alpha" in texture_type:
+			blendMat.setTexture(data.alpha_slot,tex,Blender.Texture.TexCo.UV,\
+			Blender.Texture.MapTo.ALPHA)
+			#blendMat.getTextures()[data.diffuse_slot].mtAlpha=0
+		elif "reflection" in texture_type:
+			blendMat.setTexture(data.reflection_slot,tex,Blender.Texture.TexCo.REFL,Blender.Texture.MapTo.COL)
+			mtextures = blendMat.getTextures()
+			mtex=mtextures[data.reflection_slot]
+			mtex.colfac=data.reflection_strong
