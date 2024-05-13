@@ -167,12 +167,12 @@ def prp_file_parser(filename,g):
 												stream_offset=g.tell()
 										if (frame_count and stream_offset) is not None:
 											g.seek(stream_offset)
-											p.i([frame_count])
+											p.int32([frame_count])
 											for mC in range(frame_count):
 												g.seek(2,1)
 												animation_file.write(g.read(14))
 										else:
-											p.i([0])
+											p.int32([0])
 
 									if item5[0]==25:
 
@@ -200,20 +200,20 @@ def prp_file_parser(filename,g):
 														streamOffset31=g.tell()
 										if (frameCount22 and streamOffset23) is not None:
 											g.seek(streamOffset23)
-											p.i([frameCount22])
-											p.B([22])
+											p.int32([frameCount22])
+											p.uint8([22])
 											for mC in range(frameCount22):
 												animation_file.write(g.read(6))
 
 										elif (frameCount30 and streamOffset31) is not None:
 											g.seek(streamOffset31)
-											p.i([frameCount30])
-											p.B([30])
+											p.int32([frameCount30])
+											p.uint8([30])
 											for mC in range(frameCount30):
 												animation_file.write(g.read(8))
 										else:
-											p.i([0])
-											p.B([0])
+											p.int32([0])
+											p.uint8([0])
 
 				animation_file.close()
 
