@@ -78,8 +78,6 @@ def prp_file_parser(filename,g):
 						texture_chunk=g.word(g.int32(1)[0])
 					if item2[0]==21:
 						texture_name=g.word(g.int32(1)[0])
-						if '.' not in texture_name:
-							texture_name=texture_name+".dds"
 					if item2[0]==1:
 						type3=g.uint8(1)[0]
 						list3=get_list(type3,g)
@@ -108,6 +106,13 @@ def prp_file_parser(filename,g):
 												offset=g.tell()
 										g.seek(offset)
 										image.format=set_image_format(format,image)
+										
+										#If no file extension could be read directly, it will be appended to the to be created file depending on the image type
+										if '.' not in texture_name and 'DXT' in image.format:
+											texture_name=texture_name+".dds"
+										elif '.' not in texture_name and 'tga' in image.format:
+											texture_name=texture_name+".tga"
+										
 										image.name=file_directory+os.sep+file_basename+'_imagefiles'+os.sep+texture_name
 										image.data=g.read(image.szer*image.wys*4)
 										image.draw()
