@@ -97,9 +97,9 @@ def prp_file_parser(filename,g):
 										for item5 in list5:
 											g.seek(item5[1])
 											if item5[0]==20:
-												image.szer=g.int32(1)[0]
+												image.width=g.int32(1)[0]
 											if item5[0]==21:
-												image.wys=g.int32(1)[0]
+												image.height=g.int32(1)[0]
 											if item5[0]==23:
 												format=g.int32(1)[0]
 											if item5[0]==22:
@@ -114,7 +114,7 @@ def prp_file_parser(filename,g):
 											texture_name=texture_name+".tga"
 										
 										image.name=file_directory+os.sep+file_basename+'_imagefiles'+os.sep+texture_name
-										image.data=g.read(image.szer*image.wys*4)
+										image.data=g.read(image.width*image.height*4)
 										image.draw()
 										texture_list[texture_chunk]=image.name
 										break

@@ -13,9 +13,9 @@ def write_to_dxt_file(self):
 	newfile=open(self.name,'wb')
 	newfile.write(get_dds_header())
 	newfile.seek(0xC)
-	newfile.write(struct.pack('i',self.wys))
+	newfile.write(struct.pack('i',self.height))
 	newfile.seek(0x10)
-	newfile.write(struct.pack('i',self.szer))
+	newfile.write(struct.pack('i',self.width))
 	newfile.seek(0x54)
 	newfile.write(self.format)
 	newfile.seek(128)
@@ -25,8 +25,8 @@ def write_to_dxt_file(self):
 def write_to_tga_file(self,offset,data):
 	newfile=open(self.name,'wb')
 	newfile.write(get_tga_header())
-	newfile.write(struct.pack('H',self.wys))
-	newfile.write(struct.pack('H',self.szer))
+	newfile.write(struct.pack('H',self.height))
+	newfile.write(struct.pack('H',self.width))
 	newfile.write(offset)
 	newfile.write(data)
 	newfile.close()
@@ -44,12 +44,12 @@ def tga_16(data):
 		newdata+=struct.pack('iii',r,g,b)
 	return newdata
 
-def rgb565_to_rgb888(szer,wys,data,outname):
+def rgb565_to_rgb888(width,height,data,outname):
 	newdata=''
 	start=0
-	image=Blender.Image.New(outname,szer,wys,24)
-	for m in range(szer):
-		for n in range(wys):
+	image=Blender.Image.New(outname,width,height,24)
+	for m in range(width):
+		for n in range(height):
 			c=struct.unpack('H',data[start:start+2])[0]
 			start+=2
 			r = (c>>11)&0x1f
@@ -81,13 +81,13 @@ def argb1555_to_argb8888(data):
 class Image():
 	def __init__(self):
 		self.format=None
-		self.wys=None
-		self.szer=None
+		self.height=None
+		self.width=None
 		self.name=None
 		self.data=None
 
 	def draw(self):
-		if None not in (self.format, self.wys, self.szer, self.name,self.data):
+		if None not in (self.format, self.height, self.width, self.name,self.data):
 			if 'DXT' in self.format:
 				write_to_dxt_file(self)
 			elif 'tga' in self.format:
@@ -102,6 +102,6 @@ class Image():
 					data=self.data
 				write_to_tga_file(self,offset,data)
 			elif self.format=='565to888':
-				rgb565_to_rgb888(self.szer,self.wys,self.data,self.name)
+				rgb565_to_rgb888(self.width,self.height,self.data,self.name)
 			else:
 				print 'warning: unknown format',self.format
