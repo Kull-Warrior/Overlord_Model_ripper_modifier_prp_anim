@@ -124,7 +124,8 @@ class Skeleton:
 				else:
 					bone.parent=parent
 			else:
-				print 'warning: no parent for bone',name
+				if name.lower() != "root":
+					print 'warning: no parent for bone',name
 		self.armature.update()
 
 	def create_bone_position(self):
