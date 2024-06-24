@@ -165,28 +165,6 @@ class BinaryReader(file):
 				start+=size
 		return s
 
-	def find_all(self,var,size=100):
-		list=[]
-		start=self.inputFile.tell()
-		while(True):
-			data=self.inputFile.read(size)
-			offset=data.find(var)
-			if offset>=0:
-				list.append(start+offset)
-				self.inputFile.seek(start+offset+len(var))
-				if self.debug==True:
-					print start+offset
-			else:
-				start+=size
-				self.inputFile.seek(start)
-			if self.inputFile.tell()>self.file_size():
-				break
-		return list
-
-	def find_char(self,var):
-		offset=self.inputFile.find(var)
-		return offset
-
 	def file_size(self):
 		back=self.inputFile.tell()
 		self.inputFile.seek(0,2)
@@ -203,15 +181,6 @@ class BinaryReader(file):
 		from_where	--	Defining the point of reference ( 0 beginning of the file, 1 current position of the file, 2 end of the file)
 		"""
 		self.inputFile.seek(offset,from_where)
-
-	def seekpad(self,pad,type=0):
-		''' 16-byte chunk alignment'''
-		size=self.inputFile.tell()
-		seek = (pad - (size % pad)) % pad
-		if type==1:
-			if seek==0:
-				seek+=pad
-		self.inputFile.seek(seek, 1)
 
 	def read(self,count):
 		back=self.inputFile.tell()
