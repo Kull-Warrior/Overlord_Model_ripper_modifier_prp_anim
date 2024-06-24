@@ -139,17 +139,6 @@ class BinaryReader(file):
 			array.append(struct.unpack(self.endian+h,self.inputFile.read(2))[0]*2**-exp)
 		return array
 
-	def i12(self,n):
-		array = []
-		offset=self.inputFile.tell()
-		for id in range(n):
-			if self.endian=='>':
-				var='\x00'+self.inputFile.read(3)
-			if self.endian=='<':
-				var=self.inputFile.read(3)+'\x00'
-			array.append(struct.unpack(self.endian+'i',var)[0])
-		return array
-
 	def find(self,var,size=1000):
 		""" Tries to find a given input within the input-file
 		
