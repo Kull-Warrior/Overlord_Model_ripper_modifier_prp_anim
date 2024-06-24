@@ -216,8 +216,8 @@ class BinaryReader(file):
 			return self.xor_data
 
 	def tell(self):
-		val=self.inputFile.tell()
-		return val
+		"""Returns the current position of the read/write pointer within the input-file"""
+		return self.inputFile.tell()
 
 	def word(self,long):
 		if long<10000:
