@@ -53,8 +53,9 @@ def prp_file_parser(filename,g):
 	skeleton_list={}
 
 	g.seek(16)
-	g.read_word(160)
-
+	title=g.read_word(160)
+	print 'Title : ',title
+	
 	type=g.uint8(1)[0]
 	list=get_list(type,g)
 	list26=get_item(list,26)
