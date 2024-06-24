@@ -53,7 +53,7 @@ def prp_file_parser(filename,g):
 	skeleton_list={}
 
 	g.seek(16)
-	g.word(160)
+	g.read_word(160)
 
 	type=g.uint8(1)[0]
 	list=get_list(type,g)
@@ -75,9 +75,9 @@ def prp_file_parser(filename,g):
 				for item2 in list2:
 					g.seek(item2[1])
 					if item2[0]==20:
-						texture_chunk=g.word(g.int32(1)[0])
+						texture_chunk=g.read_word(g.int32(1)[0])
 					if item2[0]==21:
-						texture_name=g.word(g.int32(1)[0])
+						texture_name=g.read_word(g.int32(1)[0])
 					if item2[0]==1:
 						type3=g.uint8(1)[0]
 						list3=get_list(type3,g)
@@ -130,7 +130,7 @@ def prp_file_parser(filename,g):
 				list21=get_item(list2,21)
 				for item21 in list21:
 					g.seek(item21[1])
-					animation_name=g.word(g.int32(1)[0])
+					animation_name=g.read_word(g.int32(1)[0])
 
 				animation_path=file_directory+os.sep+file_basename+'_animfiles'+os.sep+animation_name+'.anim'
 				animation_file=open(animation_path,'wb')
@@ -156,7 +156,7 @@ def prp_file_parser(filename,g):
 								for item5 in list5:
 									g.seek(item5[1])
 									if item5[0]==20:
-										boneName=g.word(g.int32(1)[0])
+										boneName=g.read_word(g.int32(1)[0])
 										animation_file.write(boneName)
 										animation_file.write('\x00')
 									if item5[0]==24:
@@ -230,9 +230,9 @@ def prp_file_parser(filename,g):
 				for item2 in list2:
 					g.seek(item2[1])
 					if item2[0]==20:
-						mesh.chunk=g.word(g.int32(1)[0])
+						mesh.chunk=g.read_word(g.int32(1)[0])
 					if item2[0]==21:
-						mesh.name=g.word(g.int32(1)[0])
+						mesh.name=g.read_word(g.int32(1)[0])
 					if item2[0]==1:
 						type3=g.uint8(1)[0]
 						list3=get_list(type3,g)
@@ -334,19 +334,19 @@ def prp_file_parser(filename,g):
 				for item2 in list2:
 					g.seek(item2[1])
 					if item2[0]==20:
-						material.chunk=g.word(g.int32(1)[0])
+						material.chunk=g.read_word(g.int32(1)[0])
 					if item2[0]==21:
-						material.name=g.word(g.int32(1)[0])
+						material.name=g.read_word(g.int32(1)[0])
 					if item2[0]==30:
 						type3=g.uint8(1)[0]
 						list3=get_list(type3,g)
 						for item3 in list3:
 							g.seek(item3[1])
 							if item3[0]==20:
-								chunk=g.word(g.int32(1)[0])
+								chunk=g.read_word(g.int32(1)[0])
 								material.diffChunk=chunk
 							if item3[0]==21:
-								name=g.word(g.int32(1)[0])
+								name=g.read_word(g.int32(1)[0])
 
 			elif flag in [(75,0,65,0)]:#model
 				model=Model()
@@ -356,9 +356,9 @@ def prp_file_parser(filename,g):
 				for item2 in list2:
 					g.seek(item2[1])
 					if item2[0]==20:
-						model.chunk=g.word(g.int32(1)[0])
+						model.chunk=g.read_word(g.int32(1)[0])
 					if item2[0]==21:
-						model.name=g.word(g.int32(1)[0])
+						model.name=g.read_word(g.int32(1)[0])
 					if item2[0]==30:
 						type3=g.uint8(1)[0]
 						list3=get_list(type3,g)
@@ -382,7 +382,7 @@ def prp_file_parser(filename,g):
 												for item6 in list6:
 													g.seek(item6[1])
 													if item6[0]==20:
-														chunk=g.word(g.int32(1)[0])
+														chunk=g.read_word(g.int32(1)[0])
 														mesh_chunk=chunk
 											if item5[0]==33:
 												type6=g.uint8(1)[0]
@@ -390,7 +390,7 @@ def prp_file_parser(filename,g):
 												for item6 in list6:
 													g.seek(item6[1])
 													if item6[0]==20:
-														chunk=g.word(g.int32(1)[0])
+														chunk=g.read_word(g.int32(1)[0])
 														material_Chunk=chunk
 										if (mesh_chunk and material_Chunk) is not None:
 											model.mesh_list.append([mesh_chunk,material_Chunk])
@@ -414,7 +414,7 @@ def prp_file_parser(filename,g):
 							for m in range(safe(bone_count)):
 								tm=g.tell()
 								bone=Bone()
-								bone.name=g.word(32)
+								bone.name=g.read_word(32)
 								bone.matrix=matrix_4x4(g.float(16))
 								g.float(4)
 								g.float(3)

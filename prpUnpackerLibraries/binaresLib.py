@@ -219,23 +219,24 @@ class BinaryReader(file):
 		"""Returns the current position of the read/write pointer within the input-file"""
 		return self.inputFile.tell()
 
-	def word(self,long):
-		if long<10000:
-			if self.inputFile.mode=='rb':
-				offset=self.inputFile.tell()
-				s=''
-				for j in range(0,long):
-					if self.xor_key is None:
-						lit =  struct.unpack('c',self.inputFile.read(1))[0]
-					else:
-						data=struct.unpack(self.endian+'B',self.inputFile.read(1))
-						self.xor(data)
-						lit=struct.unpack(self.endian+'c',self.xor_data)[0]
-					if ord(lit)!=0:
-						s+=lit
-				return s
-			if self.inputFile.mode=='wb':
-				self.inputFile.write(long)
+	def read_word(self,length):
+		if length<10000:
+			offset=self.inputFile.tell()
+			s=''
+			for j in range(0,length):
+				if self.xor_key is None:
+					lit =  struct.unpack('c',self.inputFile.read(1))[0]
+				else:
+					data=struct.unpack(self.endian+'B',self.inputFile.read(1))
+					self.xor(data)
+					lit=struct.unpack(self.endian+'c',self.xor_data)[0]
+				if ord(lit)!=0:
+					s+=lit
+			return s
+
+	def write_word(self,word):
+		if word<10000:
+			self.inputFile.write(word)
 
 	def stream(self,stream_name,element_count,element_size):
 		self.inputFile.seek(element_count*element_size,1)
