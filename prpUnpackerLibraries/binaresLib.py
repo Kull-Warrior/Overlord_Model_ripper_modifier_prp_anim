@@ -29,7 +29,7 @@ def convert_half_to_float(h):
 	str = struct.pack('I',id)
 	return struct.unpack('f', str)[0]
 
-def unknown_reading_functionality_needs_to_be_renamed(self,n,first_multiplier,second_multiplier,third_multiplier,first_read_value,second_read_value):
+def read_from_data_type(self,n,first_multiplier,second_multiplier,third_multiplier,first_read_value,second_read_value):
 	offset=self.inputFile.tell()
 	if self.xor_key is None:
 		data=struct.unpack(self.endian+n*first_multiplier,self.inputFile.read(first_read_value))
@@ -39,7 +39,7 @@ def unknown_reading_functionality_needs_to_be_renamed(self,n,first_multiplier,se
 		data=struct.unpack(self.endian+n*third_multiplier,self.xor_data)
 	return data
 
-def unknown_writing_functionality_needs_to_be_renamed(self,n,adder):
+def write_as_data_type(self,n,adder):
 	for m in range(len(n)):
 		data=struct.pack(self.endian+adder,n[m])
 		self.inputFile.write(data)
@@ -67,63 +67,63 @@ class BinaryReader(file):
 
 	def int64(self,n):
 		if self.inputFile.mode=='rb':
-			return unknown_reading_functionality_needs_to_be_renamed(self,n,'q',8*'B','q',n*8,n*8)
+			return read_from_data_type(self,n,'q',8*'B','q',n*8,n*8)
 		if self.inputFile.mode=='wb':
-			unknown_writing_functionality_needs_to_be_renamed(self,n,'q')
+			write_as_data_type(self,n,'q')
 
 	def uint64(self,n):
 		if self.inputFile.mode=='rb':
-			return unknown_reading_functionality_needs_to_be_renamed(self,n,'Q',8*'B','Q',n*8,n*8)
+			return read_from_data_type(self,n,'Q',8*'B','Q',n*8,n*8)
 		if self.inputFile.mode=='wb':
-			unknown_writing_functionality_needs_to_be_renamed(self,n,'Q')
+			write_as_data_type(self,n,'Q')
 
 	def int32(self,n):
 		if self.inputFile.mode=='rb':
-			return unknown_reading_functionality_needs_to_be_renamed(self,n,'i',4*'B','i',n*4,n*4)
+			return read_from_data_type(self,n,'i',4*'B','i',n*4,n*4)
 		if self.inputFile.mode=='wb':
-			unknown_writing_functionality_needs_to_be_renamed(self,n,'i')
+			write_as_data_type(self,n,'i')
 
 	def uint32(self,n):
 		if self.inputFile.mode=='rb':
-			return unknown_reading_functionality_needs_to_be_renamed(self,n,'I',4*'B','I',n*4,n*4)
+			return read_from_data_type(self,n,'I',4*'B','I',n*4,n*4)
 		if self.inputFile.mode=='wb':
-			unknown_writing_functionality_needs_to_be_renamed(self,n,'I')
+			write_as_data_type(self,n,'I')
 
 	def uint8(self,n):
 		if self.inputFile.mode=='rb':
-			return unknown_reading_functionality_needs_to_be_renamed(self,n,'B','B','B',n,n)
+			return read_from_data_type(self,n,'B','B','B',n,n)
 		if self.inputFile.mode=='wb':
-			unknown_writing_functionality_needs_to_be_renamed(self,n,'B')
+			write_as_data_type(self,n,'B')
 
 	def int8(self,n):
 		if self.inputFile.mode=='rb':
-			return unknown_reading_functionality_needs_to_be_renamed(self,n,'b','b','b',n,n)
+			return read_from_data_type(self,n,'b','b','b',n,n)
 		if self.inputFile.mode=='wb':
-			unknown_writing_functionality_needs_to_be_renamed(self,n,'b')
+			write_as_data_type(self,n,'b')
 
 	def int16(self,n):
 		if self.inputFile.mode=='rb':
-			return unknown_reading_functionality_needs_to_be_renamed(self,n,'h',2*'B','h',n*2,n*2)
+			return read_from_data_type(self,n,'h',2*'B','h',n*2,n*2)
 		if self.inputFile.mode=='wb':
-			unknown_writing_functionality_needs_to_be_renamed(self,n,'h')
+			write_as_data_type(self,n,'h')
 
 	def uint16(self,n):
 		if self.inputFile.mode=='rb':
-			return unknown_reading_functionality_needs_to_be_renamed(self,n,'H',2*'B','H',n*2,n*2)
+			return read_from_data_type(self,n,'H',2*'B','H',n*2,n*2)
 		if self.inputFile.mode=='wb':
-			unknown_writing_functionality_needs_to_be_renamed(self,n,'H')
+			write_as_data_type(self,n,'H')
 
 	def float(self,n):
 		if self.inputFile.mode=='rb':
-			return unknown_reading_functionality_needs_to_be_renamed(self,n,'f',4*'B','f',n*4,n*4)
+			return read_from_data_type(self,n,'f',4*'B','f',n*4,n*4)
 		if self.inputFile.mode=='wb':
-			unknown_writing_functionality_needs_to_be_renamed(self,n,'f')
+			write_as_data_type(self,n,'f')
 
 	def double(self,n):
 		if self.inputFile.mode=='rb':
-			return unknown_reading_functionality_needs_to_be_renamed(self,n,'d',8*'B','d',n*8,n*8)
+			return read_from_data_type(self,n,'d',8*'B','d',n*8,n*8)
 		if self.inputFile.mode=='wb':
-			unknown_writing_functionality_needs_to_be_renamed(self,n,'d')
+			write_as_data_type(self,n,'d')
 
 	def half(self,n,h='h'):
 		array = []
