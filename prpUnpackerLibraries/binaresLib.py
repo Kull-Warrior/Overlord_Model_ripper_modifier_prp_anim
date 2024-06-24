@@ -194,8 +194,15 @@ class BinaryReader(file):
 		self.inputFile.seek(back)
 		return tell
 
-	def seek(self,offset,a=0):
-		self.inputFile.seek(offset,a)
+	def seek(self,offset,from_where=0):
+		""" Set the current position of the file pointer within a input-file
+		
+		Function arguments:
+		self 		--	Reference to the current instance of the class
+		offset		--	The number of bytes to move forward from the start of the input-file
+		from_where	--	Defining the point of reference ( 0 beginning of the file, 1 current position of the file, 2 end of the file)
+		"""
+		self.inputFile.seek(offset,from_where)
 
 	def seekpad(self,pad,type=0):
 		''' 16-byte chunk alignment'''
@@ -216,7 +223,11 @@ class BinaryReader(file):
 			return self.xor_data
 
 	def tell(self):
-		"""Returns the current position of the read/write pointer within the input-file"""
+		"""Returns the current position of the read/write pointer within the input-file
+		
+		Function arguments:
+		self 		--	Reference to the current instance of the class
+		"""
 		return self.inputFile.tell()
 
 	def read_word(self,length):
