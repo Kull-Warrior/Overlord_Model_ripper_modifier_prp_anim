@@ -165,7 +165,12 @@ class BinaryReader(file):
 				start+=size
 		return s
 
-	def file_size(self):
+	def get_file_size(self):
+		""" Gets the size of the input-file
+		
+		Function arguments:
+		self 		--	Reference to the current instance of the class
+		"""
 		back=self.inputFile.tell()
 		self.inputFile.seek(0,2)
 		tell=self.inputFile.tell()

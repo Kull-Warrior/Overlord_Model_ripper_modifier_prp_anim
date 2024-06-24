@@ -506,7 +506,7 @@ def anim_file_parser(filename,g):
 		action.UPDATE=False
 
 		while(True):
-			if g.tell()>=g.file_size():break
+			if g.tell()>=g.get_file_size():break
 			bone=ActionBone()
 			action.bone_list.append(bone)
 			bone.name=g.find('\x00')
