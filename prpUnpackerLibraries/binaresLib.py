@@ -151,6 +151,13 @@ class BinaryReader(file):
 		return array
 
 	def find(self,var,size=1000):
+		""" Tries to find a given input within the input-file
+		
+		Function arguments:
+		self 		--	Reference to the current instance of the class
+		var			--	The to be searched input
+		size		--	The block size in which the input is searched
+		"""
 		start=self.inputFile.tell()
 		s=''
 		while(True):
