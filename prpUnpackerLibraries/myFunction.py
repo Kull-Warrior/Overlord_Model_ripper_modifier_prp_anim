@@ -128,3 +128,6 @@ def set_blender_material_texture(blendMat,data,texture_type,short_type):
 			mtextures = blendMat.getTextures()
 			mtex=mtextures[data.reflection_slot]
 			mtex.colfac=data.reflection_strong
+
+def safe(count):
+	return count<100000

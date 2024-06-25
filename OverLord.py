@@ -5,14 +5,6 @@ import Blender
 import math
 from math import *
 
-def safe(count):
-	COUNT=0
-	if count<100000:
-		COUNT=count
-	else:
-		print 'Warning unsafe bone count : ',count
-	return COUNT
-
 class Model:
 	def __init__(self):
 		self.name=None
@@ -407,12 +399,12 @@ def prp_file_parser(filename,g):
 								bone_count=g.read_int32(1)[0]
 							if item3[0]==22:
 								stream_offset=g.tell()
-						if bone_count is not None:
+						if bone_count is not None and safe(bone_count):
 							skeleton=Skeleton()
 							skeleton.bone_space=True
 							skeleton.NICE=True
 							skeleton.name=model.name
-							for m in range(safe(bone_count)):
+							for m in range(bone_count):
 								tm=g.tell()
 								bone=Bone()
 								bone.name=g.read_word(32)
