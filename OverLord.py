@@ -5,15 +5,6 @@ import Blender
 import math
 from math import *
 
-class Model:
-	def __init__(self):
-		self.name=None
-		self.chunk=None
-		self.mesh_list=[]
-		self.bone_map_list=[]
-		self.bone_name_list=[]
-		self.skeleton=None
-
 def get_item(list,ID):
 	listA=[]
 	for item in list:
