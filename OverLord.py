@@ -10,7 +10,7 @@ def safe(count):
 	if count<100000:
 		COUNT=count
 	else:
-		print 'warning:count:',count
+		print 'Warning unsafe bone count : ',count
 	return COUNT
 
 class Model:
@@ -461,17 +461,17 @@ def prp_file_parser(filename,g):
 				print 'unknow global flag:',flag,g.tell()
 
 	for model in model_list:
-		print 'model:',model.name
+		print '		model:',model.name
 		i=0
 		for mesh_chunk,material_Chunk in model.mesh_list:
-			print ' '*4,mesh_chunk,material_Chunk
+			print '			',mesh_chunk, ' -> ', material_Chunk
 			mat=None
 			for mat in material_list:
 				if mat.chunk==material_Chunk:
 					break
 			for mesh in mesh_list:
 				if mesh.chunk==mesh_chunk:
-					
+					print '			Mesh Name	:	',mesh.name
 					MAT=Mat()
 					if mesh.is_triangle==True:MAT.is_triangle=True
 					if mesh.is_triangle_strip==True:MAT.is_triangle_strip=True
@@ -482,6 +482,8 @@ def prp_file_parser(filename,g):
 								mat.diffuse=texture_list[mat.diffChunk]
 
 						MAT.diffuse=mat.diffuse
+
+					print '			Material Name	:	',MAT.name
 					mesh.material_list.append(MAT)
 					mesh.bone_name_list=model.bone_name_list
 					if i<len(model.bone_map_list):

@@ -104,4 +104,4 @@ class Image():
 			elif self.format=='565to888':
 				rgb565_to_rgb888(self.width,self.height,self.data,self.name)
 			else:
-				print 'warning: unknown format',self.format
+				print 'Warning: unknown image format',self.format

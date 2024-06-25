@@ -17,7 +17,7 @@ def set_image_format(image_format,image):
 		image.format='tga32'
 	else:
 		image.format=image_format
-		print 'warning:image_format:',image_format,texture_name
+		print 'Warning: Unkown image_format : ',image_format,' for ',texture_name
 	return image.format
 
 def float255(data):
