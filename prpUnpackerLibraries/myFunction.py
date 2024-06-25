@@ -131,3 +131,7 @@ def set_blender_material_texture(blendMat,data,texture_type,short_type):
 
 def safe(count):
 	return count<100000
+
+def get_title(file_reader):
+	file_reader.seek(16)
+	return file_reader.read_word(160)

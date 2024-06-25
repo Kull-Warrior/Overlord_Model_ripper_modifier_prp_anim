@@ -35,8 +35,7 @@ def prp_file_parser(filename,g):
 	model_list=[]
 	skeleton_list={}
 
-	g.seek(16)
-	title=g.read_word(160)
+	title=get_title(g)
 	print 'Title : ',title
 	type=g.read_uint8(1)[0]
 	print 'type : ',type
