@@ -17,11 +17,14 @@ def get_list(type,g):
 	if type>=128:
 		count_small=type-128
 		count_big=g.read_int32(1)[0]
-		for m in range(count_small):list.append(g.read_uint8(2))
-		for m in range(count_big):list.append(g.read_int32(2))
+		for m in range(count_small):
+			list.append(g.read_uint8(2))
+		for m in range(count_big):
+			list.append(g.read_int32(2))
 	else:
 		count_small=type
-		for m in range(count_small):list.append(g.read_uint8(2))
+		for m in range(count_small):
+			list.append(g.read_uint8(2))
 	position=g.tell()
 	listA=[]
 	for item in list:
