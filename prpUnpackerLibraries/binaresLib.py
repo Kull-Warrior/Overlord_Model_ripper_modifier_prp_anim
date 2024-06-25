@@ -65,65 +65,65 @@ class BinaryReader(file):
 				else:
 					self.xor_offset+=1
 
-	def int64(self,n):
-		if self.inputFile.mode=='rb':
-			return read_from_data_type(self,n,'q',8*'B','q',n*8,n*8)
-		if self.inputFile.mode=='wb':
-			write_as_data_type(self,n,'q')
+	def read_int64(self,n):
+		return read_from_data_type(self,n,'q',8*'B','q',n*8,n*8)
 
-	def uint64(self,n):
-		if self.inputFile.mode=='rb':
-			return read_from_data_type(self,n,'Q',8*'B','Q',n*8,n*8)
-		if self.inputFile.mode=='wb':
-			write_as_data_type(self,n,'Q')
+	def write_int64(self,n):
+		write_as_data_type(self,n,'q')
+	
+	def read_uint64(self,n):
+		return read_from_data_type(self,n,'Q',8*'B','Q',n*8,n*8)
 
-	def int32(self,n):
-		if self.inputFile.mode=='rb':
-			return read_from_data_type(self,n,'i',4*'B','i',n*4,n*4)
-		if self.inputFile.mode=='wb':
-			write_as_data_type(self,n,'i')
+	def write_uint64(self,n):
+		write_as_data_type(self,n,'Q')
+	
+	def read_int32(self,n):
+		return read_from_data_type(self,n,'i',4*'B','i',n*4,n*4)
 
-	def uint32(self,n):
-		if self.inputFile.mode=='rb':
-			return read_from_data_type(self,n,'I',4*'B','I',n*4,n*4)
-		if self.inputFile.mode=='wb':
-			write_as_data_type(self,n,'I')
+	def write_int32(self,n):
+		write_as_data_type(self,n,'i')
+	
+	def read_uint32(self,n):
+		return read_from_data_type(self,n,'I',4*'B','I',n*4,n*4)
 
-	def uint8(self,n):
-		if self.inputFile.mode=='rb':
-			return read_from_data_type(self,n,'B','B','B',n,n)
-		if self.inputFile.mode=='wb':
-			write_as_data_type(self,n,'B')
+	def write_uint32(self,n):
+		write_as_data_type(self,n,'I')
+	
+	def read_uint8(self,n):
+		return read_from_data_type(self,n,'B','B','B',n,n)
 
-	def int8(self,n):
-		if self.inputFile.mode=='rb':
-			return read_from_data_type(self,n,'b','b','b',n,n)
-		if self.inputFile.mode=='wb':
-			write_as_data_type(self,n,'b')
+	def write_uint8(self,n):
+		write_as_data_type(self,n,'B')
 
-	def int16(self,n):
-		if self.inputFile.mode=='rb':
-			return read_from_data_type(self,n,'h',2*'B','h',n*2,n*2)
-		if self.inputFile.mode=='wb':
-			write_as_data_type(self,n,'h')
+	def read_int8(self,n):
+		return read_from_data_type(self,n,'b','b','b',n,n)
 
-	def uint16(self,n):
-		if self.inputFile.mode=='rb':
-			return read_from_data_type(self,n,'H',2*'B','H',n*2,n*2)
-		if self.inputFile.mode=='wb':
-			write_as_data_type(self,n,'H')
+	def write_int8(self,n):
+		write_as_data_type(self,n,'b')
+	
+	def read_int16(self,n):
+		return read_from_data_type(self,n,'h',2*'B','h',n*2,n*2)
+	
+	def write_int16(self,n):
+		write_as_data_type(self,n,'h')
 
-	def float(self,n):
-		if self.inputFile.mode=='rb':
-			return read_from_data_type(self,n,'f',4*'B','f',n*4,n*4)
-		if self.inputFile.mode=='wb':
-			write_as_data_type(self,n,'f')
+	def read_uint16(self,n):
+		return read_from_data_type(self,n,'H',2*'B','H',n*2,n*2)
 
-	def double(self,n):
-		if self.inputFile.mode=='rb':
-			return read_from_data_type(self,n,'d',8*'B','d',n*8,n*8)
-		if self.inputFile.mode=='wb':
-			write_as_data_type(self,n,'d')
+	def write_uint16(self,n):
+		write_as_data_type(self,n,'H')
+
+	def read_float(self,n):
+		return read_from_data_type(self,n,'f',4*'B','f',n*4,n*4)
+	
+	def write_float(self,n):
+		write_as_data_type(self,n,'f')
+
+	def read_double(self,n):
+		return read_from_data_type(self,n,'d',8*'B','d',n*8,n*8)
+
+	def write_double(self,n):
+		write_as_data_type(self,n,'d')
 
 	def half(self,n,h='h'):
 		array = []
