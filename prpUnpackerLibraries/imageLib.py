@@ -65,19 +65,6 @@ def rgb565_to_rgb888(width,height,data,outname):
 			image.setPixelI(n, 511-m, (pr, pg, pb,pa))
 	image.save()
 
-def argb1555_to_argb8888(data):
-	newdata=''
-	for m in range(len(data)/2):
-		c=struct.unpack('H',data[m*2:m*2+2])[0]
-		a = c&0x8000
-		r = c&0x7C00
-		g = c&0x03E0
-		b = c&0x1F
-		rgb = (r << 9) | (g << 6) | (b << 3)
-		integer=(a*0x1FE00) | rgb | ((rgb >> 5) & 0x070707)
-		newdata+=struct.pack('I',integer)
-	return newdata
-
 class Image():
 	def __init__(self):
 		self.format=None

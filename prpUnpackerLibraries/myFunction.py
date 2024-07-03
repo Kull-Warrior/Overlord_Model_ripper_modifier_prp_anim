@@ -20,12 +20,6 @@ def set_image_format(image_format,image):
 		print 'Warning: Unkown image_format : ',image_format,' for ',texture_name
 	return image.format
 
-def float255(data):
-	list=[]
-	for get in data:
-		list.append(get/255.0)
-	return list
-
 def is_quat(quat):
 	sum=quat[1]**2+quat[2]**2+quat[3]**2
 	return quat[0]**2-sum
@@ -53,11 +47,6 @@ def matrix_4x4(data):
 					data[4:8],\
 					data[8:12],\
 					data[12:16])
-
-def matrix_3x3(data):
-	return Matrix(	data[:3],\
-					data[3:6],\
-					data[6:9])
 
 def parse_id():
 	ids = []
