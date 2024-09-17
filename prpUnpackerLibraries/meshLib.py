@@ -490,10 +490,10 @@ class Mat:
 		self.id_count=None
 		self.faceIDList=[]
 
-		r=random.randint(0,255)
-		g=random.randint(0,255)
-		b=random.randint(0,255)
-		self.rgba=[r/255.0,g/255.0,b/255.0,1.0]
+		red=random.randint(0,255)
+		green=random.randint(0,255)
+		blue=random.randint(0,255)
+		self.rgba=[red/255.0,green/255.0,blue/255.0,1.0]
 
 	def draw(self):
 		if self.name is None:
