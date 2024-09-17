@@ -477,7 +477,8 @@ def prp_file_parser(filename,prp_reader):
 						mesh.skin_list.append(skin)
 
 					mesh.bind_skeleton=model.skeleton
-					try:mesh.draw()
+					try:
+						mesh.draw()
 					except:
 						pass
 					break
@@ -494,7 +495,8 @@ def anim_file_parser(filename,animation_reader):
 		action.UPDATE=False
 
 		while(True):
-			if animation_reader.tell()>=animation_reader.get_file_size():break
+			if animation_reader.tell()>=animation_reader.get_file_size():
+				break
 			bone=ActionBone()
 			action.bone_list.append(bone)
 			bone.name=animation_reader.find('\x00')

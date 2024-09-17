@@ -411,7 +411,8 @@ class Mesh():
 			id+=1
 			f3 = indicesList[id]
 			if (f3==0xFFFF):
-				if id==len(indicesList)-1:break
+				if id==len(indicesList)-1:
+					break
 				id+=1
 				f1 = indicesList[id]
 				id+=1
@@ -430,7 +431,8 @@ class Mesh():
 						f1,f2,f3
 				f1 = f2
 				f2 = f3
-			if id==len(indicesList)-1:break
+			if id==len(indicesList)-1:
+				break
 
 class Skin:
 	def __init__(self):

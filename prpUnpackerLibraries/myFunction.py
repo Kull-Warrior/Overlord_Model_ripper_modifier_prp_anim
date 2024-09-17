@@ -55,18 +55,21 @@ def parse_id():
 		try:
 			model_id = int(mat.name.split('-')[0])
 			ids.append(model_id)
-		except:pass
+		except:
+			pass
 	for object in scene.objects:
 		if object.getType()=='Mesh':
 			try:
 				model_id = int(object.getData(mesh=1).name.split('-')[0])
 				ids.append(model_id)
-			except:pass
+			except:
+				pass
 	for mesh in bpy.data.meshes:
 			try:
 				model_id = int(mesh.name.split('-')[0])
 				ids.append(model_id)
-			except:pass
+			except:
+				pass
 	try:
 		model_id = max(ids)+1
 	except:
