@@ -29,19 +29,19 @@ def convert_half_to_float(h):
 	str = struct.pack('I',id)
 	return struct.unpack('f', str)[0]
 
-def read_from_data_type(self,n,first_multiplier,second_multiplier,third_multiplier,first_read_value,second_read_value):
+def read_from_data_type(self,length,format_characters,xor_format_characters,byte_count):
 	offset=self.inputFile.tell()
 	if self.xor_key is None:
-		data=struct.unpack(self.endian+n*first_multiplier,self.inputFile.read(first_read_value))
+		data=struct.unpack(self.endian+length*format_characters,self.inputFile.read(length*byte_count))
 	else:
-		data=struct.unpack(self.endian+n*second_multiplier,self.inputFile.read(second_read_value))
+		data=struct.unpack(self.endian+length*byte_count*xor_format_characters,self.inputFile.read(length*byte_count))
 		self.xor(data)
-		data=struct.unpack(self.endian+n*third_multiplier,self.xor_data)
+		data=struct.unpack(self.endian+length*format_characters,self.xor_data)
 	return data
 
-def write_as_data_type(self,n,adder):
-	for m in range(len(n)):
-		data=struct.pack(self.endian+adder,n[m])
+def write_as_data_type(self,data_to_write,format_characters):
+	for m in range(len(data_to_write)):
+		data=struct.pack(self.endian+format_characters,data_to_write[m])
 		self.inputFile.write(data)
 
 class BinaryReader(file):
@@ -65,78 +65,78 @@ class BinaryReader(file):
 				else:
 					self.xor_offset+=1
 
-	def read_int64(self,n):
-		return read_from_data_type(self,n,'q',8*'B','q',n*8,n*8)
+	def read_int64(self,length):
+		return read_from_data_type(self,length,'q','B',8)
 
-	def write_int64(self,n):
-		write_as_data_type(self,n,'q')
+	def write_int64(self,data):
+		write_as_data_type(self,data,'q')
 	
-	def read_uint64(self,n):
-		return read_from_data_type(self,n,'Q',8*'B','Q',n*8,n*8)
+	def read_uint64(self,length):
+		return read_from_data_type(self,length,'Q','B',8)
 
-	def write_uint64(self,n):
-		write_as_data_type(self,n,'Q')
+	def write_uint64(self,data):
+		write_as_data_type(self,data,'Q')
 	
-	def read_int32(self,n):
-		return read_from_data_type(self,n,'i',4*'B','i',n*4,n*4)
+	def read_int32(self,length):
+		return read_from_data_type(self,length,'i','B',4)
 
-	def write_int32(self,n):
-		write_as_data_type(self,n,'i')
+	def write_int32(self,data):
+		write_as_data_type(self,data,'i')
 	
-	def read_uint32(self,n):
-		return read_from_data_type(self,n,'I',4*'B','I',n*4,n*4)
+	def read_uint32(self,length):
+		return read_from_data_type(self,length,'I','B',4)
 
-	def write_uint32(self,n):
-		write_as_data_type(self,n,'I')
+	def write_uint32(self,data):
+		write_as_data_type(self,data,'I')
 	
-	def read_uint8(self,n):
-		return read_from_data_type(self,n,'B','B','B',n,n)
+	def read_uint8(self,length):
+		return read_from_data_type(self,length,'B','B',1)
 
-	def write_uint8(self,n):
-		write_as_data_type(self,n,'B')
+	def write_uint8(self,data):
+		write_as_data_type(self,data,'B')
 
-	def read_int8(self,n):
-		return read_from_data_type(self,n,'b','b','b',n,n)
+	def read_int8(self,length):
+		return read_from_data_type(self,length,'b','b',1)
 
-	def write_int8(self,n):
-		write_as_data_type(self,n,'b')
+	def write_int8(self,data):
+		write_as_data_type(self,data,'b')
 	
-	def read_int16(self,n):
-		return read_from_data_type(self,n,'h',2*'B','h',n*2,n*2)
+	def read_int16(self,length):
+		return read_from_data_type(self,length,'h','B',2)
 	
-	def write_int16(self,n):
-		write_as_data_type(self,n,'h')
+	def write_int16(self,data):
+		write_as_data_type(self,data,'h')
 
-	def read_uint16(self,n):
-		return read_from_data_type(self,n,'H',2*'B','H',n*2,n*2)
+	def read_uint16(self,length):
+		return read_from_data_type(self,length,'H','B',2)
 
-	def write_uint16(self,n):
-		write_as_data_type(self,n,'H')
+	def write_uint16(self,data):
+		write_as_data_type(self,data,'H')
 
-	def read_float(self,n):
-		return read_from_data_type(self,n,'f',4*'B','f',n*4,n*4)
+	def read_float(self,length):
+		return read_from_data_type(self,length,'f','B',4)
 	
-	def write_float(self,n):
-		write_as_data_type(self,n,'f')
+	def write_float(self,data):
+		write_as_data_type(self,data,'f')
 
-	def read_double(self,n):
-		return read_from_data_type(self,n,'d',8*'B','d',n*8,n*8)
+	def read_double(self,length):
+		return read_from_data_type(self,length,'d','B',8)
 
-	def write_double(self,n):
-		write_as_data_type(self,n,'d')
+	def write_double(self,data):
+		write_as_data_type(self,data,'d')
 
-	def half(self,n,h='h'):
+	def half(self,length,format_characters='h'):
 		array = []
 		offset=self.inputFile.tell()
-		for id in range(n):
-			array.append(convert_half_to_float(struct.unpack(self.endian+h,self.inputFile.read(2))[0]))
+		for id in range(length):
+			array.append(convert_half_to_float(struct.unpack(self.endian+format_characters,self.inputFile.read(2))[0]))
 		return array
 
-	def short(self,n,h='h',exp=12):
+	def short(self,length,format_characters='h',exp=12):
 		array = []
 		offset=self.inputFile.tell()
-		for id in range(n):
-			array.append(struct.unpack(self.endian+h,self.inputFile.read(2))[0]*2**-exp)
+		for id in range(length):
+			array.append(struct.unpack(self.endian+format_characters,self.inputFile.read(2))[0]*2**-exp)
 		return array
 
 	def find(self,var,size=1000):
