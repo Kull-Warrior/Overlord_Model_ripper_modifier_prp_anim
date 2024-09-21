@@ -216,8 +216,7 @@ class BinaryReader(file):
 			return s
 
 	def write_word(self,word):
-		if word<10000:
-			self.inputFile.write(word)
+		self.inputFile.write(word)
 
 	def stream(self,stream_name,element_count,element_size):
 		self.inputFile.seek(element_count*element_size,1)

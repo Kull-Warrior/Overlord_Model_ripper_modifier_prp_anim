@@ -146,8 +146,8 @@ def prp_file_parser(filename,prp_reader):
 									prp_reader.seek(item5[1])
 									if item5[0]==20:
 										boneName=prp_reader.read_word(prp_reader.read_int32(1)[0])
-										animation_file.write(boneName)
-										animation_file.write('\x00')
+										animation_writer.write_word(boneName)
+										animation_writer.write_word('\x00')
 									if item5[0]==24:
 										frame_count=None
 										stream_offset=None
@@ -164,7 +164,7 @@ def prp_file_parser(filename,prp_reader):
 											animation_writer.write_int32([frame_count])
 											for mC in range(frame_count):
 												prp_reader.seek(2,1)
-												animation_file.write(prp_reader.read(14))
+												animation_writer.write_word(prp_reader.read(14))
 										else:
 											animation_writer.write_int32([0])
 
