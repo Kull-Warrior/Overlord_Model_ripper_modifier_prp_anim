@@ -33,10 +33,15 @@ def get_list(type,list_reader):
 
 def prp_file_parser(filename,prp_reader):
 	texture_list={}
+	image_list=[]
 	material_list=[]
 	mesh_list=[]
 	model_list=[]
 	skeleton_list={}
+
+########################################################################################################################################################################
+## Read data from prp file
+########################################################################################################################################################################
 
 	title=get_title(prp_reader)
 	print 'Title : ',title
@@ -54,8 +59,6 @@ def prp_file_parser(filename,prp_reader):
 			flag=prp_reader.read_uint8(4)
 
 			if flag in [(61,0,65,0),(153,0,65,0),(152,0,65,0)]:#image
-				create_new_directory(file_directory+os.sep+file_basename+'_imagefiles')
-				
 				type2=prp_reader.read_uint8(1)[0]
 				list2=get_list(type2,prp_reader)
 				for item2 in list2:
@@ -101,7 +104,7 @@ def prp_file_parser(filename,prp_reader):
 										
 										image.name=file_directory+os.sep+file_basename+'_imagefiles'+os.sep+texture_name
 										image.data=prp_reader.read(image.width*image.height*4)
-										image.draw()
+										image_list.append(image)
 										texture_list[texture_chunk]=image.name
 										break
 									else:
@@ -444,6 +447,19 @@ def prp_file_parser(filename,prp_reader):
 				pass#print 'audio clip'
 			else:
 				print 'unknow global flag:',flag,prp_reader.tell()
+
+########################################################################################################################################################################
+## Write necessary data to new files
+########################################################################################################################################################################
+	if len(image_list)>0:
+		create_new_directory(file_directory+os.sep+file_basename+'_imagefiles')
+
+	for image in image_list:
+		image.draw()
+
+########################################################################################################################################################################
+## Create blender models
+########################################################################################################################################################################
 
 	for model in model_list:
 		print '		model:',model.name
