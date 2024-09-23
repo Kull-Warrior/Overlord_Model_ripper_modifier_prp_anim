@@ -149,20 +149,20 @@ def prp_file_parser(filename,prp_reader):
 										animation_writer.write_word(boneName)
 										animation_writer.write_word('\x00')
 									if item5[0]==24:
-										frame_count=None
-										stream_offset=None
+										position_frame_count=None
+										position_stream_offset=None
 										type6=prp_reader.read_uint8(1)[0]
 										list6=get_list(type6,prp_reader)
 										for item6 in list6:
 											prp_reader.seek(item6[1])
 											if item6[0]==21:
-												frame_count=prp_reader.read_int32(1)[0]
+												position_frame_count=prp_reader.read_int32(1)[0]
 											if item6[0]==22:
-												stream_offset=prp_reader.tell()
-										if (frame_count and stream_offset) is not None:
-											prp_reader.seek(stream_offset)
-											animation_writer.write_int32([frame_count])
-											for mC in range(frame_count):
+												position_stream_offset=prp_reader.tell()
+										if (position_frame_count and position_stream_offset) is not None:
+											prp_reader.seek(position_stream_offset)
+											animation_writer.write_int32([position_frame_count])
+											for mC in range(position_frame_count):
 												prp_reader.seek(2,1)
 												animation_writer.write_word(prp_reader.read(14))
 										else:
@@ -170,11 +170,11 @@ def prp_file_parser(filename,prp_reader):
 
 									if item5[0]==25:
 
-										frameCount30=None
-										streamOffset31=None
+										scale_frame_count=None
+										scale_stream_offset=None
 
-										frameCount22=None
-										streamOffset23=None
+										rotation_frame_count=None
+										rotation_stream_offset=None
 										type6=prp_reader.read_uint8(1)[0]
 										list6=get_list(type6,prp_reader)
 										for item6 in list6:
@@ -185,25 +185,25 @@ def prp_file_parser(filename,prp_reader):
 												for item7 in list7:
 													prp_reader.seek(item7[1])
 													if item7[0]==22:
-														frameCount22=prp_reader.read_int32(1)[0]
+														rotation_frame_count=prp_reader.read_int32(1)[0]
 													if item7[0]==23:
-														streamOffset23=prp_reader.tell()
+														rotation_stream_offset=prp_reader.tell()
 													if item7[0]==30:
-														frameCount30=prp_reader.read_int32(1)[0]
+														scale_frame_count=prp_reader.read_int32(1)[0]
 													if item7[0]==31:
-														streamOffset31=prp_reader.tell()
-										if (frameCount22 and streamOffset23) is not None:
-											prp_reader.seek(streamOffset23)
-											animation_writer.write_int32([frameCount22])
+														scale_stream_offset=prp_reader.tell()
+										if (rotation_frame_count and rotation_stream_offset) is not None:
+											prp_reader.seek(rotation_stream_offset)
+											animation_writer.write_int32([rotation_frame_count])
 											animation_writer.write_uint8([22])
-											for mC in range(frameCount22):
+											for mC in range(rotation_frame_count):
 												animation_file.write(prp_reader.read(6))
 
-										elif (frameCount30 and streamOffset31) is not None:
-											prp_reader.seek(streamOffset31)
-											animation_writer.write_int32([frameCount30])
+										elif (scale_frame_count and scale_stream_offset) is not None:
+											prp_reader.seek(scale_stream_offset)
+											animation_writer.write_int32([scale_frame_count])
 											animation_writer.write_uint8([30])
-											for mC in range(frameCount30):
+											for mC in range(scale_frame_count):
 												animation_file.write(prp_reader.read(8))
 										else:
 											animation_writer.write_int32([0])
