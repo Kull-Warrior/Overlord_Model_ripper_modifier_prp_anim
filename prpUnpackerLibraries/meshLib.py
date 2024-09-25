@@ -27,7 +27,6 @@ class Mesh():
 		self.bone_name_list=[]
 
 		self.name=None
-		self.mesh=None
 		self.object=None
 		self.is_triangle=False
 		self.is_quad=False
@@ -439,8 +438,6 @@ class Skin:
 		self.bone_map=[]
 		self.id_start=None
 		self.id_count=None
-		self.skeleton=None
-		self.skeleton_file=None
 
 class Mat:
 	def __init__(self):#0,1,2,3,4,5,6,7,
@@ -490,7 +487,6 @@ class Mat:
 		self.is_quad=False
 		self.id_start=None
 		self.id_count=None
-		self.faceIDList=[]
 
 		red=random.randint(0,255)
 		green=random.randint(0,255)
