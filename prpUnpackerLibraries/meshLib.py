@@ -40,9 +40,6 @@ class Mesh():
 		self.bind_pose=False
 		self.uv_flip=False
 
-	def update(self):
-		pass
-
 	def set_box(self):
 		E=[[],[],[]]
 		for n in range(len(self.vertice_position_list)):
