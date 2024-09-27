@@ -335,7 +335,7 @@ def prp_file_parser(filename,prp_reader):
 								chunk=prp_reader.read_word(prp_reader.read_int32(1)[0])
 								material.diffChunk=chunk
 							if item3[0]==21:
-								name=prp_reader.read_word(prp_reader.read_int32(1)[0])
+								material.texture_file=prp_reader.read_word(prp_reader.read_int32(1)[0])
 
 			elif flag in [(75,0,65,0)]:#model
 				model=Model()

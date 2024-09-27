@@ -439,6 +439,7 @@ class Skin:
 class Mat:
 	def __init__(self):#0,1,2,3,4,5,6,7,
 		self.name=None
+		self.texture_file=None
 		self.ztrans=False
 
 		self.diffuse=None
