@@ -197,14 +197,14 @@ def prp_file_parser(filename,prp_reader):
 											animation_writer.write_int32([rotation_frame_count])
 											animation_writer.write_uint8([22])
 											for mC in range(rotation_frame_count):
-												animation_file.write(prp_reader.read(6))
+												animation_writer.write_word(prp_reader.read(6))
 
 										elif (scale_frame_count and scale_stream_offset) is not None:
 											prp_reader.seek(scale_stream_offset)
 											animation_writer.write_int32([scale_frame_count])
 											animation_writer.write_uint8([30])
 											for mC in range(scale_frame_count):
-												animation_file.write(prp_reader.read(8))
+												animation_writer.write_word(prp_reader.read(8))
 										else:
 											animation_writer.write_int32([0])
 											animation_writer.write_uint8([0])
