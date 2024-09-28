@@ -37,7 +37,7 @@ def prp_file_parser(filename,prp_reader):
 	material_list=[]
 	mesh_list=[]
 	model_list=[]
-	skeleton_list={}
+	skeleton_list=[]
 
 ########################################################################################################################################################################
 ## Read data from prp file
@@ -413,10 +413,11 @@ def prp_file_parser(filename,prp_reader):
 								model.bone_name_list.append(bone.name)
 								skeleton.bone_list.append(bone)
 								prp_reader.seek(tm+144)
-							skeleton.draw()
 							model.skeleton=skeleton.name
 							for m in range(bone_count):
 								model.bone_name_list[skeleton.bone_list[m].skinID]=skeleton.bone_list[m].name
+							
+							skeleton_list.append(skeleton)
 					if item2[0]==35:
 						type3=prp_reader.read_uint8(1)[0]
 						list3=get_list(type3,prp_reader)
@@ -460,6 +461,9 @@ def prp_file_parser(filename,prp_reader):
 ########################################################################################################################################################################
 ## Create blender models
 ########################################################################################################################################################################
+
+	for skeleton in skeleton_list:
+		skeleton.draw()
 
 	for model in model_list:
 		print '		model:',model.name
