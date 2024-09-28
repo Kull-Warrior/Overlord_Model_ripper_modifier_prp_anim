@@ -59,42 +59,6 @@ class Mesh():
 			x,y,z=self.vertice_position_list[n]
 			self.vertice_position_list[n]=[trX+x*skX,trY+y*skY,trZ+z*skZ]
 
-	def add_material(self,mat,mesh,matID):
-		if mat.name is None:
-			mat.name=self.name+'-mat-'+str(matID)
-		blendMat=Blender.Material.New(mat.name)
-		blendMat.diffuseShader=Blender.Material.Shaders.DIFFUSE_ORENNAYAR
-		blendMat.specShader=Blender.Material.Shaders.SPEC_WARDISO
-		blendMat.setRms(0.04)
-		blendMat.shadeMode=Blender.Material.ShadeModes.CUBIC
-		blendMat.rgbCol=mat.rgba[:3]
-		blendMat.alpha = mat.rgba[3]
-		if mat.ztrans==True:
-			blendMat.mode |= Blender.Material.Modes.ZTRANSP
-			blendMat.mode |= Blender.Material.Modes.TRANSPSHADOW
-			blendMat.alpha = 0.0
-		if mat.diffuse is not None:
-			set_blender_material_texture(blendMat,mat,"diffuse","diff")
-		if mat.reflection is not None:
-			set_blender_material_texture(blendMat,mat,"reflection","refl")
-		if mat.diffuse1 is not None:
-			set_blender_material_texture(blendMat,mat,"diffuse1","diff")
-		if mat.diffuse2 is not None:
-			set_blender_material_texture(blendMat,mat,"diffuse2","diff")
-		if mat.specular is not None:
-			set_blender_material_texture(blendMat,mat,"specular","spec")
-		if mat.normal is not None:
-			set_blender_material_texture(blendMat,mat,"normal","norm")
-		if mat.normal1 is not None:
-			set_blender_material_texture(blendMat,mat,"normal1","norm")
-		if mat.normal2 is not None:
-			set_blender_material_texture(blendMat,mat,"norma2","norm")
-		if mat.ambient_occlusion is not None:
-			set_blender_material_texture(blendMat,mat,"ambient_occlusion","ao")
-		if mat.alpha is not None:
-			set_blender_material_texture(blendMat,mat,"alpha","alpha")
-		mesh.materials+=[blendMat]
-
 	def add_vertex_uv(self,blenderMesh,mesh):
 		blenderMesh.vertexUV = 1
 		for m in range(len(blenderMesh.verts)):
@@ -270,7 +234,7 @@ class Mesh():
 		blendMesh = bpy.data.meshes.new(mesh.name)
 		blendMesh.verts.extend(mesh.vertice_position_list)
 		blendMesh.faces.extend(mesh.triangle_list)
-		self.add_material(mat,blendMesh,meshID)
+		blendMesh.materials+=[mat.get_blender_material(mesh.name,meshID)]
 		if len(mesh.triangle_list)>0:
 			if len(mesh.vertice_uv_list)>0:
 				self.add_vertex_uv(blendMesh,mesh)
@@ -325,7 +289,7 @@ class Mesh():
 			self.add_face_uv(self.mesh,self)
 			for matID in range(len(self.material_list)):
 				mat=self.material_list[matID]
-				self.add_material(mat,self.mesh,matID)
+				self.mesh.materials+=[mat.get_blender_material(self.mesh.name,matID)]
 
 			if self.bind_skeleton is not None:
 				scene = bpy.data.scenes.active
@@ -491,14 +455,16 @@ class Mat:
 		blue=random.randint(0,255)
 		self.rgba=[red/255.0,green/255.0,blue/255.0,1.0]
 
-	def draw(self):
+	def get_blender_material(self,mesh_name,ID):
 		if self.name is None:
-			self.name=str(parse_id())+'-mat-'+str(0)
+			self.name=mesh_name+'-mat-'+str(ID)
 		blendMat=Blender.Material.New(self.name)
 		blendMat.diffuseShader=Blender.Material.Shaders.DIFFUSE_ORENNAYAR
 		blendMat.specShader=Blender.Material.Shaders.SPEC_WARDISO
 		blendMat.setRms(0.04)
 		blendMat.shadeMode=Blender.Material.ShadeModes.CUBIC
+		blendMat.rgbCol=self.rgba[:3]
+		blendMat.alpha = self.rgba[3]
 		if self.ztrans==True:
 			blendMat.mode |= Blender.Material.Modes.ZTRANSP
 			blendMat.mode |= Blender.Material.Modes.TRANSPSHADOW
@@ -523,3 +489,5 @@ class Mat:
 			set_blender_material_texture(blendMat,self,"ambient_occlusion","ao")
 		if self.alpha is not None:
 			set_blender_material_texture(blendMat,self,"alpha","alpha")
+
+		return blendMat
