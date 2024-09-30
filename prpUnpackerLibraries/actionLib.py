@@ -12,6 +12,7 @@ class ActionBone:
 		self.scale_key_list=[]
 		self.matrix_frame_list=[]
 		self.matrix_key_list=[]
+		self.data=[]
 
 class Action:
 	def __init__(self):

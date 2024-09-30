@@ -4,6 +4,7 @@ from prpUnpackerLibraries import *
 import Blender
 import math
 from math import *
+import struct
 
 def get_item(list,ID):
 	listA=[]
@@ -38,6 +39,7 @@ def prp_file_parser(filename,prp_reader):
 	mesh_list=[]
 	model_list=[]
 	skeleton_list=[]
+	action_list=[]
 
 ########################################################################################################################################################################
 ## Read data from prp file
@@ -111,7 +113,7 @@ def prp_file_parser(filename,prp_reader):
 										print 'unknow image flag:',flag,prp_reader.tell()
 
 			elif flag==(5,0,65,0):#anim
-				create_new_directory(file_directory+os.sep+file_basename+'_animfiles')
+				action=Action()
 
 				type2=prp_reader.read_uint8(1)[0]
 				list2=get_list(type2,prp_reader)
@@ -119,11 +121,7 @@ def prp_file_parser(filename,prp_reader):
 				list21=get_item(list2,21)
 				for item21 in list21:
 					prp_reader.seek(item21[1])
-					animation_name=prp_reader.read_word(prp_reader.read_int32(1)[0])
-
-				animation_path=file_directory+os.sep+file_basename+'_animfiles'+os.sep+animation_name+'.anim'
-				animation_file=open(animation_path,'wb')
-				animation_writer=BinaryReader(animation_file)
+					action.name=prp_reader.read_word(prp_reader.read_int32(1)[0])
 
 				list1=get_item(list2,1)
 				for item1 in list1:
@@ -142,12 +140,11 @@ def prp_file_parser(filename,prp_reader):
 							if flag==(7,0,65,0):#anim
 								type5=prp_reader.read_uint8(1)[0]
 								list5=get_list(type5,prp_reader)
+								action_bone=ActionBone()
 								for item5 in list5:
 									prp_reader.seek(item5[1])
 									if item5[0]==20:
-										boneName=prp_reader.read_word(prp_reader.read_int32(1)[0])
-										animation_writer.write_word(boneName)
-										animation_writer.write_word('\x00')
+										action_bone.name=prp_reader.read_word(prp_reader.read_int32(1)[0])
 									if item5[0]==24:
 										position_frame_count=None
 										position_stream_offset=None
@@ -161,12 +158,14 @@ def prp_file_parser(filename,prp_reader):
 												position_stream_offset=prp_reader.tell()
 										if (position_frame_count and position_stream_offset) is not None:
 											prp_reader.seek(position_stream_offset)
-											animation_writer.write_int32([position_frame_count])
+											action_bone.data.append(struct.pack('<'+'i',position_frame_count))
 											for mC in range(position_frame_count):
 												prp_reader.seek(2,1)
-												animation_writer.write_word(prp_reader.read(14))
+												position_data=prp_reader.read(14)
+												action_bone.data.append(position_data)
 										else:
-											animation_writer.write_int32([0])
+											action_bone.data.append(struct.pack('<'+'i',0))
+											
 
 									if item5[0]==25:
 
@@ -194,22 +193,24 @@ def prp_file_parser(filename,prp_reader):
 														scale_stream_offset=prp_reader.tell()
 										if (rotation_frame_count and rotation_stream_offset) is not None:
 											prp_reader.seek(rotation_stream_offset)
-											animation_writer.write_int32([rotation_frame_count])
-											animation_writer.write_uint8([22])
+											action_bone.data.append(struct.pack('<'+'i',rotation_frame_count))
+											action_bone.data.append(struct.pack('<'+'B',22))
 											for mC in range(rotation_frame_count):
-												animation_writer.write_word(prp_reader.read(6))
+												rotation_data=prp_reader.read(6)
+												action_bone.data.append(rotation_data)
 
 										elif (scale_frame_count and scale_stream_offset) is not None:
 											prp_reader.seek(scale_stream_offset)
-											animation_writer.write_int32([scale_frame_count])
-											animation_writer.write_uint8([30])
+											action_bone.data.append(struct.pack('<'+'i',scale_frame_count))
+											action_bone.data.append(struct.pack('<'+'B',30))
 											for mC in range(scale_frame_count):
-												animation_writer.write_word(prp_reader.read(8))
+												scale_data=prp_reader.read(8)
+												action_bone.data.append(scale_data)
 										else:
-											animation_writer.write_int32([0])
-											animation_writer.write_uint8([0])
-
-				animation_file.close()
+											action_bone.data.append(struct.pack('<'+'i',0))
+											action_bone.data.append(struct.pack('<'+'B',0))
+								action.bone_list.append(action_bone)
+				action_list.append(action)
 
 			elif flag==(53,0,65,0):#mesh
 				mesh=Mesh()
@@ -457,6 +458,21 @@ def prp_file_parser(filename,prp_reader):
 
 	for image in image_list:
 		image.draw()
+	
+	if len(action_list)>0:
+		create_new_directory(file_directory+os.sep+file_basename+'_animfiles')
+	
+	for action in action_list:
+		animation_path=file_directory+os.sep+file_basename+'_animfiles'+os.sep+action.name+'.anim'
+		animation_file=open(animation_path,'wb')
+		animation_writer=BinaryReader(animation_file)
+		
+		for action_bone in action.bone_list:
+			animation_writer.write_word(action_bone.name)
+			animation_writer.write_word('\x00')
+			
+			for i in action_bone.data:
+				animation_writer.write_word(i)
 
 ########################################################################################################################################################################
 ## Create blender models
