@@ -104,7 +104,7 @@ def prp_file_parser(filename,prp_reader):
 										elif '.' not in texture_name and 'tga' in image.format:
 											texture_name=texture_name+".tga"
 										
-										image.name=file_directory+os.sep+file_basename+'_imagefiles'+os.sep+texture_name
+										image.name=file_directory+os.sep+file_basename+os.sep+'images'+os.sep+texture_name
 										image.data=prp_reader.read(image.width*image.height*4)
 										image_list.append(image)
 										texture_list[texture_chunk]=image.name
@@ -455,17 +455,21 @@ def prp_file_parser(filename,prp_reader):
 ########################################################################################################################################################################
 ## Write necessary data to new files
 ########################################################################################################################################################################
+	
+	if len(image_list)>0 or len(action_list)>0:
+		create_new_directory(file_directory+os.sep+file_basename)
+	
 	if len(image_list)>0:
-		create_new_directory(file_directory+os.sep+file_basename+'_imagefiles')
+		create_new_directory(file_directory+os.sep+file_basename+os.sep+'images')
 
 	for image in image_list:
 		image.draw()
 	
 	if len(action_list)>0:
-		create_new_directory(file_directory+os.sep+file_basename+'_animfiles')
+		create_new_directory(file_directory+os.sep+file_basename+os.sep+'animations')
 	
 	for action in action_list:
-		animation_path=file_directory+os.sep+file_basename+'_animfiles'+os.sep+action.name+'.anim'
+		animation_path=file_directory+os.sep+file_basename+os.sep+'animations'+os.sep+action.name+'.anim'
 		animation_file=open(animation_path,'wb')
 		animation_writer=BinaryReader(animation_file)
 		
