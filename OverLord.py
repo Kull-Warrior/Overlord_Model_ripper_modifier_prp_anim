@@ -40,6 +40,7 @@ def prp_file_parser(filename,prp_reader):
 	model_list=[]
 	skeleton_list=[]
 	action_list=[]
+	audio_list=[]
 
 ########################################################################################################################################################################
 ## Read data from prp file
@@ -446,7 +447,32 @@ def prp_file_parser(filename,prp_reader):
 											model.bone_map_list.append(prp_reader.read_int32(count))
 
 			elif flag == (0,0,161,0):
-				pass#print 'audio clip'
+				type2=prp_reader.read_uint8(1)[0]
+				list2=get_list(type2,prp_reader)
+				
+				audio=Audio()
+				
+				for item2 in list2:
+					prp_reader.seek(item2[1])
+					
+					if item2[0]==20:
+						audio.chunk_name = prp_reader.read_word(prp_reader.read_int32(1)[0])
+					if item2[0]==21:
+						audio.name=prp_reader.read_word(prp_reader.read_int32(1)[0])
+					if item2[0]==100:
+						audio.temp_path=prp_reader.read_word(prp_reader.read_int32(1)[0])
+					if item2[0]==1:
+						type3=prp_reader.read_uint8(1)[0]
+						list3=get_list(type3,prp_reader)
+						for item3 in list3:
+							prp_reader.seek(item3[1])
+							if item3[0] == 30:
+								prp_reader.seek(item3[1])
+								audio.size = prp_reader.read_uint32(1)[0]
+							if item3[0] == 31:
+								audio.data = prp_reader.read(audio.size)
+
+				audio_list.append(audio)
 			elif flag in [((27,6,65,0),(40,6,65,0),(42,6,65,0))]:#Final Gather Map ( Not implemented / not supported)
 				pass
 			else:
@@ -479,6 +505,16 @@ def prp_file_parser(filename,prp_reader):
 			
 			for i in action_bone.data:
 				animation_writer.write_word(i)
+	
+	if len(audio_list)>0:
+		create_new_directory(file_directory+os.sep+file_basename+os.sep+'audio')
+	
+	for audio in audio_list:
+		audio_path=file_directory+os.sep+file_basename+os.sep+'audio'+os.sep+audio.name+'.wav'
+		audio_file=open(audio_path,'wb')
+		audio_writer=BinaryReader(audio_file)
+
+		audio_writer.write_word(audio.data)
 
 ########################################################################################################################################################################
 ## Create blender models

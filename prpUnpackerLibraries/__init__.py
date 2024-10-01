@@ -5,6 +5,7 @@ import imageLib
 import meshLib
 import actionLib
 import skeletonLib
+import audioLib
 
 reload(myFunction)
 reload(modelLib)
@@ -13,6 +14,7 @@ reload(imageLib)
 reload(meshLib)
 reload(actionLib)
 reload(skeletonLib)
+reload(audioLib)
 
 from myFunction import *
 from modelLib import *
@@ -21,3 +23,4 @@ from imageLib import *
 from meshLib import *
 from actionLib import *
 from skeletonLib import *
+from audioLib import *
