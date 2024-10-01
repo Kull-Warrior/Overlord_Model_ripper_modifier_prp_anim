@@ -15,6 +15,8 @@ def set_image_format(image_format,image):
 		image.format='DXT3'
 	elif image_format==5:
 		image.format='tga32'
+	elif image_format==3:
+		image.format='tga24'
 	else:
 		image.format=image_format
 		print 'Warning: Unkown image_format : ',image_format,' for ',texture_name
