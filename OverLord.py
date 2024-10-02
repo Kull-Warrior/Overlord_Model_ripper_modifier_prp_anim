@@ -475,6 +475,14 @@ def prp_file_parser(filename,prp_reader):
 				audio_list.append(audio)
 			elif flag in [(27,6,65,0),(40,6,65,0),(42,6,65,0)]:#Final Gather Map ( Not implemented / not supported)
 				pass
+			elif flag == (17, 1, 65, 0):#COL Data ( Not implemented / not supported)
+				pass
+			elif flag == (0, 21, 65, 0):#INTERFACETEXTUREATLAS ( Not implemented / not supported)
+				pass
+			elif flag == (39, 160, 0, 4):#Unknown Data, something with alphabetical letters
+				pass
+			elif flag == (40, 160, 0, 4):#CliffData ( Not implemented / not supported)
+				pass
 			else:
 				print 'unknow global flag:',flag,prp_reader.tell()
 
