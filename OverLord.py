@@ -482,7 +482,7 @@ def prp_file_parser(filename,prp_reader):
 ## Write necessary data to new files
 ########################################################################################################################################################################
 	
-	if len(image_list)>0 or len(action_list)>0:
+	if len(image_list)>0 or len(action_list)>0 or len(audio_list)>0:
 		create_new_directory(file_directory+os.sep+file_basename)
 	
 	if len(image_list)>0:
