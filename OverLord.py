@@ -473,7 +473,7 @@ def prp_file_parser(filename,prp_reader):
 								audio.data = prp_reader.read(audio.size)
 
 				audio_list.append(audio)
-			elif flag in [((27,6,65,0),(40,6,65,0),(42,6,65,0))]:#Final Gather Map ( Not implemented / not supported)
+			elif flag in [(27,6,65,0),(40,6,65,0),(42,6,65,0)]:#Final Gather Map ( Not implemented / not supported)
 				pass
 			else:
 				print 'unknow global flag:',flag,prp_reader.tell()
