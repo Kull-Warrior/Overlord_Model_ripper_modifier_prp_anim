@@ -621,7 +621,7 @@ def openFile(full_file_path):
 	print '='*70
 	print
 
-	if file_extension=='prp' or file_extension=='pvp':
+	if file_extension=='prp' or file_extension=='pvp' or file_extension=='psp':
 		file=open(full_file_path,'rb')
 		reader=BinaryReader(file)
 		prp_file_parser(full_file_path,reader)
@@ -633,4 +633,4 @@ def openFile(full_file_path):
 		anim_file_parser(full_file_path,reader)
 		file.close()
 
-Blender.Window.FileSelector(openFile,'import','Overlord I and II files: prp - archive, pvp - archive, anim - animation')
+Blender.Window.FileSelector(openFile,'import','Overlord I and II files: prp - archive, pvp - archive, psp - archive, anim - animation')
