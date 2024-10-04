@@ -32,6 +32,14 @@ def get_list(type,list_reader):
 		listA.append([item[0],position+item[1]])
 	return listA
 
+def add_leading_zeros(counter):
+	string=""
+	if counter<100:
+		string+="0"
+	if counter<10:
+		string+="0"
+	return string
+
 def prp_file_parser(filename,prp_reader):
 	texture_list={}
 	image_list=[]
@@ -41,15 +49,28 @@ def prp_file_parser(filename,prp_reader):
 	skeleton_list=[]
 	action_list=[]
 	audio_list=[]
+	
+	image_count=0
+	animation_count=0
+	mesh_count=0
+	material_count=0
+	model_count=0
+	audio_count=0
+	final_gather_map_count=0
+	color_count=0
+	INTERFACETEXTUREATLAS_count=0
+	alphabetical_data_count=0
+	cliff_count=0
+	shader_count=0
 
 ########################################################################################################################################################################
 ## Read data from prp file
 ########################################################################################################################################################################
 
 	title=get_title(prp_reader)
-	print 'Title : ',title
+	print 'Title		:	',title
 	type=prp_reader.read_uint8(1)[0]
-	print 'type : ',type
+
 	list=get_list(type,prp_reader)
 	list26=get_item(list,26)
 	for item in list26:
@@ -57,11 +78,13 @@ def prp_file_parser(filename,prp_reader):
 		prp_reader.read_uint8(3)
 		type1=prp_reader.read_uint8(1)[0]
 		list1=get_list(type1,prp_reader)
+
 		for item1 in list1:
 			prp_reader.seek(item1[1])
 			flag=prp_reader.read_uint8(4)
 
 			if flag in [(61,0,65,0),(153,0,65,0),(152,0,65,0)]:#image
+				image_count=image_count+1
 				type2=prp_reader.read_uint8(1)[0]
 				list2=get_list(type2,prp_reader)
 				for item2 in list2:
@@ -114,6 +137,7 @@ def prp_file_parser(filename,prp_reader):
 										print 'unknow image flag:',flag,prp_reader.tell()
 
 			elif flag==(5,0,65,0):#anim
+				animation_count=animation_count+1
 				action=Action()
 
 				type2=prp_reader.read_uint8(1)[0]
@@ -214,6 +238,7 @@ def prp_file_parser(filename,prp_reader):
 				action_list.append(action)
 
 			elif flag==(53,0,65,0):#mesh
+				mesh_count=mesh_count+1
 				mesh=Mesh()
 				mesh_list.append(mesh)
 				type2=prp_reader.read_uint8(1)[0]
@@ -317,6 +342,7 @@ def prp_file_parser(filename,prp_reader):
 					prp_reader.seek(tk+vertice_stride_size)
 
 			elif flag in [(82,6,65,0),(60,6,65,0),(36,6,65,0),(10,6,65,0),(15,6,65,0),(8,6,65,0),(54,6,65,0),(38,6,65,0),(18,6,65,0),(22,6,65,0),(32,6,65,0),(50,6,65,0),(55,6,65,0),(48,6,65,0),(86,6,65,0),(49,6,65,0),(89,6,65,0)]:#material
+				material_count=material_count+1
 				type2=prp_reader.read_uint8(1)[0]
 				list2=get_list(type2,prp_reader)
 				material=Mat()
@@ -340,6 +366,7 @@ def prp_file_parser(filename,prp_reader):
 								material.texture_file=prp_reader.read_word(prp_reader.read_int32(1)[0])
 
 			elif flag in [(75,0,65,0)]:#model
+				model_count=model_count+1
 				model=Model()
 				model_list.append(model)
 				type2=prp_reader.read_uint8(1)[0]
@@ -447,6 +474,7 @@ def prp_file_parser(filename,prp_reader):
 											model.bone_map_list.append(prp_reader.read_int32(count))
 
 			elif flag == (0,0,161,0):
+				audio_count=audio_count+1
 				type2=prp_reader.read_uint8(1)[0]
 				list2=get_list(type2,prp_reader)
 				
@@ -474,65 +502,128 @@ def prp_file_parser(filename,prp_reader):
 
 				audio_list.append(audio)
 			elif flag in [(27,6,65,0),(40,6,65,0),(42,6,65,0)]:#Final Gather Map ( Not implemented / not supported)
+				final_gather_map_count=final_gather_map_count+1
 				pass
 			elif flag == (17, 1, 65, 0):#COL Data ( Not implemented / not supported)
+				color_count=color_count+1
 				pass
 			elif flag == (0, 21, 65, 0):#INTERFACETEXTUREATLAS ( Not implemented / not supported)
+				INTERFACETEXTUREATLAS_count=INTERFACETEXTUREATLAS_count+1
 				pass
 			elif flag == (39, 160, 0, 4):#Unknown Data, something with alphabetical letters
+				alphabetical_data_count=alphabetical_data_count+1
 				pass
 			elif flag == (40, 160, 0, 4):#CliffData ( Not implemented / not supported)
+				cliff_count=cliff_count+1
+				pass
+			elif flag in [(187,0,65,0),(2,0,65,0),(3,0,65,0)]:#Shader	(Not implemented / not supported)
+				shader_count=shader_count+1
 				pass
 			else:
 				print 'unknow global flag:',flag,prp_reader.tell()
+		
+	print "Detected	:	"+add_leading_zeros(image_count)+"{0} images".format(image_count)
+	print "Detected	:	"+add_leading_zeros(animation_count)+"{0} animations".format(animation_count)
+	print "Detected	:	"+add_leading_zeros(mesh_count)+"{0} meshes".format(mesh_count)
+	print "Detected	:	"+add_leading_zeros(material_count)+"{0} materials".format(material_count)
+	print "Detected	:	"+add_leading_zeros(model_count)+"{0} models".format(model_count)
+	print "Detected	:	"+add_leading_zeros(audio_count)+"{0} audios".format(audio_count)
+	print "Detected	:	"+add_leading_zeros(final_gather_map_count)+"{0} final_gather_maps".format(final_gather_map_count)
+	print "Detected	:	"+add_leading_zeros(color_count)+"{0} colors".format(color_count)
+	print "Detected	:	"+add_leading_zeros(INTERFACETEXTUREATLAS_count)+"{0} INTERFACETEXTUREATLAS".format(INTERFACETEXTUREATLAS_count)
+	print "Detected	:	"+add_leading_zeros(alphabetical_data_count)+"{0} alphabetical_data".format(alphabetical_data_count)
+	print "Detected	:	"+add_leading_zeros(cliff_count)+"{0} cliffs".format(cliff_count)
+	print "Detected	:	"+add_leading_zeros(shader_count)+"{0} shaders".format(shader_count)
 
 ########################################################################################################################################################################
 ## Write necessary data to new files
 ########################################################################################################################################################################
-	
+
+	print
+	print "-"*50
+	print "Write necessary data to new files"
+	print "-"*50
+	print
+
 	if len(image_list)>0 or len(action_list)>0 or len(audio_list)>0:
+		print "Parent directory created" 
 		create_new_directory(file_directory+os.sep+file_basename)
-	
+	print
+
 	if len(image_list)>0:
+		print "Image subdirectory created"
 		create_new_directory(file_directory+os.sep+file_basename+os.sep+'images')
 
 	for image in image_list:
+		print "	"+"*"*50
+		print "	Writing	image to file"
+		print "	Name	: {0}".format(image.name)
+		print "	Height	: {0}".format(image.height)
+		print "	Width	: {0}".format(image.width)
+		print "	Format	: {0}".format(image.format)
 		image.draw()
-	
+	print "	"+"*"*50
+	print
+
 	if len(action_list)>0:
+		print "Animation subdirectory created"
 		create_new_directory(file_directory+os.sep+file_basename+os.sep+'animations')
 	
 	for action in action_list:
+		print "	"+"*"*50
+		print "	Writing animation to file"
+		print "	Name	: {0}".format(action.name)
 		animation_path=file_directory+os.sep+file_basename+os.sep+'animations'+os.sep+action.name+'.anim'
 		animation_file=open(animation_path,'wb')
 		animation_writer=BinaryReader(animation_file)
 		
 		for action_bone in action.bone_list:
+			#print "		"+"+"*50
+			#print "		Bone used by the animation"
+			#print "		Name	: {0}".format(action_bone.name)
 			animation_writer.write_word(action_bone.name)
 			animation_writer.write_word('\x00')
 			
 			for i in action_bone.data:
 				animation_writer.write_word(i)
-	
+		#print "		"+"+"*50
+	print "	"+"*"*50
+	print
+
 	if len(audio_list)>0:
+		print "Audio subdirectory created"
 		create_new_directory(file_directory+os.sep+file_basename+os.sep+'audio')
 	
 	for audio in audio_list:
+		print "	"+"*"*50
+		print "	Writing audio to file"
+		print "	Name	: {0}".format(audio.name)
+		print "	Chunck	: {0}".format(audio.chunk_name)
+		print "	Size	: {0}".format(audio.size)
 		audio_path=file_directory+os.sep+file_basename+os.sep+'audio'+os.sep+audio.name+'.wav'
 		audio_file=open(audio_path,'wb')
 		audio_writer=BinaryReader(audio_file)
 
 		audio_writer.write_word(audio.data)
+	print "	"+"*"*50
+	print
 
 ########################################################################################################################################################################
 ## Create blender models
 ########################################################################################################################################################################
 
+	print
+	print "-"*50
+	print "Try to create blender models and their dependencies"
+	print "-"*50
+	print
+
 	for skeleton in skeleton_list:
 		skeleton.draw()
 
 	for model in model_list:
-		print '		model:',model.name
+		print "	"+"*"*50
+		print "	Name	: {0}".format(model.name)
 		i=0
 		for mesh_chunk,material_Chunk in model.mesh_list:
 			print '			',mesh_chunk, ' -> ', material_Chunk
@@ -569,6 +660,7 @@ def prp_file_parser(filename,prp_reader):
 						pass
 					break
 			i+=1
+	print "	"+"*"*50
 
 def anim_file_parser(filename,animation_reader):
 	selObjectList=Blender.Object.GetSelected()
