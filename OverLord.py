@@ -7,15 +7,6 @@ from math import *
 import struct
 
 def prp_file_parser(filename,prp_reader):
-	texture_list={}
-	image_list=[]
-	material_list=[]
-	mesh_list=[]
-	model_list=[]
-	skeleton_list=[]
-	action_list=[]
-	audio_list=[]
-
 	image_count=0
 	animation_count=0
 	mesh_count=0
@@ -33,9 +24,10 @@ def prp_file_parser(filename,prp_reader):
 ## Read data from prp file
 ########################################################################################################################################################################
 
-	title=get_title(prp_reader)
-	print 'Title		:	',title
-	type=prp_reader.read_uint8(1)[0]
+	prp_file=PRP()
+	prp_file.name=get_title(prp_reader)
+	print 'Title		:	',prp_file.name
+	prp_file.type=prp_reader.read_uint8(1)[0]
 
 	list=get_list(type,prp_reader)
 	list26=get_item(list,26)
@@ -96,8 +88,8 @@ def prp_file_parser(filename,prp_reader):
 										
 										image.name=file_directory+os.sep+file_basename+os.sep+'images'+os.sep+texture_name
 										image.data=prp_reader.read(image.width*image.height*4)
-										image_list.append(image)
-										texture_list[texture_chunk]=image.name
+										prp_file.image_list.append(image)
+										prp_file.texture_list[texture_chunk]=image.name
 										break
 									else:
 										print 'unknow image flag:',flag,prp_reader.tell()
@@ -201,12 +193,12 @@ def prp_file_parser(filename,prp_reader):
 											action_bone.data.append(struct.pack('<'+'i',0))
 											action_bone.data.append(struct.pack('<'+'B',0))
 								action.bone_list.append(action_bone)
-				action_list.append(action)
+				prp_file.animation_list.append(action)
 
 			elif flag==(53,0,65,0):#mesh
 				mesh_count=mesh_count+1
 				mesh=Mesh()
-				mesh_list.append(mesh)
+				prp_file.mesh_list.append(mesh)
 				type2=prp_reader.read_uint8(1)[0]
 				list2=get_list(type2,prp_reader)
 				for item2 in list2:
@@ -313,7 +305,7 @@ def prp_file_parser(filename,prp_reader):
 				list2=get_list(type2,prp_reader)
 				material=Mat()
 				material.diffChunk=None
-				material_list.append(material)
+				prp_file.material_list.append(material)
 				for item2 in list2:
 					prp_reader.seek(item2[1])
 					if item2[0]==20:
@@ -334,7 +326,7 @@ def prp_file_parser(filename,prp_reader):
 			elif flag in [(75,0,65,0)]:#model
 				model_count=model_count+1
 				model=Model()
-				model_list.append(model)
+				prp_file.model_list.append(model)
 				type2=prp_reader.read_uint8(1)[0]
 				list2=get_list(type2,prp_reader)
 				for item2 in list2:
@@ -412,7 +404,7 @@ def prp_file_parser(filename,prp_reader):
 							for m in range(bone_count):
 								model.bone_name_list[skeleton.bone_list[m].skinID]=skeleton.bone_list[m].name
 							
-							skeleton_list.append(skeleton)
+							prp_file.skeleton_list.append(skeleton)
 					if item2[0]==35:
 						type3=prp_reader.read_uint8(1)[0]
 						list3=get_list(type3,prp_reader)
@@ -466,7 +458,7 @@ def prp_file_parser(filename,prp_reader):
 							if item3[0] == 31:
 								audio.data = prp_reader.read(audio.size)
 
-				audio_list.append(audio)
+				prp_file.audio_list.append(audio)
 			elif flag in [(27,6,65,0),(40,6,65,0),(42,6,65,0)]:#Final Gather Map ( Not implemented / not supported)
 				final_gather_map_count=final_gather_map_count+1
 				pass
@@ -511,16 +503,16 @@ def prp_file_parser(filename,prp_reader):
 	print "-"*50
 	print
 
-	if len(image_list)>0 or len(action_list)>0 or len(audio_list)>0:
+	if len(prp_file.image_list)>0 or len(prp_file.animation_list)>0 or len(prp_file.audio_list)>0:
 		print "Parent directory created" 
 		create_new_directory(file_directory+os.sep+file_basename)
 	print
 
-	if len(image_list)>0:
+	if len(prp_file.image_list)>0:
 		print "Image subdirectory created"
 		create_new_directory(file_directory+os.sep+file_basename+os.sep+'images')
 
-	for image in image_list:
+	for image in prp_file.image_list:
 		print "	"+"*"*50
 		print "	Writing	image to file"
 		print "	Name	: {0}".format(image.name)
@@ -531,11 +523,11 @@ def prp_file_parser(filename,prp_reader):
 	print "	"+"*"*50
 	print
 
-	if len(action_list)>0:
+	if len(prp_file.animation_list)>0:
 		print "Animation subdirectory created"
 		create_new_directory(file_directory+os.sep+file_basename+os.sep+'animations')
 	
-	for action in action_list:
+	for action in prp_file.animation_list:
 		print "	"+"*"*50
 		print "	Writing animation to file"
 		print "	Name	: {0}".format(action.name)
@@ -556,11 +548,11 @@ def prp_file_parser(filename,prp_reader):
 	print "	"+"*"*50
 	print
 
-	if len(audio_list)>0:
+	if len(prp_file.audio_list)>0:
 		print "Audio subdirectory created"
 		create_new_directory(file_directory+os.sep+file_basename+os.sep+'audio')
 	
-	for audio in audio_list:
+	for audio in prp_file.audio_list:
 		print "	"+"*"*50
 		print "	Writing audio to file"
 		print "	Name	: {0}".format(audio.name)
@@ -584,20 +576,20 @@ def prp_file_parser(filename,prp_reader):
 	print "-"*50
 	print
 
-	for skeleton in skeleton_list:
+	for skeleton in prp_file.skeleton_list:
 		skeleton.draw()
 
-	for model in model_list:
+	for model in prp_file.model_list:
 		print "	"+"*"*50
 		print "	Name	: {0}".format(model.name)
 		i=0
 		for mesh_chunk,material_Chunk in model.mesh_list:
 			print '			',mesh_chunk, ' -> ', material_Chunk
 			mat=None
-			for mat in material_list:
+			for mat in prp_file.material_list:
 				if mat.chunk==material_Chunk:
 					break
-			for mesh in mesh_list:
+			for mesh in prp_file.mesh_list:
 				if mesh.chunk==mesh_chunk:
 					print '			Mesh Name	:	',mesh.name
 					MAT=Mat()
@@ -606,8 +598,8 @@ def prp_file_parser(filename,prp_reader):
 					if mat is not None:
 
 						if mat.diffChunk is not None:
-							if mat.diffChunk in texture_list.keys():
-								mat.diffuse=texture_list[mat.diffChunk]
+							if mat.diffChunk in prp_file.texture_list.keys():
+								mat.diffuse=prp_file.texture_list[mat.diffChunk]
 
 						MAT.diffuse=mat.diffuse
 
