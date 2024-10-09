@@ -129,3 +129,37 @@ def safe(count):
 def get_title(file_reader):
 	file_reader.seek(16)
 	return file_reader.read_word(160)
+
+def get_item(list,ID):
+	listA=[]
+	for item in list:
+		if item[0]==ID:
+			listA.append(item)
+	return listA
+
+def get_list(type,list_reader):
+	list=[]
+	if type>=128:
+		count_small=type-128
+		count_big=list_reader.read_int32(1)[0]
+		for m in range(count_small):
+			list.append(list_reader.read_uint8(2))
+		for m in range(count_big):
+			list.append(list_reader.read_int32(2))
+	else:
+		count_small=type
+		for m in range(count_small):
+			list.append(list_reader.read_uint8(2))
+	position=list_reader.tell()
+	listA=[]
+	for item in list:
+		listA.append([item[0],position+item[1]])
+	return listA
+
+def add_leading_zeros(counter):
+	string=""
+	if counter<100:
+		string+="0"
+	if counter<10:
+		string+="0"
+	return string

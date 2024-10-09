@@ -6,40 +6,6 @@ import math
 from math import *
 import struct
 
-def get_item(list,ID):
-	listA=[]
-	for item in list:
-		if item[0]==ID:
-			listA.append(item)
-	return listA
-
-def get_list(type,list_reader):
-	list=[]
-	if type>=128:
-		count_small=type-128
-		count_big=list_reader.read_int32(1)[0]
-		for m in range(count_small):
-			list.append(list_reader.read_uint8(2))
-		for m in range(count_big):
-			list.append(list_reader.read_int32(2))
-	else:
-		count_small=type
-		for m in range(count_small):
-			list.append(list_reader.read_uint8(2))
-	position=list_reader.tell()
-	listA=[]
-	for item in list:
-		listA.append([item[0],position+item[1]])
-	return listA
-
-def add_leading_zeros(counter):
-	string=""
-	if counter<100:
-		string+="0"
-	if counter<10:
-		string+="0"
-	return string
-
 def prp_file_parser(filename,prp_reader):
 	texture_list={}
 	image_list=[]
@@ -49,7 +15,7 @@ def prp_file_parser(filename,prp_reader):
 	skeleton_list=[]
 	action_list=[]
 	audio_list=[]
-	
+
 	image_count=0
 	animation_count=0
 	mesh_count=0
