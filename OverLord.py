@@ -6,7 +6,10 @@ import math
 from math import *
 import struct
 
-def prp_file_parser(filename,prp_reader):
+def read_data(filename):
+	resource_file=open(full_file_path,'rb')
+	prp_reader=BinaryReader(resource_file)
+
 	image_count=0
 	animation_count=0
 	mesh_count=0
@@ -20,9 +23,9 @@ def prp_file_parser(filename,prp_reader):
 	cliff_count=0
 	shader_count=0
 
-########################################################################################################################################################################
-## Read data from prp file
-########################################################################################################################################################################
+	########################################################################################################################################################################
+	## Read data from prp file
+	########################################################################################################################################################################
 
 	prp_file=PRP()
 	prp_file.name=get_title(prp_reader)
@@ -493,9 +496,14 @@ def prp_file_parser(filename,prp_reader):
 	print "Detected	:	"+add_leading_zeros(cliff_count)+"{0} cliffs".format(cliff_count)
 	print "Detected	:	"+add_leading_zeros(shader_count)+"{0} shaders".format(shader_count)
 
-########################################################################################################################################################################
-## Write necessary data to new files
-########################################################################################################################################################################
+	resource_file.close()
+
+	return prp_file
+
+def save_data(data):
+	########################################################################################################################################################################
+	## Write necessary data to new files
+	########################################################################################################################################################################
 
 	print
 	print "-"*50
@@ -503,16 +511,16 @@ def prp_file_parser(filename,prp_reader):
 	print "-"*50
 	print
 
-	if len(prp_file.image_list)>0 or len(prp_file.animation_list)>0 or len(prp_file.audio_list)>0:
+	if len(data.image_list)>0 or len(data.animation_list)>0 or len(data.audio_list)>0:
 		print "Parent directory created" 
 		create_new_directory(file_directory+os.sep+file_basename)
 	print
 
-	if len(prp_file.image_list)>0:
+	if len(data.image_list)>0:
 		print "Image subdirectory created"
 		create_new_directory(file_directory+os.sep+file_basename+os.sep+'images')
 
-	for image in prp_file.image_list:
+	for image in data.image_list:
 		print "	"+"*"*50
 		print "	Writing	image to file"
 		print "	Name	: {0}".format(image.name)
@@ -523,11 +531,11 @@ def prp_file_parser(filename,prp_reader):
 	print "	"+"*"*50
 	print
 
-	if len(prp_file.animation_list)>0:
+	if len(data.animation_list)>0:
 		print "Animation subdirectory created"
 		create_new_directory(file_directory+os.sep+file_basename+os.sep+'animations')
 	
-	for action in prp_file.animation_list:
+	for action in data.animation_list:
 		print "	"+"*"*50
 		print "	Writing animation to file"
 		print "	Name	: {0}".format(action.name)
@@ -548,11 +556,11 @@ def prp_file_parser(filename,prp_reader):
 	print "	"+"*"*50
 	print
 
-	if len(prp_file.audio_list)>0:
+	if len(data.audio_list)>0:
 		print "Audio subdirectory created"
 		create_new_directory(file_directory+os.sep+file_basename+os.sep+'audio')
 	
-	for audio in prp_file.audio_list:
+	for audio in data.audio_list:
 		print "	"+"*"*50
 		print "	Writing audio to file"
 		print "	Name	: {0}".format(audio.name)
@@ -566,6 +574,7 @@ def prp_file_parser(filename,prp_reader):
 	print "	"+"*"*50
 	print
 
+def create_blender_models(data):
 ########################################################################################################################################################################
 ## Create blender models
 ########################################################################################################################################################################
@@ -576,20 +585,20 @@ def prp_file_parser(filename,prp_reader):
 	print "-"*50
 	print
 
-	for skeleton in prp_file.skeleton_list:
+	for skeleton in data.skeleton_list:
 		skeleton.draw()
 
-	for model in prp_file.model_list:
+	for model in data.model_list:
 		print "	"+"*"*50
 		print "	Name	: {0}".format(model.name)
 		i=0
 		for mesh_chunk,material_Chunk in model.mesh_list:
 			print '			',mesh_chunk, ' -> ', material_Chunk
 			mat=None
-			for mat in prp_file.material_list:
+			for mat in data.material_list:
 				if mat.chunk==material_Chunk:
 					break
-			for mesh in prp_file.mesh_list:
+			for mesh in data.mesh_list:
 				if mesh.chunk==mesh_chunk:
 					print '			Mesh Name	:	',mesh.name
 					MAT=Mat()
@@ -598,8 +607,8 @@ def prp_file_parser(filename,prp_reader):
 					if mat is not None:
 
 						if mat.diffChunk is not None:
-							if mat.diffChunk in prp_file.texture_list.keys():
-								mat.diffuse=prp_file.texture_list[mat.diffChunk]
+							if mat.diffChunk in data.texture_list.keys():
+								mat.diffuse=data.texture_list[mat.diffChunk]
 
 						MAT.diffuse=mat.diffuse
 
@@ -672,10 +681,9 @@ def openFile(full_file_path):
 	print
 
 	if file_extension=='prp' or file_extension=='pvp' or file_extension=='psp':
-		file=open(full_file_path,'rb')
-		reader=BinaryReader(file)
-		prp_file_parser(full_file_path,reader)
-		file.close()
+		extracted_data = read_data(full_file_path)
+		save_data(extracted_data)
+		create_blender_models(data)
 
 	if file_extension=='anim':
 		file=open(full_file_path,'rb')
