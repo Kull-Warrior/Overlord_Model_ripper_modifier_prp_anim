@@ -82,7 +82,10 @@ def read_data(filename):
 												offset=prp_reader.tell()
 										prp_reader.seek(offset)
 										image.format=set_image_format(format,image)
-										
+
+										if '.' in image.name:
+											image.name = image.name.split('.', 1)[0]
+
 										#If no file extension could be read directly, it will be appended to the to be created file depending on the image type
 										if '.' not in image.name and 'DXT' in image.format:
 											image.name=image.name+".dds"
