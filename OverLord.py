@@ -7,7 +7,7 @@ from math import *
 import struct
 
 def read_data(filename):
-	resource_file=open(full_file_path,'rb')
+	resource_file=open(filename,'rb')
 	prp_reader=BinaryReader(resource_file)
 
 	image_count=0
@@ -32,7 +32,7 @@ def read_data(filename):
 	print 'Title		:	',prp_file.name
 	prp_file.type=prp_reader.read_uint8(1)[0]
 
-	list=get_list(type,prp_reader)
+	list=get_list(prp_file.type,prp_reader)
 	list26=get_item(list,26)
 	for item in list26:
 		prp_reader.seek(item[1])
@@ -683,7 +683,7 @@ def openFile(full_file_path):
 	if file_extension=='prp' or file_extension=='pvp' or file_extension=='psp':
 		extracted_data = read_data(full_file_path)
 		save_data(extracted_data)
-		create_blender_models(data)
+		create_blender_models(extracted_data)
 
 	if file_extension=='anim':
 		file=open(full_file_path,'rb')
