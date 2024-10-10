@@ -46,6 +46,7 @@ def read_data(filename):
 
 			if flag in [(61,0,65,0),(153,0,65,0),(152,0,65,0)]:#image
 				image_count=image_count+1
+				image=imageLib.Image()
 				type2=prp_reader.read_uint8(1)[0]
 				list2=get_list(type2,prp_reader)
 				for item2 in list2:
@@ -53,7 +54,7 @@ def read_data(filename):
 					if item2[0]==20:
 						texture_chunk=prp_reader.read_word(prp_reader.read_int32(1)[0])
 					if item2[0]==21:
-						texture_name=prp_reader.read_word(prp_reader.read_int32(1)[0])
+						image.name=prp_reader.read_word(prp_reader.read_int32(1)[0])
 					if item2[0]==1:
 						type3=prp_reader.read_uint8(1)[0]
 						list3=get_list(type3,prp_reader)
@@ -69,7 +70,6 @@ def read_data(filename):
 									if flag==(36,0,65,0):
 										type5=prp_reader.read_uint8(1)[0]
 										list5=get_list(type5,prp_reader)
-										image=imageLib.Image()
 										for item5 in list5:
 											prp_reader.seek(item5[1])
 											if item5[0]==20:
@@ -84,12 +84,11 @@ def read_data(filename):
 										image.format=set_image_format(format,image)
 										
 										#If no file extension could be read directly, it will be appended to the to be created file depending on the image type
-										if '.' not in texture_name and 'DXT' in image.format:
-											texture_name=texture_name+".dds"
-										elif '.' not in texture_name and 'tga' in image.format:
-											texture_name=texture_name+".tga"
-										
-										image.name=file_directory+os.sep+file_basename+os.sep+'images'+os.sep+texture_name
+										if '.' not in image.name and 'DXT' in image.format:
+											image.name=image.name+".dds"
+										elif '.' not in image.name and 'tga' in image.format:
+											image.name=image.name+".tga"
+
 										image.data=prp_reader.read(image.width*image.height*4)
 										prp_file.image_list.append(image)
 										prp_file.texture_list[texture_chunk]=image.name
@@ -527,7 +526,7 @@ def save_data(data):
 		print "	Height	: {0}".format(image.height)
 		print "	Width	: {0}".format(image.width)
 		print "	Format	: {0}".format(image.format)
-		image.draw()
+		image.draw(file_directory+os.sep+file_basename+os.sep+'images'+os.sep)
 	print "	"+"*"*50
 	print
 
@@ -608,7 +607,7 @@ def create_blender_models(data):
 
 						if mat.diffChunk is not None:
 							if mat.diffChunk in data.texture_list.keys():
-								mat.diffuse=data.texture_list[mat.diffChunk]
+								mat.diffuse=file_directory+os.sep+file_basename+os.sep+'images'+os.sep+data.texture_list[mat.diffChunk]
 
 						MAT.diffuse=mat.diffuse
 

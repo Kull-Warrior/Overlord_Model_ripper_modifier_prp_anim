@@ -73,7 +73,8 @@ class Image():
 		self.name=None
 		self.data=None
 
-	def draw(self):
+	def draw(self,directory):
+		self.name=directory+self.name
 		if None not in (self.format, self.height, self.width, self.name,self.data):
 			if 'DXT' in self.format:
 				write_to_dxt_file(self)
