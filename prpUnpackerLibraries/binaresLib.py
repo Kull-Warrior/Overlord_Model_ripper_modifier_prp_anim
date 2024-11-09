@@ -50,7 +50,6 @@ class BinaryReader(file):
 	def __init__(self, inputFile):
 		self.inputFile=inputFile
 		self.endian='<'
-		self.stream={}
 		self.xor_key=None
 		self.xor_offset=0
 		self.xor_data=''
@@ -217,9 +216,3 @@ class BinaryReader(file):
 
 	def write_word(self,word):
 		self.inputFile.write(word)
-
-	def stream(self,stream_name,element_count,element_size):
-		self.inputFile.seek(element_count*element_size,1)
-		self.stream[stream_name]['offset']=offset
-		self.stream[stream_name]['element_count']=element_count
-		self.stream[stream_name]['element_size']=element_size
