@@ -8,7 +8,7 @@ import struct
 
 def read_data(filename):
 	resource_file=open(filename,'rb')
-	prp_reader=BinaryReader(resource_file)
+	rpk_reader=BinaryReader(resource_file)
 
 	image_count=0
 	animation_count=0
@@ -24,63 +24,63 @@ def read_data(filename):
 	shader_count=0
 
 	########################################################################################################################################################################
-	## Read data from prp file
+	## Read data from a file with RPK structure
 	########################################################################################################################################################################
 
-	prp_file=PRP()
-	prp_file.name=get_title(prp_reader)
-	print 'Title		:	',prp_file.name
-	prp_file.type=prp_reader.read_uint8(1)[0]
+	rpk_file=RPK()
+	rpk_file.name=get_title(rpk_reader)
+	print 'Title		:	',rpk_file.name
+	rpk_file.type=rpk_reader.read_uint8(1)[0]
 
-	list=get_list(prp_file.type,prp_reader)
+	list=get_list(rpk_file.type,rpk_reader)
 	list26=get_item(list,26)
 	for item in list26:
-		prp_reader.seek(item[1])
-		prp_reader.read_uint8(3)
-		type1=prp_reader.read_uint8(1)[0]
-		list1=get_list(type1,prp_reader)
+		rpk_reader.seek(item[1])
+		rpk_reader.read_uint8(3)
+		type1=rpk_reader.read_uint8(1)[0]
+		list1=get_list(type1,rpk_reader)
 
 		for item1 in list1:
-			prp_reader.seek(item1[1])
-			flag=prp_reader.read_uint8(4)
+			rpk_reader.seek(item1[1])
+			flag=rpk_reader.read_uint8(4)
 
 			if flag in [(61,0,65,0),(153,0,65,0),(152,0,65,0)]:#image
 				image_count=image_count+1
 				image=imageLib.Image()
-				type2=prp_reader.read_uint8(1)[0]
-				list2=get_list(type2,prp_reader)
+				type2=rpk_reader.read_uint8(1)[0]
+				list2=get_list(type2,rpk_reader)
 				for item2 in list2:
-					prp_reader.seek(item2[1])
+					rpk_reader.seek(item2[1])
 					if item2[0]==20:
-						texture_chunk=prp_reader.read_word(prp_reader.read_int32(1)[0])
+						texture_chunk=rpk_reader.read_word(rpk_reader.read_int32(1)[0])
 					if item2[0]==21:
-						image.name=prp_reader.read_word(prp_reader.read_int32(1)[0])
+						image.name=rpk_reader.read_word(rpk_reader.read_int32(1)[0])
 					if item2[0]==1:
-						type3=prp_reader.read_uint8(1)[0]
-						list3=get_list(type3,prp_reader)
+						type3=rpk_reader.read_uint8(1)[0]
+						list3=get_list(type3,rpk_reader)
 						for item3 in list3:
-							prp_reader.seek(item3[1])
+							rpk_reader.seek(item3[1])
 							if item3[0]==20:
-								prp_reader.read_uint8(3)
-								type4=prp_reader.read_uint8(1)[0]
-								list4=get_list(type4,prp_reader)
+								rpk_reader.read_uint8(3)
+								type4=rpk_reader.read_uint8(1)[0]
+								list4=get_list(type4,rpk_reader)
 								for item4 in list4:
-									prp_reader.seek(item4[1])
-									flag=prp_reader.read_uint8(4)
+									rpk_reader.seek(item4[1])
+									flag=rpk_reader.read_uint8(4)
 									if flag==(36,0,65,0):
-										type5=prp_reader.read_uint8(1)[0]
-										list5=get_list(type5,prp_reader)
+										type5=rpk_reader.read_uint8(1)[0]
+										list5=get_list(type5,rpk_reader)
 										for item5 in list5:
-											prp_reader.seek(item5[1])
+											rpk_reader.seek(item5[1])
 											if item5[0]==20:
-												image.width=prp_reader.read_int32(1)[0]
+												image.width=rpk_reader.read_int32(1)[0]
 											if item5[0]==21:
-												image.height=prp_reader.read_int32(1)[0]
+												image.height=rpk_reader.read_int32(1)[0]
 											if item5[0]==23:
-												format=prp_reader.read_int32(1)[0]
+												format=rpk_reader.read_int32(1)[0]
 											if item5[0]==22:
-												offset=prp_reader.tell()
-										prp_reader.seek(offset)
+												offset=rpk_reader.tell()
+										rpk_reader.seek(offset)
 										image.format=set_image_format(format,image)
 
 										if '.' in image.name:
@@ -92,64 +92,64 @@ def read_data(filename):
 										elif '.' not in image.name and 'tga' in image.format:
 											image.name=image.name+".tga"
 
-										image.data=prp_reader.read(image.width*image.height*4)
-										prp_file.image_list.append(image)
-										prp_file.texture_list[texture_chunk]=image.name
+										image.data=rpk_reader.read(image.width*image.height*4)
+										rpk_file.image_list.append(image)
+										rpk_file.texture_list[texture_chunk]=image.name
 										break
 									else:
-										print 'unknow image flag:',flag,prp_reader.tell()
+										print 'unknow image flag:',flag,rpk_reader.tell()
 
 			elif flag==(5,0,65,0):#anim
 				animation_count=animation_count+1
 				action=Action()
 
-				type2=prp_reader.read_uint8(1)[0]
-				list2=get_list(type2,prp_reader)
+				type2=rpk_reader.read_uint8(1)[0]
+				list2=get_list(type2,rpk_reader)
 
 				list21=get_item(list2,21)
 				for item21 in list21:
-					prp_reader.seek(item21[1])
-					action.name=prp_reader.read_word(prp_reader.read_int32(1)[0])
+					rpk_reader.seek(item21[1])
+					action.name=rpk_reader.read_word(rpk_reader.read_int32(1)[0])
 
 				list1=get_item(list2,1)
 				for item1 in list1:
-					prp_reader.seek(item1[1])
-					type3=prp_reader.read_uint8(1)[0]
-					list3=get_list(type3,prp_reader)
+					rpk_reader.seek(item1[1])
+					type3=rpk_reader.read_uint8(1)[0]
+					list3=get_list(type3,rpk_reader)
 					list10=get_item(list3,10)
 					for item10 in list10:
-						prp_reader.seek(item10[1])
-						prp_reader.read_uint8(3)
-						type4=prp_reader.read_uint8(1)[0]
-						list4=get_list(type4,prp_reader)
+						rpk_reader.seek(item10[1])
+						rpk_reader.read_uint8(3)
+						type4=rpk_reader.read_uint8(1)[0]
+						list4=get_list(type4,rpk_reader)
 						for item4 in list4:
-							prp_reader.seek(item4[1])
-							flag=prp_reader.read_uint8(4)
+							rpk_reader.seek(item4[1])
+							flag=rpk_reader.read_uint8(4)
 							if flag==(7,0,65,0):#anim
-								type5=prp_reader.read_uint8(1)[0]
-								list5=get_list(type5,prp_reader)
+								type5=rpk_reader.read_uint8(1)[0]
+								list5=get_list(type5,rpk_reader)
 								action_bone=ActionBone()
 								for item5 in list5:
-									prp_reader.seek(item5[1])
+									rpk_reader.seek(item5[1])
 									if item5[0]==20:
-										action_bone.name=prp_reader.read_word(prp_reader.read_int32(1)[0])
+										action_bone.name=rpk_reader.read_word(rpk_reader.read_int32(1)[0])
 									if item5[0]==24:
 										position_frame_count=None
 										position_stream_offset=None
-										type6=prp_reader.read_uint8(1)[0]
-										list6=get_list(type6,prp_reader)
+										type6=rpk_reader.read_uint8(1)[0]
+										list6=get_list(type6,rpk_reader)
 										for item6 in list6:
-											prp_reader.seek(item6[1])
+											rpk_reader.seek(item6[1])
 											if item6[0]==21:
-												position_frame_count=prp_reader.read_int32(1)[0]
+												position_frame_count=rpk_reader.read_int32(1)[0]
 											if item6[0]==22:
-												position_stream_offset=prp_reader.tell()
+												position_stream_offset=rpk_reader.tell()
 										if (position_frame_count and position_stream_offset) is not None:
-											prp_reader.seek(position_stream_offset)
+											rpk_reader.seek(position_stream_offset)
 											action_bone.data.append(struct.pack('<'+'i',position_frame_count))
 											for mC in range(position_frame_count):
-												prp_reader.seek(2,1)
-												position_data=prp_reader.read(14)
+												rpk_reader.seek(2,1)
+												position_data=rpk_reader.read(14)
 												action_bone.data.append(position_data)
 										else:
 											action_bone.data.append(struct.pack('<'+'i',0))
@@ -162,115 +162,115 @@ def read_data(filename):
 
 										rotation_frame_count=None
 										rotation_stream_offset=None
-										type6=prp_reader.read_uint8(1)[0]
-										list6=get_list(type6,prp_reader)
+										type6=rpk_reader.read_uint8(1)[0]
+										list6=get_list(type6,rpk_reader)
 										for item6 in list6:
-											prp_reader.seek(item6[1])
+											rpk_reader.seek(item6[1])
 											if item6[0]==21:
-												type7=prp_reader.read_uint8(1)[0]
-												list7=get_list(type7,prp_reader)
+												type7=rpk_reader.read_uint8(1)[0]
+												list7=get_list(type7,rpk_reader)
 												for item7 in list7:
-													prp_reader.seek(item7[1])
+													rpk_reader.seek(item7[1])
 													if item7[0]==22:
-														rotation_frame_count=prp_reader.read_int32(1)[0]
+														rotation_frame_count=rpk_reader.read_int32(1)[0]
 													if item7[0]==23:
-														rotation_stream_offset=prp_reader.tell()
+														rotation_stream_offset=rpk_reader.tell()
 													if item7[0]==30:
-														scale_frame_count=prp_reader.read_int32(1)[0]
+														scale_frame_count=rpk_reader.read_int32(1)[0]
 													if item7[0]==31:
-														scale_stream_offset=prp_reader.tell()
+														scale_stream_offset=rpk_reader.tell()
 										if (rotation_frame_count and rotation_stream_offset) is not None:
-											prp_reader.seek(rotation_stream_offset)
+											rpk_reader.seek(rotation_stream_offset)
 											action_bone.data.append(struct.pack('<'+'i',rotation_frame_count))
 											action_bone.data.append(struct.pack('<'+'B',22))
 											for mC in range(rotation_frame_count):
-												rotation_data=prp_reader.read(6)
+												rotation_data=rpk_reader.read(6)
 												action_bone.data.append(rotation_data)
 
 										elif (scale_frame_count and scale_stream_offset) is not None:
-											prp_reader.seek(scale_stream_offset)
+											rpk_reader.seek(scale_stream_offset)
 											action_bone.data.append(struct.pack('<'+'i',scale_frame_count))
 											action_bone.data.append(struct.pack('<'+'B',30))
 											for mC in range(scale_frame_count):
-												scale_data=prp_reader.read(8)
+												scale_data=rpk_reader.read(8)
 												action_bone.data.append(scale_data)
 										else:
 											action_bone.data.append(struct.pack('<'+'i',0))
 											action_bone.data.append(struct.pack('<'+'B',0))
 								action.bone_list.append(action_bone)
-				prp_file.animation_list.append(action)
+				rpk_file.animation_list.append(action)
 
 			elif flag==(53,0,65,0):#mesh
 				mesh_count=mesh_count+1
 				mesh=Mesh()
-				prp_file.mesh_list.append(mesh)
-				type2=prp_reader.read_uint8(1)[0]
-				list2=get_list(type2,prp_reader)
+				rpk_file.mesh_list.append(mesh)
+				type2=rpk_reader.read_uint8(1)[0]
+				list2=get_list(type2,rpk_reader)
 				for item2 in list2:
-					prp_reader.seek(item2[1])
+					rpk_reader.seek(item2[1])
 					if item2[0]==20:
-						mesh.chunk=prp_reader.read_word(prp_reader.read_int32(1)[0])
+						mesh.chunk=rpk_reader.read_word(rpk_reader.read_int32(1)[0])
 					if item2[0]==21:
-						mesh.name=prp_reader.read_word(prp_reader.read_int32(1)[0])
+						mesh.name=rpk_reader.read_word(rpk_reader.read_int32(1)[0])
 					if item2[0]==1:
-						type3=prp_reader.read_uint8(1)[0]
-						list3=get_list(type3,prp_reader)
+						type3=rpk_reader.read_uint8(1)[0]
+						list3=get_list(type3,rpk_reader)
 						for item3 in list3:
-							prp_reader.seek(item3[1])
+							rpk_reader.seek(item3[1])
 							if item3[0]==10:
-								type4=prp_reader.read_uint8(1)[0]
-								list4=get_list(type4,prp_reader)
+								type4=rpk_reader.read_uint8(1)[0]
+								list4=get_list(type4,rpk_reader)
 								indice_count=None
 								for item4 in list4:
-									prp_reader.seek(item4[1])
+									rpk_reader.seek(item4[1])
 									if item4[0]==21:
-										indice_count=prp_reader.read_int32(1)[0]
+										indice_count=rpk_reader.read_int32(1)[0]
 									if item4[0]==22:
-										indice_offset=prp_reader.tell()
+										indice_offset=rpk_reader.tell()
 								if indice_count is not None:
-									mesh.indice_list=prp_reader.read_uint16(indice_count)
+									mesh.indice_list=rpk_reader.read_uint16(indice_count)
 									mesh.is_triangle=True
 									mesh.matrix=Euler(90,0,0).toMatrix().resize4x4()
 
 							if item3[0]==21:
-								type4=prp_reader.read_uint8(1)[0]
-								list4=get_list(type4,prp_reader)
+								type4=rpk_reader.read_uint8(1)[0]
+								list4=get_list(type4,rpk_reader)
 								indice_count=None
 								for item4 in list4:
-									prp_reader.seek(item4[1])
+									rpk_reader.seek(item4[1])
 									if item4[0]==21:
-										indice_count=prp_reader.read_int32(1)[0]
+										indice_count=rpk_reader.read_int32(1)[0]
 									if item4[0]==22:
-										indice_offset=prp_reader.tell()
+										indice_offset=rpk_reader.tell()
 
 								if indice_count is not None:
-									mesh.indice_list=prp_reader.read_uint16(indice_count)
+									mesh.indice_list=rpk_reader.read_uint16(indice_count)
 									mesh.is_triangle_strip=True
 
 							if item3[0]==11:
-								type4=prp_reader.read_uint8(1)[0]
-								list4=get_list(type4,prp_reader)
+								type4=rpk_reader.read_uint8(1)[0]
+								list4=get_list(type4,rpk_reader)
 								for item4 in list4:
-									prp_reader.seek(item4[1])
+									rpk_reader.seek(item4[1])
 									if item4[0]==20:
-										type5=prp_reader.read_uint8(1)[0]
-										list5=get_list(type5,prp_reader)
+										type5=rpk_reader.read_uint8(1)[0]
+										list5=get_list(type5,rpk_reader)
 										for item5 in list5:
-											prp_reader.seek(item5[1])
+											rpk_reader.seek(item5[1])
 											if item5[0]==21:
-												vertice_stride_size=prp_reader.read_int32(1)[0]
+												vertice_stride_size=rpk_reader.read_int32(1)[0]
 											if item5[0]==22:
-												vertice_item_count=prp_reader.read_int32(1)[0]
+												vertice_item_count=rpk_reader.read_int32(1)[0]
 											if item5[0]==23:
-												vertice_item_offset=prp_reader.tell()
-										prp_reader.seek(vertice_item_offset)
+												vertice_item_offset=rpk_reader.tell()
+										rpk_reader.seek(vertice_item_offset)
 										vertice_position_offset=None
 										vertice_uv_offset=None
 										skin_indice_offset=None
 										skin_weight_offset=None
 										offset=0
 										for k in range(vertice_item_count):
-											a,b,c,d=prp_reader.read_uint8(4)
+											a,b,c,d=rpk_reader.read_uint8(4)
 											if c==1:vertice_position_offset=offset
 											if c==5 and a==0:
 												vertice_uv_offset=offset
@@ -283,187 +283,187 @@ def read_data(filename):
 											if d==7:offset+=1
 											if d==15:offset+=4
 									if item4[0]==21:
-										vertice_count=prp_reader.read_int32(1)[0]
+										vertice_count=rpk_reader.read_int32(1)[0]
 									if item4[0]==21:
-										stream_offset=prp_reader.tell()
-				prp_reader.seek(stream_offset)
+										stream_offset=rpk_reader.tell()
+				rpk_reader.seek(stream_offset)
 				for k in range(vertice_count):
-					tk=prp_reader.tell()
+					tk=rpk_reader.tell()
 					if vertice_position_offset is not None:
-						prp_reader.seek(tk+vertice_position_offset)
-						mesh.vertice_position_list.append(prp_reader.read_float(3))
+						rpk_reader.seek(tk+vertice_position_offset)
+						mesh.vertice_position_list.append(rpk_reader.read_float(3))
 					if vertice_uv_offset is not None:
-						prp_reader.seek(tk+vertice_uv_offset)
-						mesh.vertice_uv_list.append(prp_reader.read_float(2))
+						rpk_reader.seek(tk+vertice_uv_offset)
+						mesh.vertice_uv_list.append(rpk_reader.read_float(2))
 					if skin_indice_offset is not None:
-						i1,i2,i3=prp_reader.read_uint8(3)
+						i1,i2,i3=rpk_reader.read_uint8(3)
 						mesh.skin_indice_list.append([i1,i2])
 					if skin_weight_offset is not None:
-						w1,w2=prp_reader.read_uint8(2)
+						w1,w2=rpk_reader.read_uint8(2)
 						w3=255-(w1+w2)
 						mesh.skin_weight_list.append([w1,w2])
-					prp_reader.seek(tk+vertice_stride_size)
+					rpk_reader.seek(tk+vertice_stride_size)
 
 			elif flag in [(82,6,65,0),(60,6,65,0),(36,6,65,0),(10,6,65,0),(15,6,65,0),(8,6,65,0),(54,6,65,0),(38,6,65,0),(18,6,65,0),(22,6,65,0),(32,6,65,0),(50,6,65,0),(55,6,65,0),(48,6,65,0),(86,6,65,0),(49,6,65,0),(89,6,65,0)]:#material
 				material_count=material_count+1
-				type2=prp_reader.read_uint8(1)[0]
-				list2=get_list(type2,prp_reader)
+				type2=rpk_reader.read_uint8(1)[0]
+				list2=get_list(type2,rpk_reader)
 				material=Mat()
 				material.diffChunk=None
-				prp_file.material_list.append(material)
+				rpk_file.material_list.append(material)
 				for item2 in list2:
-					prp_reader.seek(item2[1])
+					rpk_reader.seek(item2[1])
 					if item2[0]==20:
-						material.chunk=prp_reader.read_word(prp_reader.read_int32(1)[0])
+						material.chunk=rpk_reader.read_word(rpk_reader.read_int32(1)[0])
 					if item2[0]==21:
-						material.name=prp_reader.read_word(prp_reader.read_int32(1)[0])
+						material.name=rpk_reader.read_word(rpk_reader.read_int32(1)[0])
 					if item2[0]==30:
-						type3=prp_reader.read_uint8(1)[0]
-						list3=get_list(type3,prp_reader)
+						type3=rpk_reader.read_uint8(1)[0]
+						list3=get_list(type3,rpk_reader)
 						for item3 in list3:
-							prp_reader.seek(item3[1])
+							rpk_reader.seek(item3[1])
 							if item3[0]==20:
-								chunk=prp_reader.read_word(prp_reader.read_int32(1)[0])
+								chunk=rpk_reader.read_word(rpk_reader.read_int32(1)[0])
 								material.diffChunk=chunk
 							if item3[0]==21:
-								material.texture_file=prp_reader.read_word(prp_reader.read_int32(1)[0])
+								material.texture_file=rpk_reader.read_word(rpk_reader.read_int32(1)[0])
 
 			elif flag in [(75,0,65,0)]:#model
 				model_count=model_count+1
 				model=Model()
-				prp_file.model_list.append(model)
-				type2=prp_reader.read_uint8(1)[0]
-				list2=get_list(type2,prp_reader)
+				rpk_file.model_list.append(model)
+				type2=rpk_reader.read_uint8(1)[0]
+				list2=get_list(type2,rpk_reader)
 				for item2 in list2:
-					prp_reader.seek(item2[1])
+					rpk_reader.seek(item2[1])
 					if item2[0]==20:
-						model.chunk=prp_reader.read_word(prp_reader.read_int32(1)[0])
+						model.chunk=rpk_reader.read_word(rpk_reader.read_int32(1)[0])
 					if item2[0]==21:
-						model.name=prp_reader.read_word(prp_reader.read_int32(1)[0])
+						model.name=rpk_reader.read_word(rpk_reader.read_int32(1)[0])
 					if item2[0]==30:
-						type3=prp_reader.read_uint8(1)[0]
-						list3=get_list(type3,prp_reader)
+						type3=rpk_reader.read_uint8(1)[0]
+						list3=get_list(type3,rpk_reader)
 						for item3 in list3:
-							prp_reader.seek(item3[1])
+							rpk_reader.seek(item3[1])
 							if item3[0]==1:
-								type4=prp_reader.read_uint8(1)[0]
-								list4=get_list(type4,prp_reader)
+								type4=rpk_reader.read_uint8(1)[0]
+								list4=get_list(type4,rpk_reader)
 								for item4 in list4:
-									prp_reader.seek(item4[1])
-									flag=prp_reader.read_uint8(4)
+									rpk_reader.seek(item4[1])
+									flag=rpk_reader.read_uint8(4)
 									if flag==(103,0,65,0):
-										type5=prp_reader.read_uint8(1)[0]
-										list5=get_list(type5,prp_reader)
+										type5=rpk_reader.read_uint8(1)[0]
+										list5=get_list(type5,rpk_reader)
 										mesh_chunk,material_Chunk=None,None
 										for item5 in list5:
-											prp_reader.seek(item5[1])
+											rpk_reader.seek(item5[1])
 											if item5[0]==31:
-												type6=prp_reader.read_uint8(1)[0]
-												list6=get_list(type6,prp_reader)
+												type6=rpk_reader.read_uint8(1)[0]
+												list6=get_list(type6,rpk_reader)
 												for item6 in list6:
-													prp_reader.seek(item6[1])
+													rpk_reader.seek(item6[1])
 													if item6[0]==20:
-														chunk=prp_reader.read_word(prp_reader.read_int32(1)[0])
+														chunk=rpk_reader.read_word(rpk_reader.read_int32(1)[0])
 														mesh_chunk=chunk
 											if item5[0]==33:
-												type6=prp_reader.read_uint8(1)[0]
-												list6=get_list(type6,prp_reader)
+												type6=rpk_reader.read_uint8(1)[0]
+												list6=get_list(type6,rpk_reader)
 												for item6 in list6:
-													prp_reader.seek(item6[1])
+													rpk_reader.seek(item6[1])
 													if item6[0]==20:
-														chunk=prp_reader.read_word(prp_reader.read_int32(1)[0])
+														chunk=rpk_reader.read_word(rpk_reader.read_int32(1)[0])
 														material_Chunk=chunk
 										if (mesh_chunk and material_Chunk) is not None:
 											model.mesh_list.append([mesh_chunk,material_Chunk])
 					if item2[0]==33:
-						type3=prp_reader.read_uint8(1)[0]
-						list3=get_list(type3,prp_reader)
+						type3=rpk_reader.read_uint8(1)[0]
+						list3=get_list(type3,rpk_reader)
 						bone_count=None
 						for item3 in list3:
-							prp_reader.seek(item3[1])
+							rpk_reader.seek(item3[1])
 							if item3[0]==20:
-								prp_reader.read_int32(1)[0]
+								rpk_reader.read_int32(1)[0]
 							if item3[0]==21:
-								bone_count=prp_reader.read_int32(1)[0]
+								bone_count=rpk_reader.read_int32(1)[0]
 							if item3[0]==22:
-								stream_offset=prp_reader.tell()
+								stream_offset=rpk_reader.tell()
 						if bone_count is not None and safe(bone_count):
 							skeleton=Skeleton()
 							skeleton.bone_space=True
 							skeleton.NICE=True
 							skeleton.name=model.name
 							for m in range(bone_count):
-								tm=prp_reader.tell()
+								tm=rpk_reader.tell()
 								bone=Bone()
-								bone.name=prp_reader.read_word(32)
-								bone.matrix=matrix_4x4(prp_reader.read_float(16))
-								prp_reader.read_float(4)
-								prp_reader.read_float(3)
-								a,b,c,d,e=prp_reader.read_int32(5)
+								bone.name=rpk_reader.read_word(32)
+								bone.matrix=matrix_4x4(rpk_reader.read_float(16))
+								rpk_reader.read_float(4)
+								rpk_reader.read_float(3)
+								a,b,c,d,e=rpk_reader.read_int32(5)
 								bone.parent_id=b
 								bone.skinID=a
 								model.bone_name_list.append(bone.name)
 								skeleton.bone_list.append(bone)
-								prp_reader.seek(tm+144)
+								rpk_reader.seek(tm+144)
 							model.skeleton=skeleton.name
 							for m in range(bone_count):
 								model.bone_name_list[skeleton.bone_list[m].skinID]=skeleton.bone_list[m].name
 							
-							prp_file.skeleton_list.append(skeleton)
+							rpk_file.skeleton_list.append(skeleton)
 					if item2[0]==35:
-						type3=prp_reader.read_uint8(1)[0]
-						list3=get_list(type3,prp_reader)
+						type3=rpk_reader.read_uint8(1)[0]
+						list3=get_list(type3,rpk_reader)
 						bone_count=None
 						for item3 in list3:
-							prp_reader.seek(item3[1])
+							rpk_reader.seek(item3[1])
 							if item3[0]==1:
-								type4=prp_reader.read_uint8(1)[0]
-								list4=get_list(type4,prp_reader)
+								type4=rpk_reader.read_uint8(1)[0]
+								list4=get_list(type4,rpk_reader)
 								for item4 in list4:
-									prp_reader.seek(item4[1])
-									flag=prp_reader.read_uint8(4)
+									rpk_reader.seek(item4[1])
+									flag=rpk_reader.read_uint8(4)
 									if flag==(160,0,65,0):
-										type5=prp_reader.read_uint8(1)[0]
-										list5=get_list(type5,prp_reader)
+										type5=rpk_reader.read_uint8(1)[0]
+										list5=get_list(type5,rpk_reader)
 										count=None
 										for item5 in list5:
-											prp_reader.seek(item5[1])
+											rpk_reader.seek(item5[1])
 											if item5[0]==22:
-												count=prp_reader.read_int32(1)[0]
+												count=rpk_reader.read_int32(1)[0]
 											if item5[0]==23:
-												stream_offset=prp_reader.tell()
+												stream_offset=rpk_reader.tell()
 										if count is not None:
-											prp_reader.seek(stream_offset)
-											model.bone_map_list.append(prp_reader.read_int32(count))
+											rpk_reader.seek(stream_offset)
+											model.bone_map_list.append(rpk_reader.read_int32(count))
 
 			elif flag == (0,0,161,0):
 				audio_count=audio_count+1
-				type2=prp_reader.read_uint8(1)[0]
-				list2=get_list(type2,prp_reader)
+				type2=rpk_reader.read_uint8(1)[0]
+				list2=get_list(type2,rpk_reader)
 				
 				audio=Audio()
 				
 				for item2 in list2:
-					prp_reader.seek(item2[1])
+					rpk_reader.seek(item2[1])
 					
 					if item2[0]==20:
-						audio.chunk_name = prp_reader.read_word(prp_reader.read_int32(1)[0])
+						audio.chunk_name = rpk_reader.read_word(rpk_reader.read_int32(1)[0])
 					if item2[0]==21:
-						audio.name=prp_reader.read_word(prp_reader.read_int32(1)[0])
+						audio.name=rpk_reader.read_word(rpk_reader.read_int32(1)[0])
 					if item2[0]==100:
-						audio.temp_path=prp_reader.read_word(prp_reader.read_int32(1)[0])
+						audio.temp_path=rpk_reader.read_word(rpk_reader.read_int32(1)[0])
 					if item2[0]==1:
-						type3=prp_reader.read_uint8(1)[0]
-						list3=get_list(type3,prp_reader)
+						type3=rpk_reader.read_uint8(1)[0]
+						list3=get_list(type3,rpk_reader)
 						for item3 in list3:
-							prp_reader.seek(item3[1])
+							rpk_reader.seek(item3[1])
 							if item3[0] == 30:
-								prp_reader.seek(item3[1])
-								audio.size = prp_reader.read_uint32(1)[0]
+								rpk_reader.seek(item3[1])
+								audio.size = rpk_reader.read_uint32(1)[0]
 							if item3[0] == 31:
-								audio.data = prp_reader.read(audio.size)
+								audio.data = rpk_reader.read(audio.size)
 
-				prp_file.audio_list.append(audio)
+				rpk_file.audio_list.append(audio)
 			elif flag in [(27,6,65,0),(40,6,65,0),(42,6,65,0)]:#Final Gather Map ( Not implemented / not supported)
 				final_gather_map_count=final_gather_map_count+1
 				pass
@@ -483,7 +483,7 @@ def read_data(filename):
 				shader_count=shader_count+1
 				pass
 			else:
-				print 'unknow global flag:',flag,prp_reader.tell()
+				print 'unknow global flag:',flag,rpk_reader.tell()
 		
 	print "Detected	:	"+add_leading_zeros(image_count)+"{0} images".format(image_count)
 	print "Detected	:	"+add_leading_zeros(animation_count)+"{0} animations".format(animation_count)
@@ -500,7 +500,7 @@ def read_data(filename):
 
 	resource_file.close()
 
-	return prp_file
+	return rpk_file
 
 def save_data(data):
 	########################################################################################################################################################################
