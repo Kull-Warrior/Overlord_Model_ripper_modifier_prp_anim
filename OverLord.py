@@ -529,7 +529,32 @@ def save_data(data):
 		print "	Height	: {0}".format(image.height)
 		print "	Width	: {0}".format(image.width)
 		print "	Format	: {0}".format(image.format)
-		image.draw(file_directory+os.sep+file_basename+os.sep+'images'+os.sep)
+
+		image_path=file_directory+os.sep+file_basename+os.sep+'images'+os.sep+image.name
+		image_file=open(image_path,'wb')
+		image_writer=BinaryWriter(image_file)
+
+		if None not in (image.format, image.height, image.width, image.name,image.data):
+			if 'DXT' in image.format:
+				image_writer.write_to_dxt_file(image)
+			elif 'tga' in image.format:
+				if image.format=='tga32':
+					offset='\x20\x20'
+					data=image.data
+				elif image.format=='tga16':
+					offset='\x20\x20'
+					data=tga_16(image.data)
+				elif image.format=='tga24':
+					offset='\x18\x20'
+					data=image.data
+				image_writer.write_to_tga_file(image,offset,data)
+			elif image.format=='565to888':
+				rgb565_to_rgb888(image.width,image.height,image.data,image.name)
+			else:
+				print 'Warning: unknown image format',image.format
+
+		image_file.close()
+		
 	print "	"+"*"*50
 	print
 

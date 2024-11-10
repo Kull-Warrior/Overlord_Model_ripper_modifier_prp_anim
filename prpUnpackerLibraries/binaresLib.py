@@ -224,3 +224,31 @@ class BinaryWriter(BinaryIO):
 
 	def write_word(self,word):
 		self.inputFile.write(word)
+
+	def write_to_dxt_file(self,image):
+		#Write DDS header
+		self.write_word('\x44\x44\x53\x20\x7C\x00\x00\x00\x07\x10\x0A\x00\x00\x04\x00\x00\x00\x04\x00\x00\x00\x00\x08\x00\x00\x00\x00\x00\x0B\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x20\x00\x00\x00\x05\x00\x00\x00\x44\x58\x54\x31\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x08\x10\x40\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
+		self.seek(0xC)
+		#Write image height
+		self.write_word(struct.pack('i',image.height))
+		self.seek(0x10)
+		#Write image width
+		self.write_word(struct.pack('i',image.width))
+		self.seek(0x54)
+		#Write image format
+		self.write_word(image.format)
+		self.seek(128)
+		#Write data
+		self.write_word(image.data)
+
+	def write_to_tga_file(self,image,offset,data):
+		#Write tga header
+		self.write_word('\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00')
+		#Write image height
+		self.write_word(struct.pack('H',image.height))
+		#Write image width
+		self.write_word(struct.pack('H',image.width))
+		#Write data offset
+		self.write_word(offset)
+		#Write data
+		self.write_word(data)
