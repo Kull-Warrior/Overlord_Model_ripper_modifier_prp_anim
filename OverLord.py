@@ -580,6 +580,8 @@ def save_data(data):
 			for i in action_bone.data:
 				animation_writer.write_word(i)
 		#print "		"+"+"*50
+		animation_file.close()
+
 	print "	"+"*"*50
 	print
 
@@ -598,6 +600,8 @@ def save_data(data):
 		audio_writer=BinaryWriter(audio_file)
 
 		audio_writer.write_word(audio.data)
+
+		audio_file.close()
 	print "	"+"*"*50
 	print
 
