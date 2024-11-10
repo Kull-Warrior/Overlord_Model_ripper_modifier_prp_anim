@@ -543,7 +543,7 @@ def save_data(data):
 		print "	Name	: {0}".format(action.name)
 		animation_path=file_directory+os.sep+file_basename+os.sep+'animations'+os.sep+action.name+'.anim'
 		animation_file=open(animation_path,'wb')
-		animation_writer=BinaryReader(animation_file)
+		animation_writer=BinaryWriter(animation_file)
 		
 		for action_bone in action.bone_list:
 			#print "		"+"+"*50
@@ -570,7 +570,7 @@ def save_data(data):
 		print "	Size	: {0}".format(audio.size)
 		audio_path=file_directory+os.sep+file_basename+os.sep+'audio'+os.sep+audio.name+'.wav'
 		audio_file=open(audio_path,'wb')
-		audio_writer=BinaryReader(audio_file)
+		audio_writer=BinaryWriter(audio_file)
 
 		audio_writer.write_word(audio.data)
 	print "	"+"*"*50
@@ -657,7 +657,7 @@ def anim_file_parser(filename,animation_reader):
 			if type==22:#not supported
 				for m in range(count):
 					bone.rotation_frame_list.append(m)
-					x,y,z=animation_reader.short(3,'h',14)
+					x,y,z=animation_reader.read_short(3,'h',14)
 					x=degrees(x)
 					y=degrees(y)
 					z=degrees(z)
@@ -665,7 +665,7 @@ def anim_file_parser(filename,animation_reader):
 			if type==30:
 				for m in range(count):
 					bone.rotation_frame_list.append(m)
-					bone.rotation_key_list.append(quat_matrix(animation_reader.short(4,'h',15)).resize4x4())
+					bone.rotation_key_list.append(quat_matrix(animation_reader.read_short(4,'h',15)).resize4x4())
 
 		action.draw()
 		action.set_context()

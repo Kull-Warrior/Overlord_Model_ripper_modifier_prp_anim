@@ -1,142 +1,17 @@
 import struct
 
-def half_to_float(h):
-	s = int((h >> 15) & 0x00000001) # sign
-	e = int((h >> 10) & 0x0000001f) # exponent
-	f = int(h & 0x000003ff)   # fraction
-
-	if e == 0:
-		if f == 0:
-			return int(s << 31)
-		else:
-			while not (f & 0x00000400):
-				f <<= 1
-				e -= 1
-			e += 1
-			f &= ~0x00000400
-	elif e == 31:
-		if f == 0:
-			return int((s << 31) | 0x7f800000)
-		else:
-			return int((s << 31) | 0x7f800000 | (f << 13))
-
-	e = e + (127 -15)
-	f = f << 13
-	return int((s << 31) | (e << 23) | f)
-
-def convert_half_to_float(h):
-	id = half_to_float(h)
-	str = struct.pack('I',id)
-	return struct.unpack('f', str)[0]
-
-def read_from_data_type(self,length,format_characters,xor_format_characters,byte_count):
-	offset=self.inputFile.tell()
-	if self.xor_key is None:
-		data=struct.unpack(self.endian+length*format_characters,self.inputFile.read(length*byte_count))
-	else:
-		data=struct.unpack(self.endian+length*byte_count*xor_format_characters,self.inputFile.read(length*byte_count))
-		self.xor(data)
-		data=struct.unpack(self.endian+length*format_characters,self.xor_data)
-	return data
-
-def write_as_data_type(self,data_to_write,format_characters):
-	for m in range(len(data_to_write)):
-		data=struct.pack(self.endian+format_characters,data_to_write[m])
-		self.inputFile.write(data)
-
-class BinaryReader(file):
-	"""general BinaryReader
-	"""
+class BinaryIO(object):
 	def __init__(self, inputFile):
 		self.inputFile=inputFile
 		self.endian='<'
-		self.xor_key=None
-		self.xor_offset=0
-		self.xor_data=''
-
-	def xor(self,data):
-			self.xor_data=''
-			for m in range(len(data)):
-				ch=ord(chr(data[m] ^ self.xor_key[self.xor_offset]))
-				self.xor_data+=struct.pack('B',ch)
-				if self.xor_offset==len(self.xor_key)-1:
-					self.xor_offset=0
-				else:
-					self.xor_offset+=1
-
-	def read_int64(self,length):
-		return read_from_data_type(self,length,'q','B',8)
-
-	def write_int64(self,data):
-		write_as_data_type(self,data,'q')
 	
-	def read_uint64(self,length):
-		return read_from_data_type(self,length,'Q','B',8)
-
-	def write_uint64(self,data):
-		write_as_data_type(self,data,'Q')
-	
-	def read_int32(self,length):
-		return read_from_data_type(self,length,'i','B',4)
-
-	def write_int32(self,data):
-		write_as_data_type(self,data,'i')
-	
-	def read_uint32(self,length):
-		return read_from_data_type(self,length,'I','B',4)
-
-	def write_uint32(self,data):
-		write_as_data_type(self,data,'I')
-	
-	def read_uint8(self,length):
-		return read_from_data_type(self,length,'B','B',1)
-
-	def write_uint8(self,data):
-		write_as_data_type(self,data,'B')
-
-	def read_int8(self,length):
-		return read_from_data_type(self,length,'b','b',1)
-
-	def write_int8(self,data):
-		write_as_data_type(self,data,'b')
-	
-	def read_int16(self,length):
-		return read_from_data_type(self,length,'h','B',2)
-	
-	def write_int16(self,data):
-		write_as_data_type(self,data,'h')
-
-	def read_uint16(self,length):
-		return read_from_data_type(self,length,'H','B',2)
-
-	def write_uint16(self,data):
-		write_as_data_type(self,data,'H')
-
-	def read_float(self,length):
-		return read_from_data_type(self,length,'f','B',4)
-	
-	def write_float(self,data):
-		write_as_data_type(self,data,'f')
-
-	def read_double(self,length):
-		return read_from_data_type(self,length,'d','B',8)
-
-	def write_double(self,data):
-		write_as_data_type(self,data,'d')
-
-	def half(self,length,format_characters='h'):
-		array = []
-		offset=self.inputFile.tell()
-		for id in range(length):
-			array.append(convert_half_to_float(struct.unpack(self.endian+format_characters,self.inputFile.read(2))[0]))
-		return array
-
-	def short(self,length,format_characters='h',exp=12):
-		array = []
-		offset=self.inputFile.tell()
-		for id in range(length):
-			array.append(struct.unpack(self.endian+format_characters,self.inputFile.read(2))[0]*2**-exp)
-		return array
+	def tell(self):
+		"""Returns the current position of the read/write pointer within the input-file
+		
+		Function arguments:
+		self 		--	Reference to the current instance of the class
+		"""
+		return self.inputFile.tell()
 
 	def find(self,var,size=1000):
 		""" Tries to find a given input within the input-file
@@ -182,6 +57,108 @@ class BinaryReader(file):
 		"""
 		self.inputFile.seek(offset,from_where)
 
+	def half_to_float(h):
+		s = int((h >> 15) & 0x00000001) # sign
+		e = int((h >> 10) & 0x0000001f) # exponent
+		f = int(h & 0x000003ff)   # fraction
+
+		if e == 0:
+			if f == 0:
+				return int(s << 31)
+			else:
+				while not (f & 0x00000400):
+					f <<= 1
+					e -= 1
+				e += 1
+				f &= ~0x00000400
+		elif e == 31:
+			if f == 0:
+				return int((s << 31) | 0x7f800000)
+			else:
+				return int((s << 31) | 0x7f800000 | (f << 13))
+
+		e = e + (127 -15)
+		f = f << 13
+		return int((s << 31) | (e << 23) | f)
+
+	def convert_half_to_float(h):
+		id = half_to_float(h)
+		str = struct.pack('I',id)
+		return struct.unpack('f', str)[0]
+
+class BinaryReader(BinaryIO):
+	"""general BinaryReader
+	"""
+	def __init__(self, inputFile):
+		super(BinaryReader, self).__init__(inputFile)
+		self.xor_key=None
+		self.xor_offset=0
+		self.xor_data=''
+
+	def read_from_data_type(self,length,format_characters,xor_format_characters,byte_count):
+		offset=self.inputFile.tell()
+		if self.xor_key is None:
+			data=struct.unpack(self.endian+length*format_characters,self.inputFile.read(length*byte_count))
+		else:
+			data=struct.unpack(self.endian+length*byte_count*xor_format_characters,self.inputFile.read(length*byte_count))
+			self.xor(data)
+			data=struct.unpack(self.endian+length*format_characters,self.xor_data)
+		return data
+
+	def xor(self,data):
+			self.xor_data=''
+			for m in range(len(data)):
+				ch=ord(chr(data[m] ^ self.xor_key[self.xor_offset]))
+				self.xor_data+=struct.pack('B',ch)
+				if self.xor_offset==len(self.xor_key)-1:
+					self.xor_offset=0
+				else:
+					self.xor_offset+=1
+
+	def read_int64(self,length):
+		return self.read_from_data_type(length,'q','B',8)
+	
+	def read_uint64(self,length):
+		return self.read_from_data_type(length,'Q','B',8)
+	
+	def read_int32(self,length):
+		return self.read_from_data_type(length,'i','B',4)
+	
+	def read_uint32(self,length):
+		return self.read_from_data_type(length,'I','B',4)
+	
+	def read_uint8(self,length):
+		return self.read_from_data_type(length,'B','B',1)
+
+	def read_int8(self,length):
+		return self.read_from_data_type(length,'b','b',1)
+	
+	def read_int16(self,length):
+		return self.read_from_data_type(length,'h','B',2)
+
+	def read_uint16(self,length):
+		return self.read_from_data_type(length,'H','B',2)
+
+	def read_float(self,length):
+		return self.read_from_data_type(length,'f','B',4)
+
+	def read_double(self,length):
+		return self.read_from_data_type(length,'d','B',8)
+
+	def read_half(self,length,format_characters='h'):
+		array = []
+		offset=self.inputFile.tell()
+		for id in range(length):
+			array.append(convert_half_to_float(struct.unpack(self.endian+format_characters,self.inputFile.read(2))[0]))
+		return array
+
+	def read_short(self,length,format_characters='h',exp=12):
+		array = []
+		offset=self.inputFile.tell()
+		for id in range(length):
+			array.append(struct.unpack(self.endian+format_characters,self.inputFile.read(2))[0]*2**-exp)
+		return array
+
 	def read(self,count):
 		back=self.inputFile.tell()
 		if self.xor_key is None:
@@ -190,14 +167,6 @@ class BinaryReader(file):
 			data=struct.unpack(self.endian+n*'B',self.inputFile.read(n))
 			self.xor(data)
 			return self.xor_data
-
-	def tell(self):
-		"""Returns the current position of the read/write pointer within the input-file
-		
-		Function arguments:
-		self 		--	Reference to the current instance of the class
-		"""
-		return self.inputFile.tell()
 
 	def read_word(self,length):
 		if length<10000:
@@ -213,6 +182,45 @@ class BinaryReader(file):
 				if ord(lit)!=0:
 					s+=lit
 			return s
+
+class BinaryWriter(BinaryIO):
+	def __init__(self, inputFile):
+		super(BinaryWriter, self).__init__(inputFile)
+
+	def write_as_data_type(self,data_to_write,format_characters):
+		for m in range(len(data_to_write)):
+			data=struct.pack(self.endian+format_characters,data_to_write[m])
+			self.inputFile.write(data)
+
+	def write_int64(self,data):
+		self.write_as_data_type(data,'q')
+
+	def write_uint64(self,data):
+		self.write_as_data_type(data,'Q')
+
+	def write_int32(self,data):
+		self.write_as_data_type(data,'i')
+
+	def write_uint32(self,data):
+		self.write_as_data_type(data,'I')
+
+	def write_int16(self,data):
+		self.write_as_data_type(data,'h')
+
+	def write_uint16(self,data):
+		self.write_as_data_type(data,'H')
+
+	def write_int8(self,data):
+		self.write_as_data_type(data,'b')
+
+	def write_uint8(self,data):
+		self.write_as_data_type(data,'B')
+
+	def write_float(self,data):
+		self.write_as_data_type(data,'f')
+
+	def write_double(self,data):
+		self.write_as_data_type(data,'d')
 
 	def write_word(self,word):
 		self.inputFile.write(word)
