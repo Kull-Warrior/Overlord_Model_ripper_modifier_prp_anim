@@ -92,7 +92,29 @@ def read_data(filename):
 										elif '.' not in image.name and 'tga' in image.format:
 											image.name=image.name+".tga"
 
-										image.data=rpk_reader.read(image.width*image.height*4)
+										if 'DXT' in image.format:
+											if image.format=='DXT1':
+												block_size=8
+											else:
+												block_size=16
+											main_size=((image.width + 3) / 4) * ((image.height + 3) / 4) * block_size
+											mipmap1_size=(((image.width >> 1) + 3) / 4) * ((image.width >> 1) + 3) / 4) * block_size
+											mipmap2_size=(((image.width >> 2) + 3) / 4) * ((image.width >> 2) + 3) / 4) * block_size
+											mipmap3_size=(((image.width >> 3) + 3) / 4) * ((image.width >> 3) + 3) / 4) * block_size
+											mipmap4_size=(((image.width >> 4) + 3) / 4) * ((image.width >> 4) + 3) / 4) * block_size
+											mipmap5_size=(((image.width >> 5) + 3) / 4) * ((image.width >> 5) + 3) / 4) * block_size
+											mipmap6_size=(((image.width >> 6) + 3) / 4) * ((image.width >> 6) + 3) / 4) * block_size
+											mipmap7_size=(((image.width >> 7) + 3) / 4) * ((image.width >> 7) + 3) / 4) * block_size
+											mipmap8_size=(((image.width >> 8) + 3) / 4) * ((image.width >> 8) + 3) / 4) * block_size
+											mipmap9_size=(((image.width >> 9) + 3) / 4) * ((image.width >> 9) + 3) / 4) * block_size
+											mipmap10_size=(((image.width >> 10) + 3) / 4) * ((image.width >> 10) + 3) / 4) * block_size
+											
+											size = main_size+mipmap1_size+mipmap2_size+mipmap3_size+mipmap4_size+mipmap5_size+mipmap6_size+mipmap7_size+mipmap8_size+mipmap9_size+mipmap10_size
+										else:
+											size = image.width*image.height*4
+										
+										image.data=rpk_reader.read(size)
+
 										rpk_file.image_list.append(image)
 										rpk_file.texture_list[texture_chunk]=image.name
 										break
