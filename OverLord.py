@@ -98,16 +98,16 @@ def read_data(filename):
 											else:
 												block_size=16
 											main_size=((image.width + 3) / 4) * ((image.height + 3) / 4) * block_size
-											mipmap1_size=(((image.width >> 1) + 3) / 4) * ((image.width >> 1) + 3) / 4) * block_size
-											mipmap2_size=(((image.width >> 2) + 3) / 4) * ((image.width >> 2) + 3) / 4) * block_size
-											mipmap3_size=(((image.width >> 3) + 3) / 4) * ((image.width >> 3) + 3) / 4) * block_size
-											mipmap4_size=(((image.width >> 4) + 3) / 4) * ((image.width >> 4) + 3) / 4) * block_size
-											mipmap5_size=(((image.width >> 5) + 3) / 4) * ((image.width >> 5) + 3) / 4) * block_size
-											mipmap6_size=(((image.width >> 6) + 3) / 4) * ((image.width >> 6) + 3) / 4) * block_size
-											mipmap7_size=(((image.width >> 7) + 3) / 4) * ((image.width >> 7) + 3) / 4) * block_size
-											mipmap8_size=(((image.width >> 8) + 3) / 4) * ((image.width >> 8) + 3) / 4) * block_size
-											mipmap9_size=(((image.width >> 9) + 3) / 4) * ((image.width >> 9) + 3) / 4) * block_size
-											mipmap10_size=(((image.width >> 10) + 3) / 4) * ((image.width >> 10) + 3) / 4) * block_size
+											mipmap1_size=((((image.width >> 1) + 3) / 4) * ((image.width >> 1) + 3) / 4) * block_size
+											mipmap2_size=((((image.width >> 2) + 3) / 4) * ((image.width >> 2) + 3) / 4) * block_size
+											mipmap3_size=((((image.width >> 3) + 3) / 4) * ((image.width >> 3) + 3) / 4) * block_size
+											mipmap4_size=((((image.width >> 4) + 3) / 4) * ((image.width >> 4) + 3) / 4) * block_size
+											mipmap5_size=((((image.width >> 5) + 3) / 4) * ((image.width >> 5) + 3) / 4) * block_size
+											mipmap6_size=((((image.width >> 6) + 3) / 4) * ((image.width >> 6) + 3) / 4) * block_size
+											mipmap7_size=((((image.width >> 7) + 3) / 4) * ((image.width >> 7) + 3) / 4) * block_size
+											mipmap8_size=((((image.width >> 8) + 3) / 4) * ((image.width >> 8) + 3) / 4) * block_size
+											mipmap9_size=((((image.width >> 9) + 3) / 4) * ((image.width >> 9) + 3) / 4) * block_size
+											mipmap10_size=((((image.width >> 10) + 3) / 4) * ((image.width >> 10) + 3) / 4) * block_size
 											
 											size = main_size+mipmap1_size+mipmap2_size+mipmap3_size+mipmap4_size+mipmap5_size+mipmap6_size+mipmap7_size+mipmap8_size+mipmap9_size+mipmap10_size
 										else:
