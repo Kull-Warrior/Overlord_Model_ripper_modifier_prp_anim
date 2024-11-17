@@ -227,18 +227,52 @@ class BinaryWriter(BinaryIO):
 
 	def write_to_dxt_file(self,image):
 		#Write DDS header
-		self.write_word('\x44\x44\x53\x20\x7C\x00\x00\x00\x07\x10\x0A\x00\x00\x04\x00\x00\x00\x04\x00\x00\x00\x00\x08\x00\x00\x00\x00\x00\x0B\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x20\x00\x00\x00\x05\x00\x00\x00\x44\x58\x54\x31\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x08\x10\x40\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
-		self.seek(0xC)
-		#Write image height
+		##Write Magic number / file identifier
+		self.write_word('\x44\x44\x53\x20')
+		##Write Header Size
+		self.write_word('\x7C\x00\x00\x00')
+		##Write Flags
+		self.write_word('\x07\x10\x0A\x00')
+		##Write image height
 		self.write_word(struct.pack('i',image.height))
-		self.seek(0x10)
-		#Write image width
+		##Write image width
 		self.write_word(struct.pack('i',image.width))
-		self.seek(0x54)
-		#Write image format
+		##Write PitchOrLinearSize
+		self.write_word('\x00\x00\x08\x00')
+		##Write Depth
+		self.write_word('\x00\x00\x00\x00')
+		##Write MipMapCount
+		self.write_word('\x0B\x00\x00\x00')
+		##Write Reserved 11 x 4 Bytes
+		self.write_word('\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
+		##Write DDPIXELFORMAT
+		###Write Header Size
+		self.write_word('\x20\x00\x00\x00')
+		###Write Flags
+		self.write_word('\x05\x00\x00\x00')
+		###Write FourCC
 		self.write_word(image.format)
-		self.seek(128)
-		#Write data
+		###Write RGBBitCount
+		self.write_word('\x00\x00\x00\x00')
+		###Write RBitMask
+		self.write_word('\x00\x00\x00\x00')
+		###Write GBitMask
+		self.write_word('\x00\x00\x00\x00')
+		###Write BBitMask
+		self.write_word('\x00\x00\x00\x00')
+		###Write RGBAlphaBitMask
+		self.write_word('\x00\x00\x00\x00')
+		###Write Caps
+		self.write_word('\x08\x10\x40\x00')
+		###Write Caps2
+		self.write_word('\x00\x00\x00\x00')
+		###Write Caps3
+		self.write_word('\x00\x00\x00\x00')
+		###Write Caps4
+		self.write_word('\x00\x00\x00\x00')
+		##Write Reserved2
+		self.write_word('\x00\x00\x00\x00')
+		##Write data
 		self.write_word(image.data)
 
 	def write_to_tga_file(self,image,offset,data):
