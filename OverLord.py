@@ -93,7 +93,7 @@ def read_data(filename):
 											image.name=image.name+".tga"
 
 										if 'DXT' in image.format:
-											mipmap_count=math.floor(math.log2(max(image.width,image.height)))+1
+											mipmap_count=math.floor(math.log(max(image.width,image.height),2))+1
 
 											if image.format=='DXT1':
 												block_size=8
@@ -105,9 +105,13 @@ def read_data(filename):
 											for x in range(mipmap_count):
 												#Checks if the image is a square
 												if image.width == image.height:
-													size = size + (((image.width >> x) / 4) * (image.width >> x) / 4) * block_size
+													blocks_width = math.ceil(float(image.width >> x) / float(4))
+													blocks_height = math.ceil(float(image.height >> x) / float(4))
+													size = size + blocks_width * blocks_height * block_size
 												else:
-													size = size + ((((image.width >> x) + 3) / 4) * ((image.width >> x) + 3) / 4) * block_size
+													blocks_width = math.ceil(float((image.width >> x) + 3) / float(4))
+													blocks_height = math.ceil(float((image.height >> x) + 3) / float(4))
+													size = size + blocks_width * blocks_height * block_size
 										else:
 											size = image.width*image.height*4
 										

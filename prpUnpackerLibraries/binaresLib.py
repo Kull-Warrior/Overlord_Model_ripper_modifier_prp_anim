@@ -243,7 +243,7 @@ class BinaryWriter(BinaryIO):
 		##Write Depth
 		self.write_word('\x00\x00\x00\x00')
 		##Write MipMapCount
-		mipmap_count=math.floor(math.log2(max(image.width,image.height)))+1
+		mipmap_count=math.floor(math.log(max(image.width,image.height),2))+1
 		self.write_word(struct.pack('i',mipmap_count))
 		##Write Reserved 11 x 4 Bytes
 		self.write_word('\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
