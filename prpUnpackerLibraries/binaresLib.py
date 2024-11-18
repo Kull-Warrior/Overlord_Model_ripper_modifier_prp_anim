@@ -1,4 +1,5 @@
 import struct
+import math
 
 class BinaryIO(object):
 	def __init__(self, inputFile):
@@ -242,7 +243,8 @@ class BinaryWriter(BinaryIO):
 		##Write Depth
 		self.write_word('\x00\x00\x00\x00')
 		##Write MipMapCount
-		self.write_word('\x0B\x00\x00\x00')
+		mipmap_count=math.floor(math.log2(max(image.width,image.height)))+1
+		self.write_word(struct.pack('i',mipmap_count))
 		##Write Reserved 11 x 4 Bytes
 		self.write_word('\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
 		##Write DDPIXELFORMAT
