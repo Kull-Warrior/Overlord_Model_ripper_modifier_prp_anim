@@ -233,13 +233,13 @@ class BinaryWriter(BinaryIO):
 		##Write Header Size
 		self.write_word('\x7C\x00\x00\x00')
 		##Write Flags
-		self.write_word('\x07\x10\x0A\x00')
+		self.write_word('\x07\x10\x02\x00')
 		##Write image height
 		self.write_word(struct.pack('i',image.height))
 		##Write image width
 		self.write_word(struct.pack('i',image.width))
 		##Write PitchOrLinearSize
-		self.write_word('\x00\x00\x08\x00')
+		self.write_word('\x00\x00\x00\x00')
 		##Write Depth
 		self.write_word('\x00\x00\x00\x00')
 		##Write MipMapCount
@@ -251,7 +251,7 @@ class BinaryWriter(BinaryIO):
 		###Write Header Size
 		self.write_word('\x20\x00\x00\x00')
 		###Write Flags
-		self.write_word('\x05\x00\x00\x00')
+		self.write_word('\x04\x00\x00\x00')
 		###Write FourCC
 		self.write_word(image.format)
 		###Write RGBBitCount
