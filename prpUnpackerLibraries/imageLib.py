@@ -41,4 +41,4 @@ class Image():
 		self.height=None
 		self.width=None
 		self.name=None
-		self.data=None
+		self.data=""
