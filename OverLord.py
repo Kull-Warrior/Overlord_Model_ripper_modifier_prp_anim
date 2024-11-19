@@ -565,14 +565,14 @@ def save_data(data):
 			elif 'tga' in image.format:
 				if image.format=='tga32':
 					offset='\x20\x20'
-					data=image.data
+					temp_data=image.data
 				elif image.format=='tga16':
 					offset='\x20\x20'
-					data=tga_16(image.data)
+					temp_data=tga_16(image.data)
 				elif image.format=='tga24':
 					offset='\x18\x20'
-					data=image.data
-				image_writer.write_to_tga_file(image,offset,data)
+					temp_data=image.data
+				image_writer.write_to_tga_file(image,offset,temp_data)
 			elif image.format=='565to888':
 				rgb565_to_rgb888(image.width,image.height,image.data,image.name)
 			else:
