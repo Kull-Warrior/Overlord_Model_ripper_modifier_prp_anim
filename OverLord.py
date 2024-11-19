@@ -107,15 +107,17 @@ def read_data(filename):
 												if image.width == image.height:
 													blocks_width = math.ceil(float(image.width >> x) / float(4))
 													blocks_height = math.ceil(float(image.height >> x) / float(4))
-													size = size + blocks_width * blocks_height * block_size
 												else:
 													blocks_width = math.ceil(float((image.width >> x) + 3) / float(4))
 													blocks_height = math.ceil(float((image.height >> x) + 3) / float(4))
-													size = size + blocks_width * blocks_height * block_size
+												size = size + blocks_width * blocks_height * block_size
+												image.data=rpk_reader.read(size)
+
+												if x < mipmap_count - 1:
+													rpk_reader.read(25)
 										else:
 											size = image.width*image.height*4
-										
-										image.data=rpk_reader.read(size)
+											image.data=rpk_reader.read(size)
 
 										rpk_file.image_list.append(image)
 										rpk_file.texture_list[texture_chunk]=image.name
