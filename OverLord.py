@@ -100,19 +100,20 @@ def read_data(filename):
 											else:
 												block_size=16
 
+											temp_width=image.width
+											temp_height=image.height
+
 											for x in range(mipmap_count):
-												#Checks if the image is a square
-												if image.width == image.height:
-													blocks_width = math.ceil(float(image.width >> x) / float(4))
-													blocks_height = math.ceil(float(image.height >> x) / float(4))
-												else:
-													blocks_width = math.ceil(float((image.width >> x) + 3) / float(4))
-													blocks_height = math.ceil(float((image.height >> x) + 3) / float(4))
+												blocks_width = math.ceil(float(temp_width) / float(4))
+												blocks_height = math.ceil(float(temp_height) / float(4))
 												size = blocks_width * blocks_height * block_size
 												image.data= image.data + rpk_reader.read(size)
 
 												if x < mipmap_count - 1:
 													rpk_reader.read(25)
+
+												temp_width=math.ceil(temp_width/2)
+												temp_height=math.ceil(temp_height/2)
 										else:
 											size = image.width*image.height*4
 											image.data=rpk_reader.read(size)
