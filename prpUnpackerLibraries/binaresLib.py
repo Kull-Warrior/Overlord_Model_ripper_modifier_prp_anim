@@ -116,50 +116,6 @@ class BinaryReader(BinaryIO):
 				else:
 					self.xor_offset+=1
 
-	def read_int64(self,length):
-		return self.read_from_data_type(length,'q','B',8)
-	
-	def read_uint64(self,length):
-		return self.read_from_data_type(length,'Q','B',8)
-	
-	def read_int32(self,length):
-		return self.read_from_data_type(length,'i','B',4)
-	
-	def read_uint32(self,length):
-		return self.read_from_data_type(length,'I','B',4)
-	
-	def read_uint8(self,length):
-		return self.read_from_data_type(length,'B','B',1)
-
-	def read_int8(self,length):
-		return self.read_from_data_type(length,'b','b',1)
-	
-	def read_int16(self,length):
-		return self.read_from_data_type(length,'h','B',2)
-
-	def read_uint16(self,length):
-		return self.read_from_data_type(length,'H','B',2)
-
-	def read_float(self,length):
-		return self.read_from_data_type(length,'f','B',4)
-
-	def read_double(self,length):
-		return self.read_from_data_type(length,'d','B',8)
-
-	def read_half(self,length,format_characters='h'):
-		array = []
-		offset=self.inputFile.tell()
-		for id in range(length):
-			array.append(convert_half_to_float(struct.unpack(self.endian+format_characters,self.inputFile.read(2))[0]))
-		return array
-
-	def read_short(self,length,format_characters='h',exp=12):
-		array = []
-		offset=self.inputFile.tell()
-		for id in range(length):
-			array.append(struct.unpack(self.endian+format_characters,self.inputFile.read(2))[0]*2**-exp)
-		return array
-
 	def read(self,count):
 		back=self.inputFile.tell()
 		if self.xor_key is None:
@@ -169,7 +125,51 @@ class BinaryReader(BinaryIO):
 			self.xor(data)
 			return self.xor_data
 
-	def read_word(self,length):
+	def read_int8(self,length):
+		return self.read_from_data_type(length,'b','b',1)
+
+	def read_uint8(self,length):
+		return self.read_from_data_type(length,'B','B',1)
+
+	def read_short(self,length,format_characters='h',exp=12):
+		array = []
+		offset=self.inputFile.tell()
+		for id in range(length):
+			array.append(struct.unpack(self.endian+format_characters,self.inputFile.read(2))[0]*2**-exp)
+		return array
+
+	def read_int16(self,length):
+		return self.read_from_data_type(length,'h','B',2)
+
+	def read_uint16(self,length):
+		return self.read_from_data_type(length,'H','B',2)
+
+	def read_int32(self,length):
+		return self.read_from_data_type(length,'i','B',4)
+
+	def read_uint32(self,length):
+		return self.read_from_data_type(length,'I','B',4)
+
+	def read_int64(self,length):
+		return self.read_from_data_type(length,'q','B',8)
+
+	def read_uint64(self,length):
+		return self.read_from_data_type(length,'Q','B',8)
+
+	def read_float16(self,length,format_characters='h'):
+		array = []
+		offset=self.inputFile.tell()
+		for id in range(length):
+			array.append(convert_half_to_float(struct.unpack(self.endian+format_characters,self.inputFile.read(2))[0]))
+		return array
+
+	def read_float32(self,length):
+		return self.read_from_data_type(length,'f','B',4)
+
+	def read_double(self,length):
+		return self.read_from_data_type(length,'d','B',8)
+
+	def read_string(self,length):
 		if length<10000:
 			offset=self.inputFile.tell()
 			s=''
@@ -193,17 +193,11 @@ class BinaryWriter(BinaryIO):
 			data=struct.pack(self.endian+format_characters,data_to_write[m])
 			self.inputFile.write(data)
 
-	def write_int64(self,data):
-		self.write_as_data_type(data,'q')
+	def write_int8(self,data):
+		self.write_as_data_type(data,'b')
 
-	def write_uint64(self,data):
-		self.write_as_data_type(data,'Q')
-
-	def write_int32(self,data):
-		self.write_as_data_type(data,'i')
-
-	def write_uint32(self,data):
-		self.write_as_data_type(data,'I')
+	def write_uint8(self,data):
+		self.write_as_data_type(data,'B')
 
 	def write_int16(self,data):
 		self.write_as_data_type(data,'h')
@@ -211,80 +205,86 @@ class BinaryWriter(BinaryIO):
 	def write_uint16(self,data):
 		self.write_as_data_type(data,'H')
 
-	def write_int8(self,data):
-		self.write_as_data_type(data,'b')
+	def write_int32(self,data):
+		self.write_as_data_type(data,'i')
 
-	def write_uint8(self,data):
-		self.write_as_data_type(data,'B')
+	def write_uint32(self,data):
+		self.write_as_data_type(data,'I')
 
-	def write_float(self,data):
+	def write_int64(self,data):
+		self.write_as_data_type(data,'q')
+
+	def write_uint64(self,data):
+		self.write_as_data_type(data,'Q')
+
+	def write_float32(self,data):
 		self.write_as_data_type(data,'f')
 
 	def write_double(self,data):
 		self.write_as_data_type(data,'d')
 
-	def write_word(self,word):
-		self.inputFile.write(word)
+	def write_string(self,string):
+		self.inputFile.write(string)
 
 	def write_to_dxt_file(self,image):
 		#Write DDS header
 		##Write Magic number / file identifier
-		self.write_word('\x44\x44\x53\x20')
+		self.write_string('\x44\x44\x53\x20')
 		##Write Header Size
-		self.write_word('\x7C\x00\x00\x00')
+		self.write_string('\x7C\x00\x00\x00')
 		##Write Flags
-		self.write_word('\x07\x10\x02\x00')
+		self.write_string('\x07\x10\x02\x00')
 		##Write image height
-		self.write_word(struct.pack('i',image.height))
+		self.write_string(struct.pack('i',image.height))
 		##Write image width
-		self.write_word(struct.pack('i',image.width))
+		self.write_string(struct.pack('i',image.width))
 		##Write PitchOrLinearSize
-		self.write_word('\x00\x00\x00\x00')
+		self.write_string('\x00\x00\x00\x00')
 		##Write Depth
-		self.write_word('\x00\x00\x00\x00')
+		self.write_string('\x00\x00\x00\x00')
 		##Write MipMapCount
 		mipmap_count=math.floor(math.log(max(image.width,image.height),2))+1
-		self.write_word(struct.pack('i',mipmap_count))
+		self.write_string(struct.pack('i',mipmap_count))
 		##Write Reserved 11 x 4 Bytes
-		self.write_word('\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
+		self.write_string('\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
 		##Write DDPIXELFORMAT
 		###Write Header Size
-		self.write_word('\x20\x00\x00\x00')
+		self.write_string('\x20\x00\x00\x00')
 		###Write Flags
-		self.write_word('\x04\x00\x00\x00')
+		self.write_string('\x04\x00\x00\x00')
 		###Write FourCC
-		self.write_word(image.format)
+		self.write_string(image.format)
 		###Write RGBBitCount
-		self.write_word('\x00\x00\x00\x00')
+		self.write_string('\x00\x00\x00\x00')
 		###Write RBitMask
-		self.write_word('\x00\x00\x00\x00')
+		self.write_string('\x00\x00\x00\x00')
 		###Write GBitMask
-		self.write_word('\x00\x00\x00\x00')
+		self.write_string('\x00\x00\x00\x00')
 		###Write BBitMask
-		self.write_word('\x00\x00\x00\x00')
+		self.write_string('\x00\x00\x00\x00')
 		###Write RGBAlphaBitMask
-		self.write_word('\x00\x00\x00\x00')
+		self.write_string('\x00\x00\x00\x00')
 		###Write Caps
-		self.write_word('\x08\x10\x40\x00')
+		self.write_string('\x08\x10\x40\x00')
 		###Write Caps2
-		self.write_word('\x00\x00\x00\x00')
+		self.write_string('\x00\x00\x00\x00')
 		###Write Caps3
-		self.write_word('\x00\x00\x00\x00')
+		self.write_string('\x00\x00\x00\x00')
 		###Write Caps4
-		self.write_word('\x00\x00\x00\x00')
+		self.write_string('\x00\x00\x00\x00')
 		##Write Reserved2
-		self.write_word('\x00\x00\x00\x00')
+		self.write_string('\x00\x00\x00\x00')
 		##Write data
-		self.write_word(image.data)
+		self.write_string(image.data)
 
 	def write_to_tga_file(self,image,offset,data):
 		#Write tga header
-		self.write_word('\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00')
+		self.write_string('\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00')
 		#Write image height
-		self.write_word(struct.pack('H',image.height))
+		self.write_string(struct.pack('H',image.height))
 		#Write image width
-		self.write_word(struct.pack('H',image.width))
+		self.write_string(struct.pack('H',image.width))
 		#Write data offset
-		self.write_word(offset)
+		self.write_string(offset)
 		#Write data
-		self.write_word(data)
+		self.write_string(data)

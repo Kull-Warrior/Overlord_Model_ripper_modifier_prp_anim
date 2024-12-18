@@ -52,9 +52,9 @@ def read_data(filename):
 				for item2 in list2:
 					rpk_reader.seek(item2[1])
 					if item2[0]==20:
-						texture_chunk=rpk_reader.read_word(rpk_reader.read_int32(1)[0])
+						texture_chunk=rpk_reader.read_string(rpk_reader.read_int32(1)[0])
 					if item2[0]==21:
-						image.name=rpk_reader.read_word(rpk_reader.read_int32(1)[0])
+						image.name=rpk_reader.read_string(rpk_reader.read_int32(1)[0])
 					if item2[0]==1:
 						type3=rpk_reader.read_uint8(1)[0]
 						list3=get_list(type3,rpk_reader)
@@ -134,7 +134,7 @@ def read_data(filename):
 				list21=get_item(list2,21)
 				for item21 in list21:
 					rpk_reader.seek(item21[1])
-					action.name=rpk_reader.read_word(rpk_reader.read_int32(1)[0])
+					action.name=rpk_reader.read_string(rpk_reader.read_int32(1)[0])
 
 				list1=get_item(list2,1)
 				for item1 in list1:
@@ -157,7 +157,7 @@ def read_data(filename):
 								for item5 in list5:
 									rpk_reader.seek(item5[1])
 									if item5[0]==20:
-										action_bone.name=rpk_reader.read_word(rpk_reader.read_int32(1)[0])
+										action_bone.name=rpk_reader.read_string(rpk_reader.read_int32(1)[0])
 									if item5[0]==24:
 										position_frame_count=None
 										position_stream_offset=None
@@ -234,9 +234,9 @@ def read_data(filename):
 				for item2 in list2:
 					rpk_reader.seek(item2[1])
 					if item2[0]==20:
-						mesh.chunk=rpk_reader.read_word(rpk_reader.read_int32(1)[0])
+						mesh.chunk=rpk_reader.read_string(rpk_reader.read_int32(1)[0])
 					if item2[0]==21:
-						mesh.name=rpk_reader.read_word(rpk_reader.read_int32(1)[0])
+						mesh.name=rpk_reader.read_string(rpk_reader.read_int32(1)[0])
 					if item2[0]==1:
 						type3=rpk_reader.read_uint8(1)[0]
 						list3=get_list(type3,rpk_reader)
@@ -316,10 +316,10 @@ def read_data(filename):
 					tk=rpk_reader.tell()
 					if vertice_position_offset is not None:
 						rpk_reader.seek(tk+vertice_position_offset)
-						mesh.vertice_position_list.append(rpk_reader.read_float(3))
+						mesh.vertice_position_list.append(rpk_reader.read_float32(3))
 					if vertice_uv_offset is not None:
 						rpk_reader.seek(tk+vertice_uv_offset)
-						mesh.vertice_uv_list.append(rpk_reader.read_float(2))
+						mesh.vertice_uv_list.append(rpk_reader.read_float32(2))
 					if skin_indice_offset is not None:
 						i1,i2,i3=rpk_reader.read_uint8(3)
 						mesh.skin_indice_list.append([i1,i2])
@@ -339,19 +339,19 @@ def read_data(filename):
 				for item2 in list2:
 					rpk_reader.seek(item2[1])
 					if item2[0]==20:
-						material.chunk=rpk_reader.read_word(rpk_reader.read_int32(1)[0])
+						material.chunk=rpk_reader.read_string(rpk_reader.read_int32(1)[0])
 					if item2[0]==21:
-						material.name=rpk_reader.read_word(rpk_reader.read_int32(1)[0])
+						material.name=rpk_reader.read_string(rpk_reader.read_int32(1)[0])
 					if item2[0]==30:
 						type3=rpk_reader.read_uint8(1)[0]
 						list3=get_list(type3,rpk_reader)
 						for item3 in list3:
 							rpk_reader.seek(item3[1])
 							if item3[0]==20:
-								chunk=rpk_reader.read_word(rpk_reader.read_int32(1)[0])
+								chunk=rpk_reader.read_string(rpk_reader.read_int32(1)[0])
 								material.diffChunk=chunk
 							if item3[0]==21:
-								material.texture_file=rpk_reader.read_word(rpk_reader.read_int32(1)[0])
+								material.texture_file=rpk_reader.read_string(rpk_reader.read_int32(1)[0])
 
 			elif flag in [(75,0,65,0)]:#model
 				model_count=model_count+1
@@ -362,9 +362,9 @@ def read_data(filename):
 				for item2 in list2:
 					rpk_reader.seek(item2[1])
 					if item2[0]==20:
-						model.chunk=rpk_reader.read_word(rpk_reader.read_int32(1)[0])
+						model.chunk=rpk_reader.read_string(rpk_reader.read_int32(1)[0])
 					if item2[0]==21:
-						model.name=rpk_reader.read_word(rpk_reader.read_int32(1)[0])
+						model.name=rpk_reader.read_string(rpk_reader.read_int32(1)[0])
 					if item2[0]==30:
 						type3=rpk_reader.read_uint8(1)[0]
 						list3=get_list(type3,rpk_reader)
@@ -388,7 +388,7 @@ def read_data(filename):
 												for item6 in list6:
 													rpk_reader.seek(item6[1])
 													if item6[0]==20:
-														chunk=rpk_reader.read_word(rpk_reader.read_int32(1)[0])
+														chunk=rpk_reader.read_string(rpk_reader.read_int32(1)[0])
 														mesh_chunk=chunk
 											if item5[0]==33:
 												type6=rpk_reader.read_uint8(1)[0]
@@ -396,7 +396,7 @@ def read_data(filename):
 												for item6 in list6:
 													rpk_reader.seek(item6[1])
 													if item6[0]==20:
-														chunk=rpk_reader.read_word(rpk_reader.read_int32(1)[0])
+														chunk=rpk_reader.read_string(rpk_reader.read_int32(1)[0])
 														material_Chunk=chunk
 										if (mesh_chunk and material_Chunk) is not None:
 											model.mesh_list.append([mesh_chunk,material_Chunk])
@@ -420,10 +420,10 @@ def read_data(filename):
 							for m in range(bone_count):
 								tm=rpk_reader.tell()
 								bone=Bone()
-								bone.name=rpk_reader.read_word(32)
-								bone.matrix=matrix_4x4(rpk_reader.read_float(16))
-								rpk_reader.read_float(4)
-								rpk_reader.read_float(3)
+								bone.name=rpk_reader.read_string(32)
+								bone.matrix=matrix_4x4(rpk_reader.read_float32(16))
+								rpk_reader.read_float32(4)
+								rpk_reader.read_float32(3)
 								a,b,c,d,e=rpk_reader.read_int32(5)
 								bone.parent_id=b
 								bone.skinID=a
@@ -472,11 +472,11 @@ def read_data(filename):
 					rpk_reader.seek(item2[1])
 					
 					if item2[0]==20:
-						audio.chunk_name = rpk_reader.read_word(rpk_reader.read_int32(1)[0])
+						audio.chunk_name = rpk_reader.read_string(rpk_reader.read_int32(1)[0])
 					if item2[0]==21:
-						audio.name=rpk_reader.read_word(rpk_reader.read_int32(1)[0])
+						audio.name=rpk_reader.read_string(rpk_reader.read_int32(1)[0])
 					if item2[0]==100:
-						audio.temp_path=rpk_reader.read_word(rpk_reader.read_int32(1)[0])
+						audio.temp_path=rpk_reader.read_string(rpk_reader.read_int32(1)[0])
 					if item2[0]==1:
 						type3=rpk_reader.read_uint8(1)[0]
 						list3=get_list(type3,rpk_reader)
@@ -599,11 +599,11 @@ def save_data(data):
 			#print "		"+"+"*50
 			#print "		Bone used by the animation"
 			#print "		Name	: {0}".format(action_bone.name)
-			animation_writer.write_word(action_bone.name)
-			animation_writer.write_word('\x00')
+			animation_writer.write_string(action_bone.name)
+			animation_writer.write_string('\x00')
 			
 			for i in action_bone.data:
-				animation_writer.write_word(i)
+				animation_writer.write_string(i)
 		#print "		"+"+"*50
 		animation_file.close()
 
@@ -624,7 +624,7 @@ def save_data(data):
 		audio_file=open(audio_path,'wb')
 		audio_writer=BinaryWriter(audio_file)
 
-		audio_writer.write_word(audio.data)
+		audio_writer.write_string(audio.data)
 
 		audio_file.close()
 	print "	"+"*"*50
@@ -705,7 +705,7 @@ def anim_file_parser(filename,animation_reader):
 			for m in range(count):
 				frame=animation_reader.read_uint16(1)[0]
 				bone.position_frame_list.append(frame)
-				bone.position_key_list.append(vector_matrix(animation_reader.read_float(3)))
+				bone.position_key_list.append(vector_matrix(animation_reader.read_float32(3)))
 			count=animation_reader.read_int32(1)[0]
 			type=animation_reader.read_uint8(1)[0]
 			if type==22:#not supported

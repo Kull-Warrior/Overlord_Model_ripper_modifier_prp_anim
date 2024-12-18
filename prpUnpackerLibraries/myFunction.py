@@ -128,7 +128,7 @@ def safe(count):
 
 def get_title(file_reader):
 	file_reader.seek(16)
-	return file_reader.read_word(160)
+	return file_reader.read_string(160)
 
 def get_item(list,ID):
 	listA=[]
