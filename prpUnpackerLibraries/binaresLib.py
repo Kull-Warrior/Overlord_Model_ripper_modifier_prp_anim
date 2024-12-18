@@ -92,44 +92,19 @@ class BinaryReader(BinaryIO):
 	"""
 	def __init__(self, inputFile):
 		super(BinaryReader, self).__init__(inputFile)
-		self.xor_key=None
-		self.xor_offset=0
-		self.xor_data=''
 
-	def read_from_data_type(self,length,format_characters,xor_format_characters,byte_count):
-		offset=self.inputFile.tell()
-		if self.xor_key is None:
-			data=struct.unpack(self.endian+length*format_characters,self.inputFile.read(length*byte_count))
-		else:
-			data=struct.unpack(self.endian+length*byte_count*xor_format_characters,self.inputFile.read(length*byte_count))
-			self.xor(data)
-			data=struct.unpack(self.endian+length*format_characters,self.xor_data)
+	def read_from_data_type(self,length,format_characters,byte_count):
+		data=struct.unpack(self.endian+length*format_characters,self.inputFile.read(length*byte_count))
 		return data
 
-	def xor(self,data):
-			self.xor_data=''
-			for m in range(len(data)):
-				ch=ord(chr(data[m] ^ self.xor_key[self.xor_offset]))
-				self.xor_data+=struct.pack('B',ch)
-				if self.xor_offset==len(self.xor_key)-1:
-					self.xor_offset=0
-				else:
-					self.xor_offset+=1
-
 	def read(self,count):
-		back=self.inputFile.tell()
-		if self.xor_key is None:
-			return self.inputFile.read(count)
-		else:
-			data=struct.unpack(self.endian+n*'B',self.inputFile.read(n))
-			self.xor(data)
-			return self.xor_data
+		return self.inputFile.read(count)
 
 	def read_int8(self,length):
-		return self.read_from_data_type(length,'b','b',1)
+		return self.read_from_data_type(length,'b',1)
 
 	def read_uint8(self,length):
-		return self.read_from_data_type(length,'B','B',1)
+		return self.read_from_data_type(length,'B',1)
 
 	def read_short(self,length,format_characters='h',exp=12):
 		array = []
@@ -139,22 +114,22 @@ class BinaryReader(BinaryIO):
 		return array
 
 	def read_int16(self,length):
-		return self.read_from_data_type(length,'h','B',2)
+		return self.read_from_data_type(length,'h',2)
 
 	def read_uint16(self,length):
-		return self.read_from_data_type(length,'H','B',2)
+		return self.read_from_data_type(length,'H',2)
 
 	def read_int32(self,length):
-		return self.read_from_data_type(length,'i','B',4)
+		return self.read_from_data_type(length,'i',4)
 
 	def read_uint32(self,length):
-		return self.read_from_data_type(length,'I','B',4)
+		return self.read_from_data_type(length,'I',4)
 
 	def read_int64(self,length):
-		return self.read_from_data_type(length,'q','B',8)
+		return self.read_from_data_type(length,'q',8)
 
 	def read_uint64(self,length):
-		return self.read_from_data_type(length,'Q','B',8)
+		return self.read_from_data_type(length,'Q',8)
 
 	def read_float16(self,length,format_characters='h'):
 		array = []
@@ -164,22 +139,18 @@ class BinaryReader(BinaryIO):
 		return array
 
 	def read_float32(self,length):
-		return self.read_from_data_type(length,'f','B',4)
+		return self.read_from_data_type(length,'f',4)
 
 	def read_double(self,length):
-		return self.read_from_data_type(length,'d','B',8)
+		return self.read_from_data_type(length,'d',8)
 
 	def read_string(self,length):
 		if length<10000:
 			offset=self.inputFile.tell()
 			s=''
 			for j in range(0,length):
-				if self.xor_key is None:
-					lit =  struct.unpack('c',self.inputFile.read(1))[0]
-				else:
-					data=struct.unpack(self.endian+'B',self.inputFile.read(1))
-					self.xor(data)
-					lit=struct.unpack(self.endian+'c',self.xor_data)[0]
+				lit =  struct.unpack('c',self.inputFile.read(1))[0]
+
 				if ord(lit)!=0:
 					s+=lit
 			return s
