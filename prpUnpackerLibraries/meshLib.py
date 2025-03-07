@@ -31,7 +31,6 @@ class Mesh():
 		self.is_triangle_strip=False
 		self.bind_skeleton=None
 		self.matrix=None
-		self.is_drawing_active=False
 		self.uv_flip=False
 
 	def add_vertex_uv(self,blenderMesh,mesh):
@@ -217,8 +216,7 @@ class Mesh():
 					else:
 						self.triangle_list.append([(f1),(f3),(f2)])
 						self.material_id_list.append(matID)
-					if self.is_drawing_active==True:
-						f1,f2,f3
+
 				f1 = f2
 				f2 = f3
 			if id==len(indicesList)-1:
