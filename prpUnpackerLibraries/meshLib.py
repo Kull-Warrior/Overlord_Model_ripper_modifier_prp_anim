@@ -158,34 +158,6 @@ class Mesh():
 					elif mat.is_triangle_strip==True:
 						self.indices_to_triangle_strips(indice_list,matID)
 
-	def build_mesh(self,mesh,mat,meshID):
-		blendMesh = bpy.data.meshes.new(mesh.name)
-		blendMesh.verts.extend(mesh.vertice_position_list)
-		blendMesh.faces.extend(mesh.triangle_list)
-		blendMesh.materials+=[mat.get_blender_material(mesh.name,meshID)]
-		if len(mesh.triangle_list)>0:
-			if len(mesh.vertice_uv_list)>0:
-				self.add_vertex_uv(blendMesh,mesh)
-				self.add_face_uv(blendMesh,mesh)
-			if len(mesh.face_uv_list)>0:
-				self.add_face_uv(blendMesh,mesh)
-		if len(mesh.vertice_normal_list)>0:
-			for i,vert in enumerate(blendMesh.verts):
-				vert.no=Vector(self.vertice_normal_list[i])
-
-		scene = bpy.data.scenes.active
-		meshobject = scene.objects.new(blendMesh,mesh.name)
-		self.add_skin(blendMesh,mesh)
-		Blender.Window.RedrawAll()
-		if self.bind_skeleton is not None:
-			for object in scene.objects:
-				if object.name==self.bind_skeleton:
-					#meshobject.mat*=object.mat
-					object.makeParentDeform([meshobject],1,0)
-		if self.matrix is not None:
-			meshobject.setMatrix(self.matrix*meshobject.matrixWorld)
-		Blender.Window.RedrawAll()
-
 	def add_mesh(self):
 		self.mesh = bpy.data.meshes.new(self.name)
 		self.mesh.verts.extend(self.vertice_position_list)
