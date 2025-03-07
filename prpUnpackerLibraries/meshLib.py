@@ -131,14 +131,9 @@ class Mesh():
 							for faceID in range(mat.id_count):
 								self.triangle_list.append(self.face_list[mat.id_start+faceID])
 								self.material_id_list.append(matID)
-					#self.triangle_list=self.face_list
 
 				else:
 					self.triangle_list=self.face_list
-					#for ID in range(len(self.material_id_list)):
-					#	mat=self.material_list[matID] 
-						#if self.material_id_list[ID]==matID:
-					#	self.triangle_list.append(self.face_list[ID])
 
 			if len(self.indice_list)>0:
 				for matID in range(len(self.material_list)):
