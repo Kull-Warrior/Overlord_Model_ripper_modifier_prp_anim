@@ -28,7 +28,6 @@ class Mesh():
 		self.name=None
 		self.object=None
 		self.is_triangle=False
-		self.is_quad=False
 		self.is_triangle_strip=False
 		self.bind_skeleton=None
 		self.matrix=None
@@ -112,8 +111,6 @@ class Mesh():
 			if len(self.indice_list)!=0:
 				if self.is_triangle==True:
 					self.indices_to_triangles(self.indice_list,0)
-				elif self.is_quad==True:
-					self.indices_to_quads(self.indice_list,0)
 				elif self.is_triangle_strip==True:
 					self.indices_to_triangle_strips(self.indice_list,0)
 
@@ -153,8 +150,6 @@ class Mesh():
 					indice_list=self.indice_list[mat.id_start:mat.id_start+mat.id_count]
 					if mat.is_triangle==True:
 						self.indices_to_triangles(indice_list,matID)
-					elif mat.is_quad==True:
-						self.indices_to_quads(indice_list,matID)
 					elif mat.is_triangle_strip==True:
 						self.indices_to_triangle_strips(indice_list,matID)
 
@@ -194,11 +189,6 @@ class Mesh():
 		if self.matrix is not None:
 			self.object.setMatrix(self.matrix*self.object.matrixWorld)
 		Blender.Window.RedrawAll()
-
-	def indices_to_quads(self,indicesList,matID):
-		for m in range(0, len(indicesList), 4):
-			self.triangle_list.append(indicesList[m:m+4] )
-			self.material_id_list.append(matID)
 
 	def indices_to_triangles(self,indicesList,matID):
 		for m in range(0, len(indicesList), 3):
@@ -291,7 +281,6 @@ class Mat:
 
 		self.is_triangle=False
 		self.is_triangle_strip=False
-		self.is_quad=False
 		self.id_start=None
 		self.id_count=None
 
