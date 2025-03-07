@@ -32,7 +32,6 @@ class Mesh():
 		self.is_triangle_strip=False
 		self.bind_skeleton=None
 		self.matrix=None
-		self.split=False
 		self.is_drawing_active=False
 		self.uv_flip=False
 
@@ -203,71 +202,26 @@ class Mesh():
 		self.add_faces()
 		self.add_skin_id_list()
 
-		if self.split==False:
-			self.add_mesh()
-			if len(self.triangle_list)>0:
-				if len(self.vertice_uv_list)>0:
-					self.add_vertex_uv(self.mesh,self)
-			self.add_face_uv(self.mesh,self)
-			for matID in range(len(self.material_list)):
-				mat=self.material_list[matID]
-				self.mesh.materials+=[mat.get_blender_material(self.mesh.name,matID)]
+		self.add_mesh()
+		if len(self.triangle_list)>0:
+			if len(self.vertice_uv_list)>0:
+				self.add_vertex_uv(self.mesh,self)
+		self.add_face_uv(self.mesh,self)
+		for matID in range(len(self.material_list)):
+			mat=self.material_list[matID]
+			self.mesh.materials+=[mat.get_blender_material(self.mesh.name,matID)]
 
-			if self.bind_skeleton is not None:
-				scene = bpy.data.scenes.active
-				for object in scene.objects:
-					if object.name==self.bind_skeleton:
-						skeletonMatrix=self.object.getMatrix()*object.mat
-						object.makeParentDeform([self.object],1,0)
-			self.add_skin(self.mesh,self)
+		if self.bind_skeleton is not None:
+			scene = bpy.data.scenes.active
+			for object in scene.objects:
+				if object.name==self.bind_skeleton:
+					skeletonMatrix=self.object.getMatrix()*object.mat
+					object.makeParentDeform([self.object],1,0)
+		self.add_skin(self.mesh,self)
 
-			if self.matrix is not None:
-				self.object.setMatrix(self.matrix*self.object.matrixWorld)
-			Blender.Window.RedrawAll()
-
-		if self.split==True:
-			mesh_list=[]
-			for matID in range(len(self.material_list)):
-				mesh=Mesh()
-				mesh.idList={}
-				mesh.id=0
-				mesh.name=self.name+'-'+str(matID)
-				mesh_list.append(mesh)
-				for n in range(len(self.vertice_position_list)):
-					mesh.idList[str(n)]=None
-
-			for faceID in range(len(self.material_id_list)):
-				matID=self.material_id_list[faceID]
-				mesh=mesh_list[matID]
-				face=[]
-				for v in range(len(self.triangle_list[faceID])):
-					vid=self.triangle_list[faceID][v]
-					if mesh.idList[str(vid)]==None:
-						mesh.idList[str(vid)]=mesh.id
-						mesh.vertice_position_list.append(self.vertice_position_list[vid])
-						if len(self.vertice_uv_list)>0:
-							mesh.vertice_uv_list.append(self.vertice_uv_list[vid])
-						if len(self.vertice_normal_list)>0:
-							mesh.vertice_normal_list.append(self.vertice_normal_list[vid])
-						if len(self.skin_indice_list)>0 and len(self.skin_weight_list)>0:
-							mesh.skin_weight_list.append(self.skin_weight_list[vid])
-							mesh.skin_indice_list.append(self.skin_indice_list[vid])
-							mesh.skin_id_list.append(self.skin_id_list[vid])
-						face.append(mesh.id)
-						mesh.id+=1
-					else:
-						oldid=mesh.idList[str(vid)]
-						face.append(oldid)
-				mesh.triangle_list.append(face)
-				if len(self.face_uv_list)>0:
-					mesh.face_uv_list.append(self.face_uv_list[faceID])
-				mesh.material_id_list.append(0)
-
-			for meshID in range(len(mesh_list)):
-				mesh=mesh_list[meshID]
-				mat=self.material_list[meshID]
-				self.build_mesh(mesh,mat,meshID)
-			Blender.Window.RedrawAll()
+		if self.matrix is not None:
+			self.object.setMatrix(self.matrix*self.object.matrixWorld)
+		Blender.Window.RedrawAll()
 
 	def indices_to_quads(self,indicesList,matID):
 		for m in range(0, len(indicesList), 4):
