@@ -40,25 +40,6 @@ class Mesh():
 		self.bind_pose=False
 		self.uv_flip=False
 
-	def set_box(self):
-		E=[[],[],[]]
-		for n in range(len(self.vertice_position_list)):
-			x,y,z=self.vertice_position_list[n]
-			E[0].append(x)
-			E[1].append(y)
-			E[2].append(z)
-		skX=(self.set_box_values[3]-self.set_box_values[0])/(max(E[0])-min(E[0]))
-		skY=(self.set_box_values[4]-self.set_box_values[1])/(max(E[1])-min(E[1]))
-		skZ=(self.set_box_values[5]-self.set_box_values[2])/(max(E[2])-min(E[2]))
-		sk=min(skX,skY,skZ)
-		trX=(self.set_box_values[3]+self.set_box_values[0])/2
-		trY=(self.set_box_values[4]+self.set_box_values[1])/2
-		trZ=(self.set_box_values[5]+self.set_box_values[2])/2
-
-		for n in range(len(self.vertice_position_list)):
-			x,y,z=self.vertice_position_list[n]
-			self.vertice_position_list[n]=[trX+x*skX,trY+y*skY,trZ+z*skZ]
-
 	def add_vertex_uv(self,blenderMesh,mesh):
 		blenderMesh.vertexUV = 1
 		for m in range(len(blenderMesh.verts)):
@@ -277,9 +258,6 @@ class Mesh():
 		if self.name is None:self.name=str(parse_id())+'-model-'+str(0)
 		self.add_faces()
 		self.add_skin_id_list()
-
-		if self.set_box_values is not None:
-			self.set_box()
 
 		if self.split==False:
 			self.add_mesh()
