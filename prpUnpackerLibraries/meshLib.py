@@ -23,7 +23,6 @@ class Mesh():
 		self.skin_weight_list=[]
 		self.skin_indice_list=[]
 		self.skin_id_list=[]
-		self.bind_pose_matrix_list=[]
 		self.bone_name_list=[]
 
 		self.name=None
@@ -35,7 +34,6 @@ class Mesh():
 		self.matrix=None
 		self.split=False
 		self.is_drawing_active=False
-		self.set_box_values=None
 		self.uv_flip=False
 
 	def add_vertex_uv(self,blenderMesh,mesh):
