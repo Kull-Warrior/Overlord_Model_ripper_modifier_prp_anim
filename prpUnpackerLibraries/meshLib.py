@@ -32,12 +32,10 @@ class Mesh():
 		self.is_quad=False
 		self.is_triangle_strip=False
 		self.bind_skeleton=None
-		self.bind_pose_skeleton=None
 		self.matrix=None
 		self.split=False
 		self.is_drawing_active=False
 		self.set_box_values=None
-		self.bind_pose=False
 		self.uv_flip=False
 
 	def add_vertex_uv(self,blenderMesh,mesh):
@@ -109,54 +107,6 @@ class Mesh():
 						blendMesh.addVertGroup(grName)
 					blendMesh.assignVertsToGroup(grName,[vertID],w,1)
 		blendMesh.update()
-
-	def add_bind_pose(self,blendMesh,mesh):
-		#print 'bind_pose'
-		poseBones=None
-		poseSkeleton=None
-		bindBones=None
-		bindSkeleton=None
-		if self.bind_pose_skeleton is not None:
-			scene = bpy.data.scenes.active
-			for object in scene.objects:
-				if object.name==self.bind_pose_skeleton:
-					poseBones=object.getData().bones
-					poseSkeleton=object
-		if self.bind_skeleton is not None:
-			scene = bpy.data.scenes.active
-			for object in scene.objects:
-				if object.name==self.bind_skeleton:
-					bindBones=object.getData().bones
-					bindSkeleton=object
-		if poseBones is not None and bindBones is not None:
-			#print 'add_bind_pose'
-			#bind_pose_matrix_list=mesh.bind_pose_matrix_list
-			for vert in blendMesh.verts:
-				index=vert.index
-				skin_list=blendMesh.getVertexInfluences(index)
-				vco=vert.co.copy()*self.object.matrixWorld
-				vector=Vector()
-				#print index
-				for skin in skin_list:
-					bone=skin[0]
-					weight=skin[1]
-
-					#matrixIndex=mesh.bone_name_list.index(bone)
-					#matA=bind_pose_matrix_list[matrixIndex]*self.object.matrixWorld
-					matB=bindBones[bone].matrix['armature_space']*bindSkeleton.matrixWorld
-					matA=poseBones[bone].matrix['armature_space']*poseSkeleton.matrixWorld
-					#matB=TranslationMatrix(matB.translationPart())
-					#matA=TranslationMatrix(matA.translationPart())
-					vector+=vco*matA.invert()*matB*weight
-
-					#print vco
-					#print vco*matA.invert()*matB*weight
-
-				vert.co=vector
-				#vert.co=vco
-
-			blendMesh.update()
-			Blender.Window.RedrawAll()
 
 	def add_faces(self):
 		if len(self.material_list)==0:
@@ -275,9 +225,6 @@ class Mesh():
 
 			if self.matrix is not None:
 				self.object.setMatrix(self.matrix*self.object.matrixWorld)
-
-			if self.bind_pose==True:
-				self.add_bind_pose(self.mesh,self)
 			Blender.Window.RedrawAll()
 
 		if self.split==True:
