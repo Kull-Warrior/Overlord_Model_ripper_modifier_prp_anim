@@ -250,10 +250,6 @@ class Mesh():
 		scene = bpy.data.scenes.active
 		self.object = scene.objects.new(self.mesh,self.name)
 
-	def bone_tree(self,parent):
-		for bone in parent.children:
-			self.bone_tree(bone)
-
 	def draw(self):
 		if self.name is None:self.name=str(parse_id())+'-model-'+str(0)
 		self.add_faces()
