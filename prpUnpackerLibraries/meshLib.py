@@ -8,7 +8,6 @@ class Mesh():
 	
 	def __init__(self):
 		self.vertice_position_list=[]
-		self.vertice_normal_list=[]
 
 		self.indice_list=[]
 		self.face_list=[]
@@ -61,8 +60,7 @@ class Mesh():
 					face=blenderMesh.faces[ID]
 					if mesh.face_uv_list[ID] is not None:
 						face.uv=mesh.face_uv_list[ID]
-			if len(self.vertice_normal_list)==0:
-				blenderMesh.calcNormals()
+			blenderMesh.calcNormals()
 			blenderMesh.update()
 
 	def add_skin_id_list(self):
@@ -150,9 +148,6 @@ class Mesh():
 	def add_mesh(self):
 		self.mesh = bpy.data.meshes.new(self.name)
 		self.mesh.verts.extend(self.vertice_position_list)
-		if len(self.vertice_normal_list)>0:
-			for i,vert in enumerate(self.mesh.verts):
-				vert.no=Vector(self.vertice_normal_list[i])
 
 		self.mesh.faces.extend(self.triangle_list,ignoreDups=True)
 		scene = bpy.data.scenes.active
