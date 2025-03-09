@@ -15,7 +15,6 @@ class Mesh():
 		self.material_list=[]
 		self.material_id_list=[]
 		self.vertice_uv_list=[]
-		self.face_uv_list=[]
 
 		self.skin_list=[]
 		self.skin_weight_list=[]
@@ -54,11 +53,6 @@ class Mesh():
 					face=blenderMesh.faces[ID]
 					face.smooth = 1
 					face.mat=mesh.material_id_list[ID]
-			if len(mesh.face_uv_list)>0:
-				for ID in range(len(blenderMesh.faces)):
-					face=blenderMesh.faces[ID]
-					if mesh.face_uv_list[ID] is not None:
-						face.uv=mesh.face_uv_list[ID]
 			blenderMesh.calcNormals()
 			blenderMesh.update()
 
