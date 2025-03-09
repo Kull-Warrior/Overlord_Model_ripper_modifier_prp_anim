@@ -10,7 +10,6 @@ class Mesh():
 		self.vertice_position_list=[]
 
 		self.indice_list=[]
-		self.face_list=[]
 		self.triangle_list=[]
 
 		self.material_list=[]
@@ -103,8 +102,6 @@ class Mesh():
 
 	def add_faces(self):
 		if len(self.material_list)==0:
-			if len(self.face_list)!=0:
-				self.triangle_list=self.face_list
 			if len(self.indice_list)!=0:
 				if self.is_triangle==True:
 					self.indices_to_triangles(self.indice_list,0)
@@ -112,26 +109,6 @@ class Mesh():
 					self.indices_to_triangle_strips(self.indice_list,0)
 
 		else:
-			if len(self.face_list)>0:
-				if len(self.material_id_list)==0:
-					for matID in range(len(self.material_list)):
-						mat=self.material_list[matID]
-						if mat.id_start is not None and mat.id_count is not None:
-							for faceID in range(mat.id_count):
-								self.triangle_list.append(self.face_list[mat.id_start+faceID])
-								self.material_id_list.append(matID)
-						else:
-							if mat.id_start==None:
-								mat.id_start=0
-							if mat.id_count==None:
-								mat.id_count=len(self.face_list)
-							for faceID in range(mat.id_count):
-								self.triangle_list.append(self.face_list[mat.id_start+faceID])
-								self.material_id_list.append(matID)
-
-				else:
-					self.triangle_list=self.face_list
-
 			if len(self.indice_list)>0:
 				for matID in range(len(self.material_list)):
 					mat=self.material_list[matID]
