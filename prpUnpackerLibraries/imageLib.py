@@ -14,27 +14,6 @@ def tga_16(data):
 		newdata+=struct.pack('iii',red,green,blue)
 	return newdata
 
-def rgb565_to_rgb888(width,height,data,outname):
-	newdata=''
-	start=0
-	image=Blender.Image.New(outname,width,height,24)
-	for m in range(width):
-		for n in range(height):
-			c=struct.unpack('H',data[start:start+2])[0]
-			start+=2
-			red = (c>>11)&0x1f
-			green = (c>>5)&0x3f
-			blue = c&0x001f
-			pred=(red<<3)|(red>>2)
-			pgreen=(green<<2)|(green>>4)
-			pblue=(blue<<3)|(blue>>2)
-			if pr==0 and pg==0 and pb==0:
-				palpha=1
-			else:
-				palpha=0
-			image.setPixelI(n, 511-m, (pred, pgreen, pblue,palpha))
-	image.save()
-
 class Image():
 	def __init__(self):
 		self.format=None
