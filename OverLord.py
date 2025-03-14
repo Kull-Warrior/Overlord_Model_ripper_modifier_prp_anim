@@ -1,5 +1,4 @@
 import prpUnpackerLibraries
-reload(prpUnpackerLibraries)
 from prpUnpackerLibraries import *
 #import Blender
 import math
