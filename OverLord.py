@@ -573,8 +573,6 @@ def save_data(data):
 					offset='\x18\x20'
 					temp_data=image.data
 				image_writer.write_to_tga_file(image,offset,temp_data)
-			elif image.format=='565to888':
-				rgb565_to_rgb888(image.width,image.height,image.data,image.name)
 			else:
 				print 'Warning: unknown image format',image.format
 
