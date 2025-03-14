@@ -29,7 +29,7 @@ def read_data(filename):
 
 	rpk_file=RPK()
 	rpk_file.name=get_title(rpk_reader)
-	print 'Title		:	',rpk_file.name
+	print ('Title		:	',rpk_file.name)
 	rpk_file.type=rpk_reader.read_uint8(1)[0]
 
 	list=get_list(rpk_file.type,rpk_reader)
@@ -122,7 +122,7 @@ def read_data(filename):
 										rpk_file.texture_list[texture_chunk]=image.name
 										break
 									else:
-										print 'unknow image flag:',flag,rpk_reader.tell()
+										print ('unknow image flag:',flag,rpk_reader.tell())
 
 			elif flag==(5,0,65,0):#anim
 				animation_count=animation_count+1
@@ -508,20 +508,20 @@ def read_data(filename):
 				shader_count=shader_count+1
 				pass
 			else:
-				print 'unknow global flag:',flag,rpk_reader.tell()
+				print ('unknow global flag:',flag,rpk_reader.tell())
 		
-	print "Detected	:	"+add_leading_zeros(image_count)+"{0} images".format(image_count)
-	print "Detected	:	"+add_leading_zeros(animation_count)+"{0} animations".format(animation_count)
-	print "Detected	:	"+add_leading_zeros(mesh_count)+"{0} meshes".format(mesh_count)
-	print "Detected	:	"+add_leading_zeros(material_count)+"{0} materials".format(material_count)
-	print "Detected	:	"+add_leading_zeros(model_count)+"{0} models".format(model_count)
-	print "Detected	:	"+add_leading_zeros(audio_count)+"{0} audios".format(audio_count)
-	print "Detected	:	"+add_leading_zeros(final_gather_map_count)+"{0} final_gather_maps".format(final_gather_map_count)
-	print "Detected	:	"+add_leading_zeros(color_count)+"{0} colors".format(color_count)
-	print "Detected	:	"+add_leading_zeros(INTERFACETEXTUREATLAS_count)+"{0} INTERFACETEXTUREATLAS".format(INTERFACETEXTUREATLAS_count)
-	print "Detected	:	"+add_leading_zeros(alphabetical_data_count)+"{0} alphabetical_data".format(alphabetical_data_count)
-	print "Detected	:	"+add_leading_zeros(cliff_count)+"{0} cliffs".format(cliff_count)
-	print "Detected	:	"+add_leading_zeros(shader_count)+"{0} shaders".format(shader_count)
+	print ("Detected	:	"+add_leading_zeros(image_count)+"{0} images".format(image_count))
+	print ("Detected	:	"+add_leading_zeros(animation_count)+"{0} animations".format(animation_count))
+	print ("Detected	:	"+add_leading_zeros(mesh_count)+"{0} meshes".format(mesh_count))
+	print ("Detected	:	"+add_leading_zeros(material_count)+"{0} materials".format(material_count))
+	print ("Detected	:	"+add_leading_zeros(model_count)+"{0} models".format(model_count))
+	print ("Detected	:	"+add_leading_zeros(audio_count)+"{0} audios".format(audio_count))
+	print ("Detected	:	"+add_leading_zeros(final_gather_map_count)+"{0} final_gather_maps".format(final_gather_map_count))
+	print ("Detected	:	"+add_leading_zeros(color_count)+"{0} colors".format(color_count))
+	print ("Detected	:	"+add_leading_zeros(INTERFACETEXTUREATLAS_count)+"{0} INTERFACETEXTUREATLAS".format(INTERFACETEXTUREATLAS_count))
+	print ("Detected	:	"+add_leading_zeros(alphabetical_data_count)+"{0} alphabetical_data".format(alphabetical_data_count))
+	print ("Detected	:	"+add_leading_zeros(cliff_count)+"{0} cliffs".format(cliff_count))
+	print ("Detected	:	"+add_leading_zeros(shader_count)+"{0} shaders".format(shader_count))
 
 	resource_file.close()
 
@@ -532,28 +532,28 @@ def save_data(data):
 	## Write necessary data to new files
 	########################################################################################################################################################################
 
-	print
-	print "-"*50
-	print "Write necessary data to new files"
-	print "-"*50
-	print
+	print ()
+	print ("-"*50)
+	print ("Write necessary data to new files")
+	print ("-"*50)
+	print ()
 
 	if len(data.image_list)>0 or len(data.animation_list)>0 or len(data.audio_list)>0:
-		print "Parent directory created" 
+		print ("Parent directory created")
 		create_new_directory(file_directory+os.sep+file_basename)
 	print
 
 	if len(data.image_list)>0:
-		print "Image subdirectory created"
+		print ("Image subdirectory created")
 		create_new_directory(file_directory+os.sep+file_basename+os.sep+'images')
 
 	for image in data.image_list:
-		print "	"+"*"*50
-		print "	Writing	image to file"
-		print "	Name	: {0}".format(image.name)
-		print "	Height	: {0}".format(image.height)
-		print "	Width	: {0}".format(image.width)
-		print "	Format	: {0}".format(image.format)
+		print ("	"+"*"*50)
+		print ("	Writing	image to file")
+		print ("	Name	: {0}".format(image.name))
+		print ("	Height	: {0}".format(image.height))
+		print ("	Width	: {0}".format(image.width))
+		print ("	Format	: {0}".format(image.format))
 
 		image_path=file_directory+os.sep+file_basename+os.sep+'images'+os.sep+image.name
 		image_file=open(image_path,'wb')
@@ -574,50 +574,50 @@ def save_data(data):
 					temp_data=image.data
 				image_writer.write_to_tga_file(image,offset,temp_data)
 			else:
-				print 'Warning: unknown image format',image.format
+				print ('Warning: unknown image format',image.format)
 
 		image_file.close()
 		
-	print "	"+"*"*50
-	print
+	print ("	"+"*"*50)
+	print ()
 
 	if len(data.animation_list)>0:
-		print "Animation subdirectory created"
+		print ("Animation subdirectory created")
 		create_new_directory(file_directory+os.sep+file_basename+os.sep+'animations')
 	
 	for action in data.animation_list:
-		print "	"+"*"*50
-		print "	Writing animation to file"
-		print "	Name	: {0}".format(action.name)
+		print ("	"+"*"*50)
+		print ("	Writing animation to file")
+		print ("	Name	: {0}".format(action.name))
 		animation_path=file_directory+os.sep+file_basename+os.sep+'animations'+os.sep+action.name+'.anim'
 		animation_file=open(animation_path,'wb')
 		animation_writer=BinaryWriter(animation_file)
 		
 		for action_bone in action.bone_list:
-			#print "		"+"+"*50
-			#print "		Bone used by the animation"
-			#print "		Name	: {0}".format(action_bone.name)
+			#print ("		"+"+"*50
+			#print ("		Bone used by the animation"
+			#print ("		Name	: {0}".format(action_bone.name)
 			animation_writer.write_string(action_bone.name)
 			animation_writer.write_string('\x00')
 			
 			for i in action_bone.data:
 				animation_writer.write_string(i)
-		#print "		"+"+"*50
+		#print ("		"+"+"*50
 		animation_file.close()
 
-	print "	"+"*"*50
-	print
+	print ("	"+"*"*50)
+	print ()
 
 	if len(data.audio_list)>0:
-		print "Audio subdirectory created"
+		print ("Audio subdirectory created")
 		create_new_directory(file_directory+os.sep+file_basename+os.sep+'audio')
 	
 	for audio in data.audio_list:
-		print "	"+"*"*50
-		print "	Writing audio to file"
-		print "	Name	: {0}".format(audio.name)
-		print "	Chunck	: {0}".format(audio.chunk_name)
-		print "	Size	: {0}".format(audio.size)
+		print ("	"+"*"*50)
+		print ("	Writing audio to file")
+		print ("	Name	: {0}".format(audio.name))
+		print ("	Chunck	: {0}".format(audio.chunk_name))
+		print ("	Size	: {0}".format(audio.size))
 		audio_path=file_directory+os.sep+file_basename+os.sep+'audio'+os.sep+audio.name+'.wav'
 		audio_file=open(audio_path,'wb')
 		audio_writer=BinaryWriter(audio_file)
@@ -625,8 +625,8 @@ def save_data(data):
 		audio_writer.write_string(audio.data)
 
 		audio_file.close()
-	print "	"+"*"*50
-	print
+	print ("	"+"*"*50)
+	print ()
 
 '''def create_blender_models(data):
 ########################################################################################################################################################################
@@ -634,27 +634,27 @@ def save_data(data):
 ########################################################################################################################################################################
 
 	print
-	print "-"*50
-	print "Try to create blender models and their dependencies"
-	print "-"*50
+	print ("-"*50
+	print ("Try to create blender models and their dependencies"
+	print ("-"*50
 	print
 
 	for skeleton in data.skeleton_list:
 		skeleton.draw()
 
 	for model in data.model_list:
-		print "	"+"*"*50
-		print "	Name	: {0}".format(model.name)
+		print ("	"+"*"*50
+		print ("	Name	: {0}".format(model.name)
 		i=0
 		for mesh_chunk,material_Chunk in model.mesh_list:
-			print '			',mesh_chunk, ' -> ', material_Chunk
+			print ('			',mesh_chunk, ' -> ', material_Chunk
 			mat=None
 			for mat in data.material_list:
 				if mat.chunk==material_Chunk:
 					break
 			for mesh in data.mesh_list:
 				if mesh.chunk==mesh_chunk:
-					print '			Mesh Name	:	',mesh.name
+					print ('			Mesh Name	:	',mesh.name
 					MAT=Mat()
 					if mesh.is_triangle==True:MAT.is_triangle=True
 					if mesh.is_triangle_strip==True:MAT.is_triangle_strip=True
@@ -666,7 +666,7 @@ def save_data(data):
 
 						MAT.diffuse=mat.diffuse
 
-					print '			Material Name	:	',MAT.name
+					print ('			Material Name	:	',MAT.name
 					mesh.material_list.append(MAT)
 					mesh.bone_name_list=model.bone_name_list
 					if i<len(model.bone_map_list):
@@ -681,7 +681,7 @@ def save_data(data):
 						pass
 					break
 			i+=1
-	print "	"+"*"*50
+	print ("	"+"*"*50
 '''
 '''def anim_file_parser(filename,animation_reader):
 	selObjectList=Blender.Object.GetSelected()
@@ -729,11 +729,11 @@ def openFile(full_file_path):
 	file_extension=os.path.basename(full_file_path).split('.')[-1]
 	file_basename=os.path.basename(full_file_path).split('.'+file_extension)[0]
 
-	print
-	print '='*70
-	print full_file_path
-	print '='*70
-	print
+	print ()
+	print ('='*70)
+	print (full_file_path)
+	print ('='*70)
+	print ()
 
 	if file_extension=='prp' or file_extension=='pvp' or file_extension=='psp':
 		extracted_data = read_data(full_file_path)

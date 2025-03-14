@@ -125,7 +125,7 @@ class Skeleton:
 					bone.parent=parent
 			else:
 				if name.lower() != "root":
-					print 'Warning: no parent for bone',name
+					print ('Warning: no parent for bone',name)
 		self.armature.update()
 
 	def create_bone_position(self):
@@ -159,7 +159,7 @@ class Skeleton:
 						bvec.normalize()
 						bone.tail = bone.head + 0.01 * bvec
 				else:
-					print 'ARMATUREPACE or bone_space ?'
+					print ('ARMATUREPACE or bone_space ?')
 			elif rotation_matrix is not None and position_matrix is not None:
 				if self.armature_space==True:
 					rotation_matrix=round_matrix(rotation_matrix,4)
@@ -184,9 +184,9 @@ class Skeleton:
 						bvec.normalize()
 						bone.tail = bone.head + 0.01 * bvec
 				else:
-					print 'ARMATUREPACE or bone_space ?'
+					print ('ARMATUREPACE or bone_space ?')
 			else:
-				print 'WARNINIG: rotation_matrix or position_matrix or matrix is None'
+				print ('WARNINIG: rotation_matrix or position_matrix or matrix is None')
 
 		self.armature.update()
 		Blender.Window.RedrawAll()

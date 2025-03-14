@@ -47,7 +47,7 @@ class Action:
 					if object.name==self.skeleton:
 						skeleton = object
 		else:
-			print 'Warning: no armature'
+			print ('Warning: no armature')
 		if skeleton is not None:
 			armature=skeleton.getData()
 			pose = skeleton.getPose()
@@ -203,7 +203,7 @@ class Action:
 									[Blender.Object.Pose.ROT,Blender.Object.Pose.LOC],True)
 								pose.update()
 			else:
-				print 'Warning: missing bone_sort or frame_sort'
+				print ('Warning: missing bone_sort or frame_sort')
 			if len(timeList)>0:
 				self.frame_count=max(map(int,timeList))
 '''

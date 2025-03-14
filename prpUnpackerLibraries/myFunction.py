@@ -19,7 +19,7 @@ def set_image_format(image_format,image):
 		image.format='tga24'
 	else:
 		image.format=image_format
-		print 'Warning: Unkown image_format : ',image_format,' for ',texture_name
+		print ('Warning: Unkown image_format : ',image_format,' for ',texture_name)
 	return image.format
 
 def is_quat(quat):
