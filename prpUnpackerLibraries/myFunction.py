@@ -1,6 +1,6 @@
 import bpy
-import Blender,os
-from Blender.Mathutils import *
+#import Blender,os
+#from Blender.Mathutils import *
 
 def	create_new_directory(new_directory_path):
 	if os.path.exists(new_directory_path)==False:
@@ -50,7 +50,7 @@ def matrix_4x4(data):
 					data[8:12],\
 					data[12:16])
 
-def parse_id():
+'''def parse_id():
 	ids = []
 	scene = bpy.data.scenes.active
 	for mat in Blender.Material.Get():
@@ -77,8 +77,8 @@ def parse_id():
 	except:
 		model_id = 0
 	return model_id
-
-def set_blender_material_texture(blendMat,data,texture_type,short_type):
+'''
+'''def set_blender_material_texture(blendMat,data,texture_type,short_type):
 	if os.path.exists(getattr(data,texture_type))==True:
 		image=Blender.Image.Load(getattr(data,texture_type))
 		imgName=blendMat.name.replace('-mat-','-'+getattr(data,texture_type)+'-')
@@ -122,7 +122,7 @@ def set_blender_material_texture(blendMat,data,texture_type,short_type):
 			mtextures = blendMat.getTextures()
 			mtex=mtextures[data.reflection_slot]
 			mtex.colfac=data.reflection_strong
-
+'''
 def safe(count):
 	return count<100000
 

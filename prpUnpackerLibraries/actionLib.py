@@ -1,5 +1,5 @@
 import bpy
-import Blender
+#import Blender
 
 class ActionBone:
 	def	__init__(self):
@@ -25,7 +25,7 @@ class Action:
 		self.frame_sort=False
 		self.bone_sort=False
 
-	def bone_name_list(self):
+'''	def bone_name_list(self):
 		if self.skeleton is not None:
 			scene = bpy.data.scenes.active
 			for object in scene.objects:
@@ -206,3 +206,4 @@ class Action:
 				print 'Warning: missing bone_sort or frame_sort'
 			if len(timeList)>0:
 				self.frame_count=max(map(int,timeList))
+'''

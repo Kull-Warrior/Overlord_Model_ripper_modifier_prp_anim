@@ -1,7 +1,7 @@
 import prpUnpackerLibraries
 reload(prpUnpackerLibraries)
 from prpUnpackerLibraries import *
-import Blender
+#import Blender
 import math
 from math import *
 import struct
@@ -628,7 +628,7 @@ def save_data(data):
 	print "	"+"*"*50
 	print
 
-def create_blender_models(data):
+'''def create_blender_models(data):
 ########################################################################################################################################################################
 ## Create blender models
 ########################################################################################################################################################################
@@ -682,8 +682,8 @@ def create_blender_models(data):
 					break
 			i+=1
 	print "	"+"*"*50
-
-def anim_file_parser(filename,animation_reader):
+'''
+'''def anim_file_parser(filename,animation_reader):
 	selObjectList=Blender.Object.GetSelected()
 	if len(selObjectList)>0:
 		armature=selObjectList[0]
@@ -721,6 +721,7 @@ def anim_file_parser(filename,animation_reader):
 
 		action.draw()
 		action.set_context()
+'''
 
 def openFile(full_file_path):
 	global file_directory,file_basename,file_extension
@@ -745,4 +746,4 @@ def openFile(full_file_path):
 		anim_file_parser(full_file_path,reader)
 		file.close()
 
-Blender.Window.FileSelector(openFile,'import','Overlord I and II files: prp - archive, pvp - archive, psp - archive, anim - animation')
+#Blender.Window.FileSelector(openFile,'import','Overlord I and II files: prp - archive, pvp - archive, psp - archive, anim - animation')

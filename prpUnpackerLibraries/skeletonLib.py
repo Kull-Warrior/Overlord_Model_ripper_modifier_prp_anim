@@ -1,6 +1,6 @@
 from myFunction import *
-import Blender
-from Blender.Mathutils import *
+#import Blender
+#from Blender.Mathutils import *
 import bpy
 
 class Bone:
@@ -34,7 +34,7 @@ class Skeleton:
 		self.is_sorted=False
 		self.matrix=None
 
-	def bone_children(self,parentBlenderBone,parentBone):
+'''	def bone_children(self,parentBlenderBone,parentBone):
 		for child in parentBlenderBone.children:
 			for bone in self.bone_list:
 				if bone.name==child.name:
@@ -216,3 +216,4 @@ class Skeleton:
 		self.armature.drawType = Blender.Armature.STICK
 		self.object.drawMode = Blender.Object.DrawModes.XRAY
 		self.matrix=self.object.mat
+'''

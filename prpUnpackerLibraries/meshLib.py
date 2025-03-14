@@ -1,6 +1,6 @@
 import bpy
-import Blender
-from Blender.Mathutils import *
+#import Blender
+#from Blender.Mathutils import *
 from myFunction import *
 import random
 
@@ -30,7 +30,7 @@ class Mesh():
 		self.matrix=None
 		self.uv_flip=False
 
-	def add_vertex_uv(self,blenderMesh,mesh):
+'''	def add_vertex_uv(self,blenderMesh,mesh):
 		blenderMesh.vertexUV = 1
 		for m in range(len(blenderMesh.verts)):
 			if self.uv_flip==False:
@@ -187,7 +187,7 @@ class Mesh():
 				f2 = f3
 			if id==len(indicesList)-1:
 				break
-
+'''
 class Skin:
 	def __init__(self):
 		self.bone_map=[]
@@ -248,7 +248,7 @@ class Mat:
 		blue=random.randint(0,255)
 		self.rgba=[red/255.0,green/255.0,blue/255.0,1.0]
 
-	def get_blender_material(self,mesh_name,ID):
+'''	def get_blender_material(self,mesh_name,ID):
 		if self.name is None:
 			self.name=mesh_name+'-mat-'+str(ID)
 		blendMat=Blender.Material.New(self.name)
@@ -284,3 +284,4 @@ class Mat:
 			set_blender_material_texture(blendMat,self,"alpha","alpha")
 
 		return blendMat
+'''

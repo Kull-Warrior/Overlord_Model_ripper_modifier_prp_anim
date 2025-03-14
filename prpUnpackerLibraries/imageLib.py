@@ -1,5 +1,5 @@
 import struct
-import Blender
+#import Blender
 
 def tga_16(data):
 	newdata=''
