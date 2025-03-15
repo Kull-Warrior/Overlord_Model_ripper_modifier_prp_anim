@@ -1,6 +1,16 @@
+import bpy
+import sys
+import os
+
+# Get the directory of the current script
+current_dir = os.path.dirname(bpy.data.filepath)
+
+# Append it to sys.path if it's not already there
+if current_dir not in sys.path:
+    sys.path.append(current_dir)
+
 import prpUnpackerLibraries
 from prpUnpackerLibraries import *
-#import Blender
 import math
 from math import *
 import struct
@@ -745,4 +755,5 @@ def openFile(full_file_path):
 		anim_file_parser(full_file_path,reader)
 		file.close()
 
+openFile("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Overlord\\Resources\\Character Minion Master.prp")
 #Blender.Window.FileSelector(openFile,'import','Overlord I and II files: prp - archive, pvp - archive, psp - archive, anim - animation')

@@ -8,16 +8,6 @@ import actionLib
 import skeletonLib
 import audioLib
 
-reload(prpLib)
-reload(myFunction)
-reload(modelLib)
-reload(binaresLib)
-reload(imageLib)
-reload(meshLib)
-reload(actionLib)
-reload(skeletonLib)
-reload(audioLib)
-
 from prpLib import *
 from myFunction import *
 from modelLib import *

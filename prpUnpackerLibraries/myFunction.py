@@ -1,6 +1,5 @@
 import bpy
-#import Blender,os
-#from Blender.Mathutils import *
+import os
 
 def	create_new_directory(new_directory_path):
 	if os.path.exists(new_directory_path)==False:
