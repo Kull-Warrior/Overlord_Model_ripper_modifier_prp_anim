@@ -649,28 +649,28 @@ def create_blender_models(data):
 ## Create blender models
 ########################################################################################################################################################################
 
-	print
-	print ("-"*50
-	print ("Try to create blender models and their dependencies"
-	print ("-"*50
-	print
+	print ()
+	print ("-"*50)
+	print ("Try to create blender models and their dependencies")
+	print ("-"*50)
+	print ()
 
 	for skeleton in data.skeleton_list:
 		skeleton.draw()
 
 	for model in data.model_list:
-		print ("	"+"*"*50
-		print ("	Name	: {0}".format(model.name)
+		print ("	"+"*"*50)
+		print ("	Name	: {0}".format(model.name))
 		i=0
 		for mesh_chunk,material_Chunk in model.mesh_list:
-			print ('			',mesh_chunk, ' -> ', material_Chunk
+			print ('			',mesh_chunk, ' -> ', material_Chunk)
 			mat=None
 			for mat in data.material_list:
 				if mat.chunk==material_Chunk:
 					break
 			for mesh in data.mesh_list:
 				if mesh.chunk==mesh_chunk:
-					print ('			Mesh Name	:	',mesh.name
+					print ('			Mesh Name	:	',mesh.name)
 					MAT=Mat()
 					if mesh.is_triangle==True:MAT.is_triangle=True
 					if mesh.is_triangle_strip==True:MAT.is_triangle_strip=True
@@ -682,7 +682,7 @@ def create_blender_models(data):
 
 						MAT.diffuse=mat.diffuse
 
-					print ('			Material Name	:	',MAT.name
+					print ('			Material Name	:	',MAT.name)
 					mesh.material_list.append(MAT)
 					mesh.bone_name_list=model.bone_name_list
 					if i<len(model.bone_map_list):
@@ -697,7 +697,7 @@ def create_blender_models(data):
 						pass
 					break
 			i+=1
-	print ("	"+"*"*50
+	print ("	"+"*"*50)
 '''def anim_file_parser(filename,animation_reader):
 	selObjectList=Blender.Object.GetSelected()
 	if len(selObjectList)>0:
