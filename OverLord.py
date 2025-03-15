@@ -580,13 +580,13 @@ def save_data(data):
 				image_writer.write_to_dxt_file(image)
 			elif 'tga' in image.format:
 				if image.format=='tga32':
-					offset='\x20\x20'
+					offset='b\x20\x20'
 					temp_data=image.data
 				elif image.format=='tga16':
-					offset='\x20\x20'
+					offset='b\x20\x20'
 					temp_data=tga_16(image.data)
 				elif image.format=='tga24':
-					offset='\x18\x20'
+					offset='b\x18\x20'
 					temp_data=image.data
 				image_writer.write_to_tga_file(image,offset,temp_data)
 			else:
@@ -614,7 +614,7 @@ def save_data(data):
 			#print ("		Bone used by the animation"
 			#print ("		Name	: {0}".format(action_bone.name)
 			animation_writer.write_string(action_bone.name)
-			animation_writer.write_string('\x00')
+			animation_writer.write_string(b'\x00')
 			
 			for i in action_bone.data:
 				animation_writer.write_string(i)
@@ -714,7 +714,7 @@ def save_data(data):
 				break
 			bone=ActionBone()
 			action.bone_list.append(bone)
-			bone.name=animation_reader.find('\x00')
+			bone.name=animation_reader.find(b'\x00')
 			count=animation_reader.read_int32(1)[0]
 			for m in range(count):
 				frame=animation_reader.read_uint16(1)[0]

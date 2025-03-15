@@ -199,57 +199,57 @@ class BinaryWriter(BinaryIO):
 	def write_to_dxt_file(self,image):
 		#Write DDS header
 		##Write Magic number / file identifier
-		self.write_string('\x44\x44\x53\x20')
+		self.write_string(b'\x44\x44\x53\x20')
 		##Write Header Size
-		self.write_string('\x7C\x00\x00\x00')
+		self.write_string(b'\x7C\x00\x00\x00')
 		##Write Flags
-		self.write_string('\x07\x10\x02\x00')
+		self.write_string(b'\x07\x10\x02\x00')
 		##Write image height
 		self.write_string(struct.pack('i',image.height))
 		##Write image width
 		self.write_string(struct.pack('i',image.width))
 		##Write PitchOrLinearSize
-		self.write_string('\x00\x00\x00\x00')
+		self.write_string(b'\x00\x00\x00\x00')
 		##Write Depth
-		self.write_string('\x00\x00\x00\x00')
+		self.write_string(b'\x00\x00\x00\x00')
 		##Write MipMapCount
 		mipmap_count=math.floor(math.log(max(image.width,image.height),2))+1
 		self.write_string(struct.pack('i',mipmap_count))
 		##Write Reserved 11 x 4 Bytes
-		self.write_string('\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
+		self.write_string(b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
 		##Write DDPIXELFORMAT
 		###Write Header Size
-		self.write_string('\x20\x00\x00\x00')
+		self.write_string(b'\x20\x00\x00\x00')
 		###Write Flags
-		self.write_string('\x04\x00\x00\x00')
+		self.write_string(b'\x04\x00\x00\x00')
 		###Write FourCC
-		self.write_string(image.format)
+		self.write_string(image.format.encode('utf-8'))
 		###Write RGBBitCount
-		self.write_string('\x00\x00\x00\x00')
+		self.write_string(b'\x00\x00\x00\x00')
 		###Write RBitMask
-		self.write_string('\x00\x00\x00\x00')
+		self.write_string(b'\x00\x00\x00\x00')
 		###Write GBitMask
-		self.write_string('\x00\x00\x00\x00')
+		self.write_string(b'\x00\x00\x00\x00')
 		###Write BBitMask
-		self.write_string('\x00\x00\x00\x00')
+		self.write_string(b'\x00\x00\x00\x00')
 		###Write RGBAlphaBitMask
-		self.write_string('\x00\x00\x00\x00')
+		self.write_string(b'\x00\x00\x00\x00')
 		###Write Caps
-		self.write_string('\x08\x10\x40\x00')
+		self.write_string(b'\x08\x10\x40\x00')
 		###Write Caps2
-		self.write_string('\x00\x00\x00\x00')
+		self.write_string(b'\x00\x00\x00\x00')
 		###Write Caps3
-		self.write_string('\x00\x00\x00\x00')
+		self.write_string(b'\x00\x00\x00\x00')
 		###Write Caps4
-		self.write_string('\x00\x00\x00\x00')
+		self.write_string(b'\x00\x00\x00\x00')
 		##Write Reserved2
-		self.write_string('\x00\x00\x00\x00')
+		self.write_string(b'\x00\x00\x00\x00')
 		##Write data
 		self.write_string(image.data)
 
 	def write_to_tga_file(self,image,offset,data):
 		#Write tga header
-		self.write_string('\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00')
+		self.write_string(b'\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00')
 		#Write image height
 		self.write_string(struct.pack('H',image.height))
 		#Write image width
