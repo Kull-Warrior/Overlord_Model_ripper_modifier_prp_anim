@@ -18,6 +18,8 @@ from prpUnpackerLibraries import *
 import math
 from math import *
 import struct
+import mathutils
+from mathutils import Euler
 
 def read_data(filename):
 	resource_file=open(filename,'rb')
@@ -268,7 +270,8 @@ def read_data(filename):
 								if indice_count is not None:
 									mesh.indice_list=rpk_reader.read_uint16(indice_count)
 									mesh.is_triangle=True
-									mesh.matrix=Euler(90,0,0).toMatrix().resize4x4()
+									rotation_matrix = Euler((90, 0, 0), 'XYZ').to_matrix()
+									mesh.matrix = rotation_matrix.to_4x4()
 
 							if item3[0]==21:
 								type4=rpk_reader.read_uint8(1)[0]
