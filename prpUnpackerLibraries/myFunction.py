@@ -1,5 +1,7 @@
 import bpy
 import os
+import mathutils
+from mathutils import Quaternion, Vector, Matrix
 
 def	create_new_directory(new_directory_path):
 	if os.path.exists(new_directory_path)==False:
@@ -26,28 +28,24 @@ def is_quat(quat):
 	return quat[0]**2-sum
 
 def quat_matrix(quat):
-	return Quaternion(quat[3],quat[0],quat[1],quat[2]).toMatrix()
+    # Create a Quaternion from a list or tuple and convert it to a 3x3 rotation matrix
+    return Quaternion(quat).to_matrix()
 
 def vector_matrix(vector):
-	return TranslationMatrix(Vector(vector))
+    # Create a translation matrix from a vector
+    return Matrix.Translation(Vector(vector))
 
-def round_vector(vec,dec=17):
-	fvec=[]
-	for v in vec:
-		fvec.append(round(v,dec))
-	return Vector(fvec)
+def round_vector(vec, dec=17):
+    # Round each component of the vector to the specified number of decimal places
+    return Vector([round(v, dec) for v in vec])
 
-def round_matrix(mat,dec=17):
-	fmat = []
-	for row in mat:
-		fmat.append(round_vector(row,dec))
-	return Matrix(*fmat)
+def round_matrix(mat, dec=17):
+    # Round each element of the matrix to the specified number of decimal places
+    return Matrix([round_vector(row, dec) for row in mat])
 
 def matrix_4x4(data):
-	return Matrix(	data[:4],\
-					data[4:8],\
-					data[8:12],\
-					data[12:16])
+    # Create a 4x4 matrix from a flat list of 16 elements
+    return Matrix([data[i:i+4] for i in range(0, 16, 4)])
 
 '''def parse_id():
 	ids = []
