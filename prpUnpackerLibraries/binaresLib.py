@@ -144,16 +144,15 @@ class BinaryReader(BinaryIO):
 	def read_double(self,length):
 		return self.read_from_data_type(length,'d',8)
 
-	def read_string(self,length):
-		if length<10000:
-			offset=self.inputFile.tell()
-			s=''
-			for j in range(0,length):
-				lit =  struct.unpack('c',self.inputFile.read(1))[0]
-
-				if ord(lit)!=0:
-					s+=lit
-			return s
+	def read_string(self, length):
+		if length < 10000:
+			offset = self.inputFile.tell()
+			s = bytearray()
+			for _ in range(length):
+				lit = struct.unpack('c', self.inputFile.read(1))[0]
+				if lit != b'\x00':
+					s.extend(lit)
+			return s.decode('utf-8')  # Decode bytes to a string
 
 class BinaryWriter(BinaryIO):
 	def __init__(self, inputFile):
