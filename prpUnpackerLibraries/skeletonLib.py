@@ -1,218 +1,207 @@
-from myFunction import *
-#import Blender
-#from Blender.Mathutils import *
 import bpy
+from mathutils import Matrix, Vector
 
 class Bone:
 	def __init__(self):
-		self.ID=None
-		self.name=None
-		self.parent_id=None
-		self.parent_name=None
-		self.quat=None
-		self.position=None
-		self.matrix=None
-		self.position_matrix=None
-		self.rotation_matrix=None
-		self.scale_matrix=None
-		self.children=[]
-		self.edit=None
+		self.ID = None
+		self.name = None
+		self.parent_id = None
+		self.parent_name = None
+		self.quat = None
+		self.position = None
+		self.matrix = None
+		self.position_matrix = None
+		self.rotation_matrix = None
+		self.scale_matrix = None
+		self.children = []
+		self.edit = None
+
 
 class Skeleton:
 	def __init__(self):
-		self.name='armature'
-		self.bone_list=[]
-		self.armature=None
-		self.object=None
-		self.bone_name_list=[]
-		self.armature_space=False
-		self.bone_space=False
-		self.DEL=True
-		self.NICE=False
-		self.IK=False
-		self.bind_mesh=False
-		self.is_sorted=False
-		self.matrix=None
+		self.name = 'armature'
+		self.bone_list = []
+		self.armature = None
+		self.object = None
+		self.bone_name_list = []
+		self.armature_space = False
+		self.bone_space = False
+		self.DEL = True
+		self.NICE = False
+		self.IK = False
+		self.bind_mesh = False
+		self.is_sorted = False
+		self.matrix = None
 
-	def bone_children(self,parentBlenderBone,parentBone):
-		for child in parentBlenderBone.children:
+	def bone_children(self, parent_blender_bone, parent_bone):
+		for child in parent_blender_bone.children:
 			for bone in self.bone_list:
-				if bone.name==child.name:
-					blenderBone=self.armature.bones[bone.name]
-					bone.matrix*=parentBone.matrix
-					self.bone_children(blenderBone,bone)
+				if bone.name == child.name:
+					blender_bone = self.armature.data.bones[bone.name]
+					bone.matrix @= parent_bone.matrix
+					self.bone_children(blender_bone, bone)
 
 	def create_child_list(self):
 		for boneID in range(len(self.bone_list)):
-			bone=self.bone_list[boneID]
-			name=bone.name
-			blenderBone=self.armature.bones[name]
-			if blenderBone.parent is None:
-				self.bone_children(blenderBone,bone)
+			bone = self.bone_list[boneID]
+			name = bone.name
+			blender_bone = self.armature.data.bones.get(name)
+			if blender_bone and blender_bone.parent is None:
+				self.bone_children(blender_bone, bone)
 
 	def draw(self):
 		self.check()
-		if len(self.bone_list)>0:
+		if len(self.bone_list) > 0:
 			self.create_bones()
 			self.create_bone_connection()
-			if self.is_sorted==True:
+			if self.is_sorted:
 				self.create_child_list()
 			self.create_bone_position()
-		if self.bind_mesh is True:
-			scene = bpy.data.scenes.active
-			for object in scene.objects:
-				if object.getType()=='Mesh':
-					self.object.makeParentDeform([object],1,0)
-		if self.IK==True:
-			self.armature.drawType=Blender.Armature.OCTAHEDRON
-			for key in self.armature.bones.keys():
-				bone=self.armature.bones[key]
-				children=bone.children
-				if len(children)==1:
-					self.armature.makeEditable()
-					ebone=self.armature.bones[bone.name]
-					if ebone.tail!=children[0].head['armature_space']:
-						ebone.tail=children[0].head['armature_space']
-					self.armature.update()
-			for key in self.armature.bones.keys():
-				bone=self.armature.bones[key]
-				children=bone.children
-				if len(children)==1:
-					self.armature.makeEditable()
-					self.armature.bones[children[0].name].options=Blender.Armature.CONNECTED
-					self.armature.update()
-			if self.IK==True:
-				self.armature.autoIK=True
+		if self.bind_mesh:
+			for obj in bpy.context.scene.objects:
+				if obj.type == 'MESH':
+					modifier = obj.modifiers.new(name="Armature", type='ARMATURE')
+					modifier.object = self.object
+					obj.parent = self.object
+		if self.IK:
+			self.armature.data.display_type = 'OCTAHEDRAL'
+			bpy.ops.object.mode_set(mode='EDIT')
+			for bone in self.armature.data.edit_bones:
+				if len(bone.children) == 1:
+					child = bone.children[0]
+					if bone.tail != child.head:
+						bone.tail = child.head
+			for bone in self.armature.data.edit_bones:
+				if len(bone.children) == 1:
+					bone.children[0].use_connect = True
+			bpy.ops.object.mode_set(mode='OBJECT')
+			bpy.context.object.pose.use_auto_ik = True
 
 	def create_bones(self):
-		self.armature.makeEditable()
-		bone_list=[]
-		for bone in self.armature.bones.values():
-			if bone.name not in bone_list:
-				bone_list.append(bone.name)
+		bpy.context.view_layer.objects.active = self.object
+		self.object.select_set(True)
+		bpy.ops.object.mode_set(mode='EDIT')
+		armature = self.object.data
+		bone_list = [bone.name for bone in armature.edit_bones]
 		for boneID in range(len(self.bone_list)):
-			name=self.bone_list[boneID].name
+			name = self.bone_list[boneID].name
 			if name is None:
-				name=str(boneID)
-				self.bone_list[boneID].name=name
+				name = str(boneID)
+				self.bone_list[boneID].name = name
 			self.bone_name_list.append(name)
 			if name not in bone_list:
-				eb = Blender.Armature.Editbone()
-				self.armature.bones[name] = eb
-		self.armature.update()
+				eb = armature.edit_bones.new(name)
+				eb.head = (0, 0, 0)
+				eb.tail = (0, 0, 1)
+		bpy.ops.object.mode_set(mode='OBJECT')
 
 	def create_bone_connection(self):
-		self.armature.makeEditable()
+		bpy.context.view_layer.objects.active = self.object
+		self.object.select_set(True)
+		bpy.ops.object.mode_set(mode='EDIT')
+		armature = self.object.data
 		for boneID in range(len(self.bone_list)):
-			name=self.bone_list[boneID].name
+			name = self.bone_list[boneID].name
 			if name is None:
-				name=str(boneID)
-			bone=self.armature.bones[name]
-			parent_id=None
-			parent_name=None
-			if self.bone_list[boneID].parent_id is not None:
-				parent_id=self.bone_list[boneID].parent_id
-				if parent_id!=-1:
-					parent_name=self.bone_list[parent_id].name
-			if self.bone_list[boneID].parent_name is not None:
-				parent_name=self.bone_list[boneID].parent_name
-			if parent_name is not None:
-				parent=self.armature.bones[parent_name]
-				if parent_id is not None:
-					if parent_id!=-1:
-						bone.parent=parent
-				else:
-					bone.parent=parent
-			else:
-				if name.lower() != "root":
-					print ('Warning: no parent for bone',name)
-		self.armature.update()
+				name = str(boneID)
+			bone = armature.edit_bones.get(name)
+			if bone:
+				parent_id = self.bone_list[boneID].parent_id
+				parent_name = self.bone_list[boneID].parent_name
+				if parent_id is not None and parent_id != -1:
+					parent_name = self.bone_list[parent_id].name
+				if parent_name:
+					parent = armature.edit_bones.get(parent_name)
+					if parent:
+						bone.parent = parent
+					else:
+						print(f"Warning: Parent bone '{parent_name}' not found for bone '{name}'.")
+				elif name.lower() != "root":
+					print(f"Warning: No parent for bone '{name}'.")
+		bpy.ops.object.mode_set(mode='OBJECT')
 
 	def create_bone_position(self):
-		self.armature.makeEditable()
+		bpy.context.view_layer.objects.active = self.object
+		self.object.select_set(True)
+		bpy.ops.object.mode_set(mode='EDIT')
+		armature = self.object.data
+		
 		for m in range(len(self.bone_list)):
-			name=self.bone_list[m].name
-			rotation_matrix=self.bone_list[m].rotation_matrix
-			position_matrix=self.bone_list[m].position_matrix
-			scale_matrix=self.bone_list[m].scale_matrix
-			matrix=self.bone_list[m].matrix
-			bone = self.armature.bones[name]
-			if matrix is not None:
-				if self.armature_space==True:
-					bone.matrix=matrix
-					if self.NICE==True:
-						bvec = bone.tail- bone.head
-						bvec.normalize()
-						bone.tail = bone.head + 0.01 * bvec
-				elif self.bone_space==True:
-					rotation_matrix=matrix.rotationPart()
-					position_matrix=matrix.translationPart()
-					if bone.parent:
-						bone.head = position_matrix * bone.parent.matrix+bone.parent.head
-						tempM = rotation_matrix * bone.parent.matrix 
-						bone.matrix = tempM
-					else:
-						bone.head = position_matrix
-						bone.matrix = rotation_matrix
-					if self.NICE==True:
-						bvec = bone.tail- bone.head
-						bvec.normalize()
-						bone.tail = bone.head + 0.01 * bvec
-				else:
-					print ('ARMATUREPACE or bone_space ?')
-			elif rotation_matrix is not None and position_matrix is not None:
-				if self.armature_space==True:
-					rotation_matrix=round_matrix(rotation_matrix,4)
-					position_matrix=round_matrix(position_matrix,4)
-					bone.matrix=rotation_matrix*position_matrix
-					if self.NICE==True:
-						bvec = bone.tail- bone.head
-						bvec.normalize()
-						bone.tail = bone.head + 0.01 * bvec
-				elif self.bone_space==True:
-					rotation_matrix=round_matrix(rotation_matrix,4).rotationPart()
-					position_matrix=round_matrix(position_matrix,4).translationPart()
-					if bone.parent:
-						bone.head = position_matrix * bone.parent.matrix+bone.parent.head
-						tempM = rotation_matrix * bone.parent.matrix
-						bone.matrix = tempM
-					else:
-						bone.head = position_matrix
-						bone.matrix = rotation_matrix
-					if self.NICE==True:
-						bvec = bone.tail- bone.head
-						bvec.normalize()
-						bone.tail = bone.head + 0.01 * bvec
-				else:
-					print ('ARMATUREPACE or bone_space ?')
-			else:
-				print ('WARNINIG: rotation_matrix or position_matrix or matrix is None')
+			name = self.bone_list[m].name
+			bone = armature.edit_bones.get(name)
+			if not bone:
+				continue
 
-		self.armature.update()
-		Blender.Window.RedrawAll()
+			# Get matrices from bone data
+			rotation = self.bone_list[m].rotation_matrix
+			position = self.bone_list[m].position_matrix
+			matrix = self.bone_list[m].matrix
+
+			if matrix is not None:
+				if self.armature_space:
+					# Use full 4x4 matrix directly
+					bone.matrix = matrix
+					
+				elif self.bone_space:
+					# Construct 4x4 matrix from components
+					if rotation and position:
+						# Convert 3x3 rotation to 4x4
+						rot_matrix = rotation.to_4x4()
+						# Create translation matrix
+						trans_matrix = Matrix.Translation(position)
+						bone.matrix = trans_matrix @ rot_matrix
+						
+				if self.NICE:
+					# Set small bone length if NICE is enabled
+					bone.tail = bone.head + Vector((0, 0, 0.01))
+
+			elif rotation is not None and position is not None:
+				if self.armature_space:
+					# Combine rotation and position into 4x4
+					bone.matrix = rotation.to_4x4() @ Matrix.Translation(position)
+					
+				elif self.bone_space:
+					# Handle parent-relative transformation
+					if bone.parent:
+						parent_matrix = bone.parent.matrix
+						bone.matrix = parent_matrix @ rotation.to_4x4()
+						bone.head = parent_matrix @ position
+					else:
+						bone.matrix = rotation.to_4x4()
+						bone.head = position
+						
+				if self.NICE:
+					bone.tail = bone.head + Vector((0, 0, 0.01))
+
+			# Set bone tail based on rotation if not set
+			if bone.head == bone.tail:
+				bone.tail = bone.head + rotation @ Vector((0, 0, 0.1))
+
+		bpy.ops.object.mode_set(mode='OBJECT')
+		bpy.context.view_layer.update()
 
 	def check(self):
-		scn = Blender.Scene.GetCurrent()
-		scene = bpy.data.scenes.active
-		for object in scene.objects:
-			if object.getType()=='Armature':
-				if object.name == self.name:
-					scene.objects.unlink(object)
-		for object in bpy.data.objects:
-			if object.name == self.name:
-				self.object = Blender.Object.Get(self.name)
-				self.armature = self.object.getData()
-				if self.DEL==True:
-					self.armature.makeEditable()
-					for bone in self.armature.bones.values():
-						del self.armature.bones[bone.name]
-					self.armature.update()
-		if self.object==None:
-			self.object = Blender.Object.New('Armature',self.name)
-		if self.armature==None:
-			self.armature = Blender.Armature.New(self.name)
-			self.object.link(self.armature)
-		scn.link(self.object)
-		self.armature.drawType = Blender.Armature.STICK
-		self.object.drawMode = Blender.Object.DrawModes.XRAY
-		self.matrix=self.object.mat
+		if self.object is None or self.object.name not in bpy.data.objects:
+			bpy.ops.object.armature_add(enter_editmode=False, location=(0, 0, 0))
+			self.object = bpy.context.object
+			self.object.name = self.name
+			self.armature = self.object.data
+		if self.object.name not in bpy.context.scene.objects:
+			bpy.context.scene.collection.objects.link(self.object)
+		bpy.context.view_layer.objects.active = self.object
+		self.object.select_set(True)
+		if self.DEL:
+			bpy.ops.object.mode_set(mode='EDIT')
+			for bone in self.armature.edit_bones:
+				self.armature.edit_bones.remove(bone)
+			bpy.ops.object.mode_set(mode='OBJECT')
+		self.armature.display_type = 'STICK'
+		self.object.show_in_front = True
+		self.matrix = self.object.matrix_world
+
+
+	def round_matrix(matrix, precision):
+		for i in range(len(matrix)):
+			for j in range(len(matrix[i])):
+				matrix[i][j] = round(matrix[i][j], precision)
+		return matrix
