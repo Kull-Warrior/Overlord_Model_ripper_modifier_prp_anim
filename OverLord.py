@@ -4,10 +4,14 @@ import os
 
 # Get the directory of the current script
 current_dir = os.path.dirname(bpy.data.filepath)
+subfolder_path = os.path.join(current_dir, "prpUnpackerLibraries")
 
 # Append it to sys.path if it's not already there
 if current_dir not in sys.path:
     sys.path.append(current_dir)
+
+if subfolder_path not in sys.path:
+    sys.path.append(subfolder_path)
 
 import prpUnpackerLibraries
 from prpUnpackerLibraries import *
