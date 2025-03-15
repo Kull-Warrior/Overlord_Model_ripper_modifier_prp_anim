@@ -613,7 +613,7 @@ def save_data(data):
 			#print ("		"+"+"*50
 			#print ("		Bone used by the animation"
 			#print ("		Name	: {0}".format(action_bone.name)
-			animation_writer.write_string(action_bone.name)
+			animation_writer.write_string(action_bone.name.encode('utf-8'))
 			animation_writer.write_string(b'\x00')
 			
 			for i in action_bone.data:
