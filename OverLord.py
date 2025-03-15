@@ -120,7 +120,7 @@ def read_data(filename):
 												blocks_width = math.ceil(float(temp_width) / float(4))
 												blocks_height = math.ceil(float(temp_height) / float(4))
 												size = blocks_width * blocks_height * block_size
-												image.data= image.data + rpk_reader.read(size)
+												image.data.extend(rpk_reader.read(size))
 
 												if x < mipmap_count - 1:
 													rpk_reader.read(25)

@@ -20,4 +20,4 @@ class Image():
 		self.height=None
 		self.width=None
 		self.name=None
-		self.data=""
+		self.data=bytearray()
