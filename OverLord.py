@@ -644,7 +644,7 @@ def save_data(data):
 	print ("	"+"*"*50)
 	print ()
 
-'''def create_blender_models(data):
+def create_blender_models(data):
 ########################################################################################################################################################################
 ## Create blender models
 ########################################################################################################################################################################
@@ -698,7 +698,6 @@ def save_data(data):
 					break
 			i+=1
 	print ("	"+"*"*50
-'''
 '''def anim_file_parser(filename,animation_reader):
 	selObjectList=Blender.Object.GetSelected()
 	if len(selObjectList)>0:
