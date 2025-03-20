@@ -25,7 +25,6 @@ class Skeleton:
 		self.bone_space=False
 		self.DEL=True
 		self.NICE=False
-		self.IK=False
 		self.matrix=None
 
 	def draw(self):
@@ -34,26 +33,6 @@ class Skeleton:
 			self.create_bones()
 			self.create_bone_connection()
 			self.create_bone_position()
-		if self.IK==True:
-			self.armature.drawType=Blender.Armature.OCTAHEDRON
-			for key in self.armature.bones.keys():
-				bone=self.armature.bones[key]
-				children=bone.children
-				if len(children)==1:
-					self.armature.makeEditable()
-					ebone=self.armature.bones[bone.name]
-					if ebone.tail!=children[0].head['armature_space']:
-						ebone.tail=children[0].head['armature_space']
-					self.armature.update()
-			for key in self.armature.bones.keys():
-				bone=self.armature.bones[key]
-				children=bone.children
-				if len(children)==1:
-					self.armature.makeEditable()
-					self.armature.bones[children[0].name].options=Blender.Armature.CONNECTED
-					self.armature.update()
-			if self.IK==True:
-				self.armature.autoIK=True
 
 	def create_bones(self):
 		self.armature.makeEditable()
