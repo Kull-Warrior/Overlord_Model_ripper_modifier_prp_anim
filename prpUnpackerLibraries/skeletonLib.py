@@ -26,7 +26,6 @@ class Skeleton:
 		self.bone_name_list = []
 		self.armature_space = False
 		self.bone_space = False
-		self.DEL = True
 		self.matrix = None
 
 	def draw(self):
@@ -146,11 +145,10 @@ class Skeleton:
 			bpy.context.scene.collection.objects.link(self.object)
 		bpy.context.view_layer.objects.active = self.object
 		self.object.select_set(True)
-		if self.DEL:
-			bpy.ops.object.mode_set(mode='EDIT')
-			for bone in self.armature.edit_bones:
-				self.armature.edit_bones.remove(bone)
-			bpy.ops.object.mode_set(mode='OBJECT')
+		bpy.ops.object.mode_set(mode='EDIT')
+		for bone in self.armature.edit_bones:
+			self.armature.edit_bones.remove(bone)
+		bpy.ops.object.mode_set(mode='OBJECT')
 		self.armature.display_type = 'STICK'
 		self.object.show_in_front = True
 		self.matrix = self.object.matrix_world
