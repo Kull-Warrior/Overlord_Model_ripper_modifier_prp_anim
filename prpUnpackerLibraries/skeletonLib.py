@@ -18,7 +18,6 @@ class Skeleton:
 		self.bone_list=[]
 		self.armature=None
 		self.object=None
-		self.NICE=False
 		self.matrix=None
 
 	def draw(self):
@@ -88,10 +87,10 @@ class Skeleton:
 				else:
 					bone.head = position_matrix
 					bone.matrix = rotation_matrix
-				if self.NICE==True:
-					bvec = bone.tail- bone.head
-					bvec.normalize()
-					bone.tail = bone.head + 0.01 * bvec
+
+				bvec = bone.tail- bone.head
+				bvec.normalize()
+				bone.tail = bone.head + 0.01 * bvec
 			elif rotation_matrix is not None and position_matrix is not None:
 				rotation_matrix=round_matrix(rotation_matrix,4).rotationPart()
 				position_matrix=round_matrix(position_matrix,4).translationPart()
@@ -102,10 +101,10 @@ class Skeleton:
 				else:
 					bone.head = position_matrix
 					bone.matrix = rotation_matrix
-				if self.NICE==True:
-					bvec = bone.tail- bone.head
-					bvec.normalize()
-					bone.tail = bone.head + 0.01 * bvec
+
+				bvec = bone.tail- bone.head
+				bvec.normalize()
+				bone.tail = bone.head + 0.01 * bvec
 			else:
 				print 'WARNINIG: rotation_matrix or position_matrix or matrix is None'
 
