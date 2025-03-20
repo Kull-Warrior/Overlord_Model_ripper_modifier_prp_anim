@@ -30,7 +30,6 @@ class Skeleton:
 		self.DEL=True
 		self.NICE=False
 		self.IK=False
-		self.bind_mesh=False
 		self.matrix=None
 
 	def draw(self):
@@ -39,11 +38,6 @@ class Skeleton:
 			self.create_bones()
 			self.create_bone_connection()
 			self.create_bone_position()
-		if self.bind_mesh is True:
-			scene = bpy.data.scenes.active
-			for object in scene.objects:
-				if object.getType()=='Mesh':
-					self.object.makeParentDeform([object],1,0)
 		if self.IK==True:
 			self.armature.drawType=Blender.Armature.OCTAHEDRON
 			for key in self.armature.bones.keys():
