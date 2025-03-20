@@ -39,14 +39,6 @@ class Skeleton:
 					bone.matrix @= parent_bone.matrix
 					self.bone_children(blender_bone, bone)
 
-	def create_child_list(self):
-		for boneID in range(len(self.bone_list)):
-			bone = self.bone_list[boneID]
-			name = bone.name
-			blender_bone = self.armature.data.bones.get(name)
-			if blender_bone and blender_bone.parent is None:
-				self.bone_children(blender_bone, bone)
-
 	def draw(self):
 		self.check()
 		if len(self.bone_list) > 0:
