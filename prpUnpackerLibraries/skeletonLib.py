@@ -125,10 +125,3 @@ class Skeleton:
 		self.armature.display_type = 'STICK'
 		self.object.show_in_front = True
 		self.matrix = self.object.matrix_world
-
-
-	def round_matrix(matrix, precision):
-		for i in range(len(matrix)):
-			for j in range(len(matrix[i])):
-				matrix[i][j] = round(matrix[i][j], precision)
-		return matrix
