@@ -430,7 +430,6 @@ def read_data(filename):
 								stream_offset=rpk_reader.tell()
 						if bone_count is not None and safe(bone_count):
 							skeleton=Skeleton()
-							skeleton.bone_space=True
 							skeleton.name=model.name
 							for m in range(bone_count):
 								tm=rpk_reader.tell()

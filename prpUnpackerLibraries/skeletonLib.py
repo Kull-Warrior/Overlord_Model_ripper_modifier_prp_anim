@@ -17,7 +17,6 @@ class Skeleton:
 		self.bone_list = []
 		self.armature = None
 		self.object = None
-		self.bone_space = False
 		self.matrix = None
 
 	def draw(self):
@@ -86,27 +85,25 @@ class Skeleton:
 			matrix = self.bone_list[m].matrix
 
 			if matrix is not None:
-				if self.bone_space:
-					# Construct 4x4 matrix from components
-					if rotation and position:
-						# Convert 3x3 rotation to 4x4
-						rot_matrix = rotation.to_4x4()
-						# Create translation matrix
-						trans_matrix = Matrix.Translation(position)
-						bone.matrix = trans_matrix @ rot_matrix
+				# Construct 4x4 matrix from components
+				if rotation and position:
+					# Convert 3x3 rotation to 4x4
+					rot_matrix = rotation.to_4x4()
+					# Create translation matrix
+					trans_matrix = Matrix.Translation(position)
+					bone.matrix = trans_matrix @ rot_matrix
 
 				bone.tail = bone.head + Vector((0, 0, 0.01))
 
 			elif rotation is not None and position is not None:
-				if self.bone_space:
-					# Handle parent-relative transformation
-					if bone.parent:
-						parent_matrix = bone.parent.matrix
-						bone.matrix = parent_matrix @ rotation.to_4x4()
-						bone.head = parent_matrix @ position
-					else:
-						bone.matrix = rotation.to_4x4()
-						bone.head = position
+				# Handle parent-relative transformation
+				if bone.parent:
+					parent_matrix = bone.parent.matrix
+					bone.matrix = parent_matrix @ rotation.to_4x4()
+					bone.head = parent_matrix @ position
+				else:
+					bone.matrix = rotation.to_4x4()
+					bone.head = position
 
 				bone.tail = bone.head + Vector((0, 0, 0.01))
 
