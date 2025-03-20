@@ -17,7 +17,6 @@ class Skeleton:
 		self.bone_list = []
 		self.armature = None
 		self.object = None
-		self.armature_space = False
 		self.bone_space = False
 		self.matrix = None
 
@@ -87,11 +86,7 @@ class Skeleton:
 			matrix = self.bone_list[m].matrix
 
 			if matrix is not None:
-				if self.armature_space:
-					# Use full 4x4 matrix directly
-					bone.matrix = matrix
-
-				elif self.bone_space:
+				if self.bone_space:
 					# Construct 4x4 matrix from components
 					if rotation and position:
 						# Convert 3x3 rotation to 4x4
@@ -103,11 +98,7 @@ class Skeleton:
 				bone.tail = bone.head + Vector((0, 0, 0.01))
 
 			elif rotation is not None and position is not None:
-				if self.armature_space:
-					# Combine rotation and position into 4x4
-					bone.matrix = rotation.to_4x4() @ Matrix.Translation(position)
-
-				elif self.bone_space:
+				if self.bone_space:
 					# Handle parent-relative transformation
 					if bone.parent:
 						parent_matrix = bone.parent.matrix
