@@ -33,14 +33,6 @@ class Skeleton:
 		self.bind_mesh=False
 		self.matrix=None
 
-	def bone_children(self,parentBlenderBone,parentBone):
-		for child in parentBlenderBone.children:
-			for bone in self.bone_list:
-				if bone.name==child.name:
-					blenderBone=self.armature.bones[bone.name]
-					bone.matrix*=parentBone.matrix
-					self.bone_children(blenderBone,bone)
-
 	def draw(self):
 		self.check()
 		if len(self.bone_list)>0:
