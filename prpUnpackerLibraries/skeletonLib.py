@@ -30,7 +30,6 @@ class Skeleton:
 		self.NICE = False
 		self.IK = False
 		self.bind_mesh = False
-		self.is_sorted = False
 		self.matrix = None
 
 	def bone_children(self, parent_blender_bone, parent_bone):
@@ -54,8 +53,6 @@ class Skeleton:
 		if len(self.bone_list) > 0:
 			self.create_bones()
 			self.create_bone_connection()
-			if self.is_sorted:
-				self.create_child_list()
 			self.create_bone_position()
 		if self.bind_mesh:
 			for obj in bpy.context.scene.objects:
