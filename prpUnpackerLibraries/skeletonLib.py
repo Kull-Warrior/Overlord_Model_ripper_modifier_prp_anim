@@ -9,7 +9,6 @@ class Bone:
 		self.name=None
 		self.parent_id=None
 		self.parent_name=None
-		self.quat=None
 		self.position=None
 		self.matrix=None
 		self.position_matrix=None
