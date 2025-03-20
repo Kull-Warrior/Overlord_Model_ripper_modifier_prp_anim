@@ -7,9 +7,6 @@ class Bone:
 		self.parent_id = None
 		self.position = None
 		self.matrix = None
-		self.position_matrix = None
-		self.rotation_matrix = None
-		self.scale_matrix = None
 
 class Skeleton:
 	def __init__(self):
@@ -79,9 +76,6 @@ class Skeleton:
 			if not bone:
 				continue
 
-			# Get matrices from bone data
-			rotation = self.bone_list[m].rotation_matrix
-			position = self.bone_list[m].position_matrix
 			matrix = self.bone_list[m].matrix
 
 			if matrix is not None:
