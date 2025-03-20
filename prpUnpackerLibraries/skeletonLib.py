@@ -5,7 +5,6 @@ class Bone:
 	def __init__(self):
 		self.name = None
 		self.parent_id = None
-		self.parent_name = None
 		self.position = None
 		self.matrix = None
 		self.position_matrix = None
@@ -58,7 +57,6 @@ class Skeleton:
 			bone = armature.edit_bones.get(name)
 			if bone:
 				parent_id = self.bone_list[boneID].parent_id
-				parent_name = self.bone_list[boneID].parent_name
 				if parent_id is not None and parent_id != -1:
 					parent_name = self.bone_list[parent_id].name
 				if parent_name:
