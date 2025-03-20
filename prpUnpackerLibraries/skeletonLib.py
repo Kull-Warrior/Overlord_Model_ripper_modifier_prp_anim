@@ -8,9 +8,6 @@ class Bone:
 		self.name=None
 		self.parent_id=None
 		self.matrix=None
-		self.position_matrix=None
-		self.rotation_matrix=None
-		self.scale_matrix=None
 
 class Skeleton:
 	def __init__(self):
@@ -72,9 +69,6 @@ class Skeleton:
 		self.armature.makeEditable()
 		for m in range(len(self.bone_list)):
 			name=self.bone_list[m].name
-			rotation_matrix=self.bone_list[m].rotation_matrix
-			position_matrix=self.bone_list[m].position_matrix
-			scale_matrix=self.bone_list[m].scale_matrix
 			matrix=self.bone_list[m].matrix
 			bone = self.armature.bones[name]
 			if matrix is not None:
@@ -91,22 +85,8 @@ class Skeleton:
 				bvec = bone.tail- bone.head
 				bvec.normalize()
 				bone.tail = bone.head + 0.01 * bvec
-			elif rotation_matrix is not None and position_matrix is not None:
-				rotation_matrix=round_matrix(rotation_matrix,4).rotationPart()
-				position_matrix=round_matrix(position_matrix,4).translationPart()
-				if bone.parent:
-					bone.head = position_matrix * bone.parent.matrix+bone.parent.head
-					tempM = rotation_matrix * bone.parent.matrix
-					bone.matrix = tempM
-				else:
-					bone.head = position_matrix
-					bone.matrix = rotation_matrix
-
-				bvec = bone.tail- bone.head
-				bvec.normalize()
-				bone.tail = bone.head + 0.01 * bvec
 			else:
-				print 'WARNINIG: rotation_matrix or position_matrix or matrix is None'
+				print 'WARNINIG: matrix is None'
 
 		self.armature.update()
 		Blender.Window.RedrawAll()
