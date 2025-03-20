@@ -19,7 +19,6 @@ class Skeleton:
 		self.armature=None
 		self.object=None
 		self.bone_name_list=[]
-		self.armature_space=False
 		self.bone_space=False
 		self.DEL=True
 		self.NICE=False
@@ -84,13 +83,7 @@ class Skeleton:
 			matrix=self.bone_list[m].matrix
 			bone = self.armature.bones[name]
 			if matrix is not None:
-				if self.armature_space==True:
-					bone.matrix=matrix
-					if self.NICE==True:
-						bvec = bone.tail- bone.head
-						bvec.normalize()
-						bone.tail = bone.head + 0.01 * bvec
-				elif self.bone_space==True:
+				if self.bone_space==True:
 					rotation_matrix=matrix.rotationPart()
 					position_matrix=matrix.translationPart()
 					if bone.parent:
@@ -104,18 +97,8 @@ class Skeleton:
 						bvec = bone.tail- bone.head
 						bvec.normalize()
 						bone.tail = bone.head + 0.01 * bvec
-				else:
-					print 'ARMATUREPACE or bone_space ?'
 			elif rotation_matrix is not None and position_matrix is not None:
-				if self.armature_space==True:
-					rotation_matrix=round_matrix(rotation_matrix,4)
-					position_matrix=round_matrix(position_matrix,4)
-					bone.matrix=rotation_matrix*position_matrix
-					if self.NICE==True:
-						bvec = bone.tail- bone.head
-						bvec.normalize()
-						bone.tail = bone.head + 0.01 * bvec
-				elif self.bone_space==True:
+				if self.bone_space==True:
 					rotation_matrix=round_matrix(rotation_matrix,4).rotationPart()
 					position_matrix=round_matrix(position_matrix,4).translationPart()
 					if bone.parent:
@@ -129,8 +112,6 @@ class Skeleton:
 						bvec = bone.tail- bone.head
 						bvec.normalize()
 						bone.tail = bone.head + 0.01 * bvec
-				else:
-					print 'ARMATUREPACE or bone_space ?'
 			else:
 				print 'WARNINIG: rotation_matrix or position_matrix or matrix is None'
 
