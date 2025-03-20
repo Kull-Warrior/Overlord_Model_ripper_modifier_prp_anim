@@ -5,7 +5,6 @@ class Bone:
 	def __init__(self):
 		self.name = None
 		self.parent_id = None
-		self.position = None
 		self.matrix = None
 
 class Skeleton:
