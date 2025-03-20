@@ -14,7 +14,6 @@ class Bone:
 		self.rotation_matrix = None
 		self.scale_matrix = None
 		self.children = []
-		self.edit = None
 
 
 class Skeleton:
