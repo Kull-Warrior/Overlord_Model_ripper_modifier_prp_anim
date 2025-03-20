@@ -23,7 +23,6 @@ class Skeleton:
 		self.bone_list = []
 		self.armature = None
 		self.object = None
-		self.bone_name_list = []
 		self.armature_space = False
 		self.bone_space = False
 		self.matrix = None
@@ -46,7 +45,6 @@ class Skeleton:
 			if name is None:
 				name = str(boneID)
 				self.bone_list[boneID].name = name
-			self.bone_name_list.append(name)
 			if name not in bone_list:
 				eb = armature.edit_bones.new(name)
 				eb.head = (0, 0, 0)
