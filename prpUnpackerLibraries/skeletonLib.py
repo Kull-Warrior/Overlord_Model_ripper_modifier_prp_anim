@@ -18,7 +18,6 @@ class Skeleton:
 		self.bone_list=[]
 		self.armature=None
 		self.object=None
-		self.bone_name_list=[]
 		self.DEL=True
 		self.NICE=False
 		self.matrix=None
@@ -41,7 +40,6 @@ class Skeleton:
 			if name is None:
 				name=str(boneID)
 				self.bone_list[boneID].name=name
-			self.bone_name_list.append(name)
 			if name not in bone_list:
 				eb = Blender.Armature.Editbone()
 				self.armature.bones[name] = eb
