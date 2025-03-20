@@ -29,7 +29,6 @@ class Skeleton:
 		self.DEL = True
 		self.NICE = False
 		self.IK = False
-		self.bind_mesh = False
 		self.matrix = None
 
 	def bone_children(self, parent_blender_bone, parent_bone):
@@ -54,12 +53,6 @@ class Skeleton:
 			self.create_bones()
 			self.create_bone_connection()
 			self.create_bone_position()
-		if self.bind_mesh:
-			for obj in bpy.context.scene.objects:
-				if obj.type == 'MESH':
-					modifier = obj.modifiers.new(name="Armature", type='ARMATURE')
-					modifier.object = self.object
-					obj.parent = self.object
 		if self.IK:
 			self.armature.data.display_type = 'OCTAHEDRAL'
 			bpy.ops.object.mode_set(mode='EDIT')
