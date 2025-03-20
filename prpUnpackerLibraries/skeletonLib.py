@@ -5,7 +5,6 @@ import bpy
 
 class Bone:
 	def __init__(self):
-		self.ID=None
 		self.name=None
 		self.parent_id=None
 		self.parent_name=None
