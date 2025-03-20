@@ -31,14 +31,6 @@ class Skeleton:
 		self.IK = False
 		self.matrix = None
 
-	def bone_children(self, parent_blender_bone, parent_bone):
-		for child in parent_blender_bone.children:
-			for bone in self.bone_list:
-				if bone.name == child.name:
-					blender_bone = self.armature.data.bones[bone.name]
-					bone.matrix @= parent_bone.matrix
-					self.bone_children(blender_bone, bone)
-
 	def draw(self):
 		self.check()
 		if len(self.bone_list) > 0:
