@@ -28,7 +28,6 @@ class Skeleton:
 		self.bone_space = False
 		self.DEL = True
 		self.NICE = False
-		self.IK = False
 		self.matrix = None
 
 	def draw(self):
@@ -37,19 +36,6 @@ class Skeleton:
 			self.create_bones()
 			self.create_bone_connection()
 			self.create_bone_position()
-		if self.IK:
-			self.armature.data.display_type = 'OCTAHEDRAL'
-			bpy.ops.object.mode_set(mode='EDIT')
-			for bone in self.armature.data.edit_bones:
-				if len(bone.children) == 1:
-					child = bone.children[0]
-					if bone.tail != child.head:
-						bone.tail = child.head
-			for bone in self.armature.data.edit_bones:
-				if len(bone.children) == 1:
-					bone.children[0].use_connect = True
-			bpy.ops.object.mode_set(mode='OBJECT')
-			bpy.context.object.pose.use_auto_ik = True
 
 	def create_bones(self):
 		bpy.context.view_layer.objects.active = self.object
