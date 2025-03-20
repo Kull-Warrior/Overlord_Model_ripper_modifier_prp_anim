@@ -18,7 +18,6 @@ class Skeleton:
 		self.bone_list=[]
 		self.armature=None
 		self.object=None
-		self.DEL=True
 		self.NICE=False
 		self.matrix=None
 
@@ -124,11 +123,10 @@ class Skeleton:
 			if object.name == self.name:
 				self.object = Blender.Object.Get(self.name)
 				self.armature = self.object.getData()
-				if self.DEL==True:
-					self.armature.makeEditable()
-					for bone in self.armature.bones.values():
-						del self.armature.bones[bone.name]
-					self.armature.update()
+				self.armature.makeEditable()
+				for bone in self.armature.bones.values():
+					del self.armature.bones[bone.name]
+				self.armature.update()
 		if self.object==None:
 			self.object = Blender.Object.New('Armature',self.name)
 		if self.armature==None:
