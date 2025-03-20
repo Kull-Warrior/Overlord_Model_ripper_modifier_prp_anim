@@ -27,7 +27,6 @@ class Skeleton:
 		self.armature_space = False
 		self.bone_space = False
 		self.DEL = True
-		self.NICE = False
 		self.matrix = None
 
 	def draw(self):
@@ -101,7 +100,7 @@ class Skeleton:
 				if self.armature_space:
 					# Use full 4x4 matrix directly
 					bone.matrix = matrix
-					
+
 				elif self.bone_space:
 					# Construct 4x4 matrix from components
 					if rotation and position:
@@ -110,16 +109,14 @@ class Skeleton:
 						# Create translation matrix
 						trans_matrix = Matrix.Translation(position)
 						bone.matrix = trans_matrix @ rot_matrix
-						
-				if self.NICE:
-					# Set small bone length if NICE is enabled
-					bone.tail = bone.head + Vector((0, 0, 0.01))
+
+				bone.tail = bone.head + Vector((0, 0, 0.01))
 
 			elif rotation is not None and position is not None:
 				if self.armature_space:
 					# Combine rotation and position into 4x4
 					bone.matrix = rotation.to_4x4() @ Matrix.Translation(position)
-					
+
 				elif self.bone_space:
 					# Handle parent-relative transformation
 					if bone.parent:
@@ -129,9 +126,8 @@ class Skeleton:
 					else:
 						bone.matrix = rotation.to_4x4()
 						bone.head = position
-						
-				if self.NICE:
-					bone.tail = bone.head + Vector((0, 0, 0.01))
+
+				bone.tail = bone.head + Vector((0, 0, 0.01))
 
 			# Set bone tail based on rotation if not set
 			if bone.head == bone.tail:
