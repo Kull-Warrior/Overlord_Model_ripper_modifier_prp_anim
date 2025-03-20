@@ -12,7 +12,6 @@ class Bone:
 		self.position_matrix=None
 		self.rotation_matrix=None
 		self.scale_matrix=None
-		self.children=[]
 
 class Skeleton:
 	def __init__(self):
