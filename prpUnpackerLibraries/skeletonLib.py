@@ -49,17 +49,21 @@ class Skeleton:
 			if name is None:
 				name = str(boneID)
 			bone = armature.edit_bones.get(name)
-			if bone:
+			parent_id=None
+			parent_name=None
+			if self.bone_list[boneID].parent_id is not None:
 				parent_id = self.bone_list[boneID].parent_id
-				if parent_id is not None and parent_id != -1:
+				if parent_id != -1:
 					parent_name = self.bone_list[parent_id].name
-				if parent_name:
-					parent = armature.edit_bones.get(parent_name)
-					if parent:
+			if parent_name is not None:
+				parent = armature.edit_bones.get(parent_name)
+				if parent_id is not None:
+					if parent_id != -1:
 						bone.parent = parent
-					else:
-						print(f"Warning: Parent bone '{parent_name}' not found for bone '{name}'.")
-				elif name.lower() != "root":
+				else:
+					print(f"Warning: Parent bone '{parent_name}' not found for bone '{name}'.")
+			else:
+				if name.lower() != "root":
 					print(f"Warning: No parent for bone '{name}'.")
 		bpy.ops.object.mode_set(mode='OBJECT')
 
