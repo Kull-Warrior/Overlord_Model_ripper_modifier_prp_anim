@@ -1,4 +1,5 @@
 import bpy
+import math
 from mathutils import Matrix, Vector
 
 class Bone:
@@ -87,21 +88,45 @@ class Skeleton:
 				print(f"WARNING: Bone '{name}' not found.")
 				continue
 
-			matrix_transposed = matrix.transposed()  # Transpose the input matrix
+			# Transpose the input matrix to match modern Blender's convention.
+			matrix_transposed = matrix.transposed()
 
-			# Extract position and rotation components
+			# Extract translation (position) and rotation (as a 3x3 matrix).
 			position = matrix_transposed.to_translation()
 			rotation = matrix_transposed.to_3x3()
 
-			if bone.parent:
-				parent_bone = bone.parent
-				bone.head = parent_bone.tail
-				bone.tail = parent_bone.tail + (rotation @ Vector((0, 0, 0.1)))
-				bone.roll = rotation.to_euler().z
-			else:
-				bone.head = position
-				bone.tail = position + (rotation @ Vector((0, 0, 0.1)))
-				bone.roll = rotation.to_euler().z
+			## Use an offset vector of (0.01, 0, 0) because the old code
+			## effectively produced a tail offset of 0.01 units along the X-axis.
+			#offset_vector = Vector((0.01, 0, 0))
+			#offset = rotation @ offset_vector  # Apply rotation to the offset
+
+			#if bone.parent:
+			#	# For child bones, the head should match the parent's tail.
+			#	bone.head = bone.parent.tail
+			#	bone.tail = bone.head + offset
+			#	print(f"NEW - Bone '{name}' with parent '{bone.parent.name}':")
+			#	print(f"       Parent Tail = {bone.parent.tail}")
+			#	print(f"       Child Head  = {bone.head}")
+			#	print(f"       Child Tail  = {bone.tail}")
+			#else:
+			#	# For a root bone, head is the transformed position.
+			#	bone.head = position
+			#	bone.tail = bone.head + offset
+			#	print(f"NEW - Root Bone '{name}':")
+			#	print(f"       Head = {bone.head}")
+			#	print(f"       Tail = {bone.tail}")
+			
+			bone.head = position
+			
+			y_axis = matrix_transposed.col[1].to_3d().normalized()  # bone’s local Y axis
+			bone_length = 0.01  # as desired
+			bone.tail = bone.head + y_axis * bone_length
+			
+			rotation_matrix = matrix_transposed.to_3x3()
+			roll_rad = rotation_matrix.to_euler('XYZ').y  # Extract the Z component (roll)
+			bone.roll = roll_rad
+			
+			break
 
 		bpy.ops.object.mode_set(mode='OBJECT')
 
