@@ -80,7 +80,7 @@ class Skeleton:
 			matrix = bone_data.matrix
 
 			if name is None or matrix is None:
-				print(f"WARNING: Missing data for bone '{name}'.")
+				print(f"NEW - WARNING: Missing data for bone '{name}'.")
 				continue
 
 			bone = armature.edit_bones.get(name)
@@ -90,40 +90,25 @@ class Skeleton:
 
 			# Transpose the input matrix to match modern Blender's convention.
 			matrix_transposed = matrix.transposed()
+			
+			print ("Name")
+			print (name)
+			print ("Input Matrix : ")
+			print (matrix)
+			print ("Transposed Matrix :")
+			print (matrix_transposed)
 
-			# Extract translation (position) and rotation (as a 3x3 matrix).
+			# Extract translation (position)
 			position = matrix_transposed.to_translation()
 			rotation = matrix_transposed.to_3x3()
 
-			## Use an offset vector of (0.01, 0, 0) because the old code
-			## effectively produced a tail offset of 0.01 units along the X-axis.
-			#offset_vector = Vector((0.01, 0, 0))
-			#offset = rotation @ offset_vector  # Apply rotation to the offset
-
-			#if bone.parent:
-			#	# For child bones, the head should match the parent's tail.
-			#	bone.head = bone.parent.tail
-			#	bone.tail = bone.head + offset
-			#	print(f"NEW - Bone '{name}' with parent '{bone.parent.name}':")
-			#	print(f"       Parent Tail = {bone.parent.tail}")
-			#	print(f"       Child Head  = {bone.head}")
-			#	print(f"       Child Tail  = {bone.tail}")
-			#else:
-			#	# For a root bone, head is the transformed position.
-			#	bone.head = position
-			#	bone.tail = bone.head + offset
-			#	print(f"NEW - Root Bone '{name}':")
-			#	print(f"       Head = {bone.head}")
-			#	print(f"       Tail = {bone.tail}")
-			
 			bone.head = position
 			
 			y_axis = matrix_transposed.col[1].to_3d().normalized()  # bone’s local Y axis
 			bone_length = 0.01  # as desired
 			bone.tail = bone.head + y_axis * bone_length
 			
-			rotation_matrix = matrix_transposed.to_3x3()
-			roll_rad = rotation_matrix.to_euler('XYZ').y  # Extract the Z component (roll)
+			roll_rad = rotation.to_euler('XYZ').y  # Extract the Z component (roll)
 			bone.roll = roll_rad
 			
 			break
