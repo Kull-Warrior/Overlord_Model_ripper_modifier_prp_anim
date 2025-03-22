@@ -72,44 +72,38 @@ class Skeleton:
 		self.object.select_set(True)
 		bpy.ops.object.mode_set(mode='EDIT')
 		armature = self.object.data
-		
-		for m in range(len(self.bone_list)):
-			name = self.bone_list[m].name
-			bone = armature.edit_bones.get(name)
-			if not bone:
+
+		for boneID in range(len(self.bone_list)):
+			bone_data = self.bone_list[boneID]
+			name = bone_data.name
+			matrix = bone_data.matrix
+
+			if name is None or matrix is None:
+				print(f"WARNING: Missing data for bone '{name}'.")
 				continue
 
-			matrix = self.bone_list[m].matrix
+			bone = armature.edit_bones.get(name)
+			if not bone:
+				print(f"WARNING: Bone '{name}' not found.")
+				continue
 
-			if matrix is not None:
-				# Construct 4x4 matrix from components
-				if rotation and position:
-					# Convert 3x3 rotation to 4x4
-					rot_matrix = rotation.to_4x4()
-					# Create translation matrix
-					trans_matrix = Matrix.Translation(position)
-					bone.matrix = trans_matrix @ rot_matrix
+			matrix_transposed = matrix.transposed()  # Transpose the input matrix
 
-				bone.tail = bone.head + Vector((0, 0, 0.01))
+			# Extract position and rotation components
+			position = matrix_transposed.to_translation()
+			rotation = matrix_transposed.to_3x3()
 
-			elif rotation is not None and position is not None:
-				# Handle parent-relative transformation
-				if bone.parent:
-					parent_matrix = bone.parent.matrix
-					bone.matrix = parent_matrix @ rotation.to_4x4()
-					bone.head = parent_matrix @ position
-				else:
-					bone.matrix = rotation.to_4x4()
-					bone.head = position
-
-				bone.tail = bone.head + Vector((0, 0, 0.01))
-
-			# Set bone tail based on rotation if not set
-			if bone.head == bone.tail:
-				bone.tail = bone.head + rotation @ Vector((0, 0, 0.1))
+			if bone.parent:
+				parent_bone = bone.parent
+				bone.head = parent_bone.tail
+				bone.tail = parent_bone.tail + (rotation @ Vector((0, 0, 0.1)))
+				bone.roll = rotation.to_euler().z
+			else:
+				bone.head = position
+				bone.tail = position + (rotation @ Vector((0, 0, 0.1)))
+				bone.roll = rotation.to_euler().z
 
 		bpy.ops.object.mode_set(mode='OBJECT')
-		bpy.context.view_layer.update()
 
 	def check(self):
 		if self.object is None or self.object.name not in bpy.data.objects:
