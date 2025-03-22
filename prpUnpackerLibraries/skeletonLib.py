@@ -90,13 +90,6 @@ class Skeleton:
 
 			# Transpose the input matrix to match modern Blender's convention.
 			matrix_transposed = matrix.transposed()
-			
-			print ("Name")
-			print (name)
-			print ("Input Matrix : ")
-			print (matrix)
-			print ("Transposed Matrix :")
-			print (matrix_transposed)
 
 			# Extract translation (position)
 			position = matrix_transposed.to_translation()
@@ -110,8 +103,6 @@ class Skeleton:
 			
 			roll_rad = rotation.to_euler('XYZ').y  # Extract the Z component (roll)
 			bone.roll = roll_rad
-			
-			break
 
 		bpy.ops.object.mode_set(mode='OBJECT')
 
