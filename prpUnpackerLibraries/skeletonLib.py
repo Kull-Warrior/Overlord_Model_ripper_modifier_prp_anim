@@ -74,6 +74,8 @@ class Skeleton:
 		bpy.ops.object.mode_set(mode='EDIT')
 		armature = self.object.data
 
+		world_matrices = {}
+
 		for boneID in range(len(self.bone_list)):
 			bone_data = self.bone_list[boneID]
 			name = bone_data.name
@@ -88,24 +90,34 @@ class Skeleton:
 				print(f"WARNING: Bone '{name}' not found.")
 				continue
 
-			# Transpose the input matrix to match modern Blender's convention.
-			matrix_transposed = matrix.transposed()
+			local_matrix = matrix.transposed()
 
 			if bone.parent:
-				print ("Has parent")
+				parent_matrix = world_matrices.get(bone.parent.name)
+				if not parent_matrix:
+					continue
+				world_matrix = parent_matrix @ local_matrix
 			else:
-				# Extract translation (position)
-				position = matrix_transposed.to_translation()
-				rotation = matrix_transposed.to_3x3()
+				world_matrix = local_matrix.copy()
 
-				bone.head = position
-				
-				y_axis = matrix_transposed.col[1].to_3d().normalized()  # bone’s local Y axis
-				bone_length = 0.01  # as desired
-				bone.tail = bone.head + y_axis * bone_length
-				
-				roll_rad = rotation.to_euler('XYZ').y  # Extract the Z component (roll)
-				bone.roll = roll_rad
+			world_matrices[name] = world_matrix
+
+			bone.head = world_matrix.to_translation()
+
+			y_axis = world_matrix.col[1].to_3d().normalized()
+			bone.tail = bone.head + y_axis * 0.01
+
+			z_axis = world_matrix.col[2].to_3d().normalized()
+			projected_z = z_axis - z_axis.project(y_axis)
+			projected_z.normalize()
+
+			ref_z = Vector((0, 0, 1))
+			cos_theta = projected_z.dot(ref_z)
+			theta_rad = math.acos(max(min(cos_theta, 1.0), -1.0))
+
+			cross = projected_z.cross(ref_z)
+			sign = -1 if cross.dot(y_axis) < 0 else 1
+			bone.roll = sign * theta_rad
 
 		bpy.ops.object.mode_set(mode='OBJECT')
 
