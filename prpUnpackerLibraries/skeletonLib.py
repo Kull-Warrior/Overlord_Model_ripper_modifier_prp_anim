@@ -91,18 +91,21 @@ class Skeleton:
 			# Transpose the input matrix to match modern Blender's convention.
 			matrix_transposed = matrix.transposed()
 
-			# Extract translation (position)
-			position = matrix_transposed.to_translation()
-			rotation = matrix_transposed.to_3x3()
+			if bone.parent:
+				print ("Has parent")
+			else:
+				# Extract translation (position)
+				position = matrix_transposed.to_translation()
+				rotation = matrix_transposed.to_3x3()
 
-			bone.head = position
-			
-			y_axis = matrix_transposed.col[1].to_3d().normalized()  # bone’s local Y axis
-			bone_length = 0.01  # as desired
-			bone.tail = bone.head + y_axis * bone_length
-			
-			roll_rad = rotation.to_euler('XYZ').y  # Extract the Z component (roll)
-			bone.roll = roll_rad
+				bone.head = position
+				
+				y_axis = matrix_transposed.col[1].to_3d().normalized()  # bone’s local Y axis
+				bone_length = 0.01  # as desired
+				bone.tail = bone.head + y_axis * bone_length
+				
+				roll_rad = rotation.to_euler('XYZ').y  # Extract the Z component (roll)
+				bone.roll = roll_rad
 
 		bpy.ops.object.mode_set(mode='OBJECT')
 
