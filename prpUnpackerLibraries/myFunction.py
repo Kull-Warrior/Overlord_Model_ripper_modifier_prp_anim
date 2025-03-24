@@ -47,7 +47,7 @@ def matrix_4x4(data):
     # Create a 4x4 matrix from a flat list of 16 elements
     return Matrix([data[i:i+4] for i in range(0, 16, 4)])
 
-'''def parse_id():
+def parse_id():
 	ids = []
 	scene = bpy.data.scenes.active
 	for mat in Blender.Material.Get():
@@ -74,8 +74,8 @@ def matrix_4x4(data):
 	except:
 		model_id = 0
 	return model_id
-'''
-'''def set_blender_material_texture(blendMat,data,texture_type,short_type):
+
+def set_blender_material_texture(blendMat,data,texture_type,short_type):
 	if os.path.exists(getattr(data,texture_type))==True:
 		image=Blender.Image.Load(getattr(data,texture_type))
 		imgName=blendMat.name.replace('-mat-','-'+getattr(data,texture_type)+'-')
@@ -119,7 +119,7 @@ def matrix_4x4(data):
 			mtextures = blendMat.getTextures()
 			mtex=mtextures[data.reflection_slot]
 			mtex.colfac=data.reflection_strong
-'''
+
 def safe(count):
 	return count<100000
 
