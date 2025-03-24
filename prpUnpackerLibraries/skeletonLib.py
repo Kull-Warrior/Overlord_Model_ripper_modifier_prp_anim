@@ -107,17 +107,15 @@ class Skeleton:
 			y_axis = world_matrix.col[1].to_3d().normalized()
 			bone.tail = bone.head + y_axis * 0.01
 
-			z_axis = world_matrix.col[2].to_3d().normalized()
-			projected_z = z_axis - z_axis.project(y_axis)
-			projected_z.normalize()
-
-			ref_z = Vector((0, 0, 1))
-			cos_theta = projected_z.dot(ref_z)
-			theta_rad = math.acos(max(min(cos_theta, 1.0), -1.0))
-
-			cross = projected_z.cross(ref_z)
-			sign = -1 if cross.dot(y_axis) < 0 else 1
-			bone.roll = sign * theta_rad
+			# *** Roll Calculation Using AxisRollFromMatrix ***
+			# Convert the world_matrix to a 3x3 rotation matrix.
+			rot_mat = world_matrix.to_3x3()
+			# Use the bone’s local Y axis from the rotation matrix as the reference axis.
+			ref_axis = Vector((rot_mat[0][1], rot_mat[1][1], rot_mat[2][1])).normalized()
+			# Compute the roll from the rotation matrix.
+			# The function returns (computed_axis, roll)
+			computed_axis, roll = bpy.types.Bone.AxisRollFromMatrix(rot_mat, axis=ref_axis)
+			bone.roll = roll
 
 		bpy.ops.object.mode_set(mode='OBJECT')
 
