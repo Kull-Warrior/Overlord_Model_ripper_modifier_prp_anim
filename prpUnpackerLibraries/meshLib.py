@@ -257,21 +257,18 @@ class Mesh:
 				if poly.index < len(self.material_id_list):
 					poly.material_index = self.material_id_list[poly.index]
 
-		# **Bind to Armature (Hierarchy Fix)**
+		# Parent to an armature if bind_skeleton is specified
 		if self.bind_skeleton is not None:
 			arm_obj = bpy.data.objects.get(self.bind_skeleton)
 			if arm_obj and arm_obj.type == 'ARMATURE':
-				print(f"Parenting {self.object.name} to armature {arm_obj.name}")
-
-				# **Ensure mesh is linked to the scene before parenting**
-				if self.object not in bpy.context.collection.objects:
+				if not self.object.users_collection:
 					bpy.context.collection.objects.link(self.object)
-
-				# **Set Parent**
+					
+				# Set parent and update the parent inverse matrix
 				self.object.parent = arm_obj
 				self.object.matrix_parent_inverse = arm_obj.matrix_world.inverted()
 
-				# **Add Armature Modifier**
+				# Add an Armature modifier if not already present
 				if "ArmatureMod" not in self.object.modifiers:
 					armature_mod = self.object.modifiers.new(name="ArmatureMod", type='ARMATURE')
 					armature_mod.object = arm_obj
