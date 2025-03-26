@@ -584,13 +584,13 @@ def save_data(data):
 				image_writer.write_to_dxt_file(image)
 			elif 'tga' in image.format:
 				if image.format=='tga32':
-					offset='b\x20\x20'
+					offset=b'\x20\x20'
 					temp_data=image.data
 				elif image.format=='tga16':
-					offset='b\x20\x20'
+					offset=b'\x20\x20'
 					temp_data=tga_16(image.data)
 				elif image.format=='tga24':
-					offset='b\x18\x20'
+					offset=b'\x18\x20'
 					temp_data=image.data
 				image_writer.write_to_tga_file(image,offset,temp_data)
 			else:
