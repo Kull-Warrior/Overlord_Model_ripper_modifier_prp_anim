@@ -1,6 +1,7 @@
 import bpy
 import bmesh
 from mathutils import Vector, Matrix
+import math
 import os
 import random
 
@@ -256,6 +257,9 @@ class Mesh:
 			for poly in self.object.data.polygons:
 				if poly.index < len(self.material_id_list):
 					poly.material_index = self.material_id_list[poly.index]
+		# Apply transformation matrix BEFORE parenting to skeleton
+		if self.matrix is not None:
+			self.object.matrix_world = self.matrix
 
 		# Parent to an armature if bind_skeleton is specified
 		if self.bind_skeleton is not None:
@@ -263,11 +267,14 @@ class Mesh:
 			if arm_obj and arm_obj.type == 'ARMATURE':
 				if not self.object.users_collection:
 					bpy.context.collection.objects.link(self.object)
-					
+
+				skeletonMatrix = self.object.matrix_world @ arm_obj.matrix_world
+
 				# Set parent and update the parent inverse matrix
 				self.object.parent = arm_obj
+				
 				self.object.matrix_parent_inverse = arm_obj.matrix_world.inverted()
-
+				
 				# Add an Armature modifier if not already present
 				if "ArmatureMod" not in self.object.modifiers:
 					armature_mod = self.object.modifiers.new(name="ArmatureMod", type='ARMATURE')
@@ -275,10 +282,6 @@ class Mesh:
 
 		# **Apply vertex groups (skinning)**
 		self.add_skin(self.object)
-
-		# **Apply transformation matrix**
-		if self.matrix is not None:
-			self.object.matrix_world = self.matrix @ self.object.matrix_world
 
 		# **Force Blender to update scene**
 		bpy.context.view_layer.update()

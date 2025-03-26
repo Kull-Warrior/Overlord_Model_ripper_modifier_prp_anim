@@ -271,7 +271,13 @@ def read_data(filename):
 									mesh.indice_list=rpk_reader.read_uint16(indice_count)
 									mesh.is_triangle=True
 									rotation_matrix = Euler((90, 0, 0), 'XYZ').to_matrix()
-									mesh.matrix = rotation_matrix.to_4x4()
+									#mesh.matrix = rotation_matrix.to_4x4()
+									mesh.matrix = Matrix((
+									(1, 0, 0, 0),
+									(0, 0, -1, 0),  # cos(90°) = 0, -sin(90°) = -1
+									(0, 1, 0, 0),    # sin(90°) = 1, cos(90°) = 0
+									(0, 0, 0, 1)
+									))
 
 							if item3[0]==21:
 								type4=rpk_reader.read_uint8(1)[0]
