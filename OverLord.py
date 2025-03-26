@@ -766,4 +766,3 @@ def openFile(full_file_path):
 		file.close()
 
 openFile("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Overlord\\Resources\\Character Minion Master.prp")
-#Blender.Window.FileSelector(openFile,'import','Overlord I and II files: prp - archive, pvp - archive, psp - archive, anim - animation')
