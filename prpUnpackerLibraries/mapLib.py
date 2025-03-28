@@ -71,6 +71,7 @@ class OverlordMap:
 		mesh = bpy.data.meshes.new(name)
 		obj = bpy.data.objects.new(name, mesh)
 		mesh.from_pydata(vertices, [], faces)
+		mesh.validate()
 		mesh.update()
 		
 		# Center mesh if requested
@@ -82,26 +83,23 @@ class OverlordMap:
 		bpy.context.view_layer.objects.active = obj
 		obj.select_set(True)
 
-		# Create material
-		mat = bpy.data.materials.new(name="TerrainMaterial")
-		mat.use_nodes = True
-		nodes = mat.node_tree.nodes
-		nodes.clear()
+		## Create material
+		#mat = bpy.data.materials.new(name="TerrainMaterial")
+		#mat.use_nodes = True
+		#nodes = mat.node_tree.nodes
+		#nodes.clear()
 		
-		# Create basic principled BSDF material
-		bsdf = nodes.new('ShaderNodeBsdfPrincipled')
-		bsdf.inputs['Base Color'].default_value = (0.3, 0.9, 0.2, 1)  # Green color
-		output = nodes.new('ShaderNodeOutputMaterial')
-		mat.node_tree.links.new(bsdf.outputs['BSDF'], output.inputs['Surface'])
-		obj.data.materials.append(mat)
-
-		# Calculate normals
-		mesh.calc_normals()
+		## Create basic principled BSDF material
+		#bsdf = nodes.new('ShaderNodeBsdfPrincipled')
+		#bsdf.inputs['Base Color'].default_value = (0.3, 0.9, 0.2, 1)  # Green color
+		#output = nodes.new('ShaderNodeOutputMaterial')
+		#mat.node_tree.links.new(bsdf.outputs['BSDF'], output.inputs['Surface'])
+		#obj.data.materials.append(mat)
 
 		# Create lighting
 		bpy.ops.object.light_add(type='SUN', radius=1, location=(0, 0, 100))
 		sun = bpy.context.active_object
-		sun.data.energy = 5.0
+		sun.data.energy = 0.25
 
 		# Create camera
 		bpy.ops.object.camera_add(location=(300, -300, 300))
@@ -122,10 +120,88 @@ class OverlordMap:
 		world_nodes = bpy.context.scene.world.node_tree.nodes
 		world_nodes["Background"].inputs[1].default_value = 0.2  # Ambient light
 
-		# Frame the object in the viewport
-		bpy.ops.view3d.view_selected()
-
 		return obj
 
 		# Usage example:
 		# create_full_terrain_scene(height_data, scale=0.5, vertical_scale=2.0)
+
+	def create_water_plane(self, height=0.0, name="WaterPlane"):
+		# Create plane primitive
+		# Create grid with proper resolution to maintain square shape
+		bpy.ops.mesh.primitive_grid_add(
+			size=512,  # Total width/length
+			x_subdivisions=128,  # Maintain square shape after subdivision
+			y_subdivisions=128,
+			enter_editmode=False,
+			location=(0, 0, height)
+		)
+		water = bpy.context.active_object
+		water.name = name
+		
+		water.location = (0, 0, height)
+		
+		# Create water material
+		mat = bpy.data.materials.new(name="WaterMaterial")
+		mat.use_nodes = True
+		nodes = mat.node_tree.nodes
+		links = mat.node_tree.links
+		
+		# Clear default nodes
+		nodes.clear()
+
+		# Create shader nodes
+		bsdf = nodes.new('ShaderNodeBsdfPrincipled')
+		output = nodes.new('ShaderNodeOutputMaterial')
+		
+		# Configure water shader
+		bsdf.inputs['Base Color'].default_value = (0.02, 0.15, 0.3, 1)  # Deep water color
+		bsdf.inputs['Metallic'].default_value = 0.9
+		bsdf.inputs['Roughness'].default_value = 0.1
+		bsdf.inputs['Transmission Weight'].default_value = 0.95  # Changed key name
+		bsdf.inputs['IOR'].default_value = 1.33  # Water's IOR
+
+		bsdf.inputs['Subsurface Weight'].default_value = 0.8  # Enable subsurface
+		bsdf.inputs['Subsurface Radius'].default_value = (0.5, 0.5, 0.5)  # Scattering distance
+
+		# Add wave texture
+		wave_tex = nodes.new('ShaderNodeTexWave')
+		wave_tex.inputs['Scale'].default_value = 10.0
+		wave_tex.inputs['Distortion'].default_value = 5.0
+		
+		# Mix with bump
+		bump = nodes.new('ShaderNodeBump')
+		bump.inputs['Strength'].default_value = 0.1
+		links.new(wave_tex.outputs['Color'], bump.inputs['Height'])
+		links.new(bump.outputs['Normal'], bsdf.inputs['Normal'])
+		
+		# Link nodes
+		links.new(bsdf.outputs['BSDF'], output.inputs['Surface'])
+		
+		# Assign material
+		water.data.materials.append(mat)
+
+		# Add subdivision modifier
+		subd = water.modifiers.new(name="Subdivision", type='SUBSURF')
+		subd.levels = 2
+		subd.render_levels = 3
+
+		# Add edge split modifier to maintain hard boundaries
+		edge_split = water.modifiers.new(name="EdgeSplit", type='EDGE_SPLIT')
+		edge_split.use_edge_angle = True
+		edge_split.split_angle = math.radians(30)
+
+		# Add displace modifier for waves
+		displace = water.modifiers.new(name="WaveDisplace", type='DISPLACE')
+		tex = bpy.data.textures.new("WaveTexture", type='CLOUDS')
+		tex.noise_scale = 2.0
+		displace.texture = tex
+		displace.strength = 0.1
+
+		# Ensure proper render settings
+		water.cycles.use_adaptive_subdivision = True
+		water.cycles.dicing_rate = 1.0
+		
+		return water
+
+		# Usage:
+		# create_water_plane(height=5.0)  # Creates water plane at Z=5

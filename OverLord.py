@@ -794,6 +794,8 @@ def read_map_data(filename):
 	overlord_map.set_map_data(data)
 
 	overlord_map.create_full_terrain_scene()
+	
+	overlord_map.create_water_plane(omp_reader.get_map_water_level(filename))
 
 def openFile(full_file_path):
 	global file_directory,file_basename,file_extension
