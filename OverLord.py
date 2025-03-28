@@ -529,7 +529,22 @@ def read_data(filename):
 				pass
 			else:
 				print ('unknow global flag:',flag,rpk_reader.tell())
+
+	# Define the start and end byte sequences
+	start_sequence = b'\x1B\x4C\x75\x61\x50'	# Hex values for "1B 4C 75 61 50"
+	end_sequence = b'\x1B\x80\x00\x00'			# Hex values for "1B 80 00 00"
+	
+	# Extract the byte arrays between start and end sequences
+	lua_data = rpk_reader.extract_byte_arrays(start_sequence, end_sequence)
+	
+	print(len(lua_data))
+	
+	for bytecode_data in lua_data:
+		bytecode = LuaByteCode()
+		bytecode.data = bytecode_data
 		
+		rpk_file.lua_bytecode_list.append(bytecode)
+
 	print ("Detected	:	"+add_leading_zeros(image_count)+"{0} images".format(image_count))
 	print ("Detected	:	"+add_leading_zeros(animation_count)+"{0} animations".format(animation_count))
 	print ("Detected	:	"+add_leading_zeros(mesh_count)+"{0} meshes".format(mesh_count))
@@ -542,6 +557,7 @@ def read_data(filename):
 	print ("Detected	:	"+add_leading_zeros(alphabetical_data_count)+"{0} alphabetical_data".format(alphabetical_data_count))
 	print ("Detected	:	"+add_leading_zeros(cliff_count)+"{0} cliffs".format(cliff_count))
 	print ("Detected	:	"+add_leading_zeros(shader_count)+"{0} shaders".format(shader_count))
+	print ("Detected	:	"+add_leading_zeros(len(rpk_file.lua_bytecode_list))+"{0} lua byte code".format(len(rpk_file.lua_bytecode_list)))
 
 	resource_file.close()
 
@@ -558,7 +574,7 @@ def save_data(data):
 	print ("-"*50)
 	print ()
 
-	if len(data.image_list)>0 or len(data.animation_list)>0 or len(data.audio_list)>0:
+	if len(data.image_list)>0 or len(data.animation_list)>0 or len(data.audio_list)>0 or len(data.lua_bytecode_list)>0:
 		print ("Parent directory created")
 		create_new_directory(file_directory+os.sep+file_basename)
 	print
@@ -645,6 +661,27 @@ def save_data(data):
 		audio_writer.write_string(audio.data)
 
 		audio_file.close()
+	print ("	"+"*"*50)
+	print ()
+
+	if len(data.lua_bytecode_list)>0:
+		print ("Lua bytecode subdirectory created")
+		create_new_directory(file_directory+os.sep+file_basename+os.sep+'lua_bytecode')
+	
+	count = 0
+	for bytecode in data.lua_bytecode_list:
+		bytecode.name = file_basename + "_lua_" + str(count)
+		print ("	"+"*"*50)
+		print ("	Writing lua bytecode to file")
+		print ("	Size	: {0}".format(len(bytecode.data)))
+		bytecode_path=file_directory+os.sep+file_basename+os.sep+'lua_bytecode'+os.sep+bytecode.name+'.luac'
+		bytecode_file=open(bytecode_path,'wb')
+		bytecode_writer=BinaryWriter(bytecode_file)
+		bytecode_writer.write_string(bytecode.data)
+
+		bytecode_file.close()
+		count = count + 1
+	
 	print ("	"+"*"*50)
 	print ()
 

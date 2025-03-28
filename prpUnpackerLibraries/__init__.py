@@ -7,6 +7,7 @@ import meshLib
 import actionLib
 import skeletonLib
 import audioLib
+import luaLib
 
 from prpLib import *
 from myFunction import *
@@ -17,3 +18,4 @@ from meshLib import *
 from actionLib import *
 from skeletonLib import *
 from audioLib import *
+from luaLib import *

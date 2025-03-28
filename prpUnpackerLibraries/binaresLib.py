@@ -1,5 +1,6 @@
 import struct
 import math
+import luaLib
 
 class BinaryIO(object):
 	def __init__(self, inputFile):
@@ -87,6 +88,61 @@ class BinaryIO(object):
 		str = struct.pack('I',id)
 		return struct.unpack('f', str)[0]
 
+	def find_all_occurrences(self, pattern):
+		original_pos = self.tell()
+		self.seek(0)
+		occurrences = []
+		pattern_len = len(pattern)
+		chunk_size = 4096
+		buffer = b''
+		current_pos = 0
+
+		while True:
+			data = self.inputFile.read(chunk_size)
+			if not data:
+				break
+			buffer += data
+			while True:
+				pos = buffer.find(pattern)
+				if pos == -1:
+					break
+				occurrences.append(current_pos + pos)
+				buffer = buffer[pos + pattern_len:]
+				current_pos += pos + pattern_len
+			if len(buffer) >= pattern_len - 1:
+				keep = buffer[-(pattern_len - 1):]
+				consumed = len(buffer) - len(keep)
+				current_pos += consumed
+				buffer = keep
+			else:
+				current_pos += len(buffer)
+				buffer = b''
+		self.seek(original_pos)
+		return occurrences
+
+	def find_offset(self, pattern):
+		start_pos = self.tell()
+		pattern_len = len(pattern)
+		chunk_size = 4096
+		buffer = b''
+		while True:
+			data = self.inputFile.read(chunk_size)
+			if not data:
+				break
+			buffer += data
+			pos = buffer.find(pattern)
+			if pos != -1:
+				found_offset = start_pos + pos
+				self.seek(found_offset + pattern_len)
+				return found_offset
+			if len(buffer) >= pattern_len - 1:
+				buffer = buffer[-(pattern_len - 1):]
+				start_pos += len(data) - len(buffer)
+			else:
+				start_pos += len(data)
+				buffer = b''
+		return None
+
 class BinaryReader(BinaryIO):
 	"""general BinaryReader
 	"""
@@ -153,6 +209,22 @@ class BinaryReader(BinaryIO):
 				if lit != b'\x00':
 					s.extend(lit)
 			return s.decode('utf-8')  # Decode bytes to a string
+
+	def extract_byte_arrays(self, start_seq, end_seq):
+		byte_arrays = []
+		start_offsets = self.find_all_occurrences(start_seq)
+		for start_offset in start_offsets:
+			original_pos = self.tell()
+			self.seek(start_offset)
+			end_offset = self.find_offset(end_seq)
+			if end_offset is not None:
+				total_bytes = end_offset + len(end_seq) - start_offset
+				self.seek(start_offset)
+				data = self.read(total_bytes)
+				#print(f"  Hex dump: {data.hex()[:156]}...")
+				byte_arrays.append(data)
+			self.seek(original_pos)
+		return byte_arrays
 
 class BinaryWriter(BinaryIO):
 	def __init__(self, inputFile):

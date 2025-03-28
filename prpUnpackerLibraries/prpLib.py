@@ -10,3 +10,4 @@ class RPK:
 		self.skeleton_list=[]
 		self.animation_list=[]
 		self.audio_list=[]
+		self.lua_bytecode_list=[]
