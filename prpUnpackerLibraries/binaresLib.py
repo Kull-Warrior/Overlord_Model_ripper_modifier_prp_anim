@@ -226,6 +226,45 @@ class BinaryReader(BinaryIO):
 			self.seek(original_pos)
 		return byte_arrays
 
+	def get_map_data_offset(self, width, height):
+		src_offset = 200 + width * height * 4
+		total_number_of_bytes = 500
+		
+		# Read the relevant bytes from the file
+		self.seek(src_offset)
+		src = self.read(total_number_of_bytes)
+		
+		# The byte pattern to search for (b"IndoorSet")
+		pattern = b'IndoorSet'
+		
+		max_first_char_slot = len(src) - len(pattern) + 1
+		
+		# Search through the byte array
+		for i in range(max_first_char_slot):
+			if src[i] != pattern[0]:
+				continue
+				
+			# Check remaining bytes in reverse order for early exit
+			matched = True
+			for j in reversed(range(1, len(pattern))):  # Check from last byte to 2nd byte
+				if src[i + j] != pattern[j]:
+					matched = False
+					break
+					
+			if matched:
+				# Return the calculated offset (same logic as original C# code)
+				return i + 200 - 4
+		
+		# Pattern not found
+		return 0
+
+	def read_map_data_from_file(self, offset, width, height):
+		totalNumberOfBytes = width * height * 4
+		self.seek(offset)
+		data = self.read(totalNumberOfBytes)
+		
+		return data
+
 class BinaryWriter(BinaryIO):
 	def __init__(self, inputFile):
 		super(BinaryWriter, self).__init__(inputFile)

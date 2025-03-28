@@ -779,6 +779,22 @@ def create_blender_models(data):
 		action.set_context()
 '''
 
+def read_map_data(filename):
+	resource_file=open(filename,'rb')
+	omp_reader=BinaryReader(resource_file)
+	
+	overlord_map = OverlordMap()
+	
+	offset = omp_reader.get_map_data_offset(512,512)
+	print("Map offset : ")
+	print(offset)
+	
+	data = omp_reader.read_map_data_from_file(offset, 512, 512)
+	
+	overlord_map.set_map_data(data)
+
+	overlord_map.create_full_terrain_scene()
+
 def openFile(full_file_path):
 	global file_directory,file_basename,file_extension
 	file_directory=os.path.dirname(full_file_path)
@@ -801,5 +817,8 @@ def openFile(full_file_path):
 		reader=BinaryReader(file)
 		anim_file_parser(full_file_path,reader)
 		file.close()
+
+	if file_extension=='omp':
+		read_map_data(full_file_path)
 
 openFile("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Overlord\\Resources\\Character Minion Master.prp")

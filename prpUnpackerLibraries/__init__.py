@@ -8,6 +8,7 @@ import actionLib
 import skeletonLib
 import audioLib
 import luaLib
+import mapLib
 
 from prpLib import *
 from myFunction import *
@@ -19,3 +20,4 @@ from actionLib import *
 from skeletonLib import *
 from audioLib import *
 from luaLib import *
+from mapLib import *
