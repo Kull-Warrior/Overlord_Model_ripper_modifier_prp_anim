@@ -11,6 +11,8 @@ class OverlordMap:
 		self.FoliageMap = np.zeros((512, 512), dtype=np.uint8)
 		self.WallTextureMap = np.zeros((512, 512), dtype=np.uint8)
 		self.UnknownMap = np.zeros((512, 512), dtype=np.uint8)
+		self.lua_bytecode_list=[]
+		self.water_level=0
 
 	def set_map_data(self, data: bytes):
 		"""Equivalent of C# SetMapData with vectorized NumPy operations"""
@@ -125,7 +127,7 @@ class OverlordMap:
 		# Usage example:
 		# create_full_terrain_scene(height_data, scale=0.5, vertical_scale=2.0)
 
-	def create_water_plane(self, height=0.0, name="WaterPlane"):
+	def create_water_plane(self, name="WaterPlane"):
 		# Create plane primitive
 		# Create grid with proper resolution to maintain square shape
 		bpy.ops.mesh.primitive_grid_add(
@@ -133,12 +135,12 @@ class OverlordMap:
 			x_subdivisions=128,  # Maintain square shape after subdivision
 			y_subdivisions=128,
 			enter_editmode=False,
-			location=(0, 0, height)
+			location=(0, 0, self.water_level)
 		)
 		water = bpy.context.active_object
 		water.name = name
 		
-		water.location = (0, 0, height)
+		water.location = (0, 0, self.water_level)
 		
 		# Create water material
 		mat = bpy.data.materials.new(name="WaterMaterial")

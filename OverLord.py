@@ -782,20 +782,70 @@ def create_blender_models(data):
 def read_map_data(filename):
 	resource_file=open(filename,'rb')
 	omp_reader=BinaryReader(resource_file)
-	
+
 	overlord_map = OverlordMap()
-	
+
 	offset = omp_reader.get_map_data_offset(512,512)
 	print("Map offset : ")
 	print(offset)
-	
-	data = omp_reader.read_map_data_from_file(offset, 512, 512)
-	
-	overlord_map.set_map_data(data)
 
-	overlord_map.create_full_terrain_scene()
+	data = omp_reader.read_map_data_from_file(offset, 512, 512)
+
+	# Define the start and end byte sequences
+	start_sequence = b'\x1B\x4C\x75\x61\x50'	# Hex values for "1B 4C 75 61 50"
+	end_sequence = b'\x1B\x80\x00\x00'			# Hex values for "1B 80 00 00"
+
+	# Extract the byte arrays between start and end sequences
+	lua_data = omp_reader.extract_byte_arrays(start_sequence, end_sequence)
+
+	for bytecode_data in lua_data:
+		bytecode = LuaByteCode()
+		bytecode.data = bytecode_data
+		
+		overlord_map.lua_bytecode_list.append(bytecode)
+
+	print ("Detected	:	"+add_leading_zeros(len(overlord_map.lua_bytecode_list))+"{0} lua byte code".format(len(overlord_map.lua_bytecode_list)))
+
+	overlord_map.set_map_data(data)
+	overlord_map.water_level = omp_reader.get_map_water_level(filename)
 	
-	overlord_map.create_water_plane(omp_reader.get_map_water_level(filename))
+	return overlord_map
+
+def save_map_data(data):
+	print ()
+	print ("-"*50)
+	print ("Write necessary data to new files")
+	print ("-"*50)
+	print ()
+
+	if len(data.lua_bytecode_list)>0:
+		print ("Parent directory created")
+		create_new_directory(file_directory+os.sep+file_basename)
+	print
+	
+	if len(data.lua_bytecode_list)>0:
+		print ("Lua bytecode subdirectory created")
+		create_new_directory(file_directory+os.sep+file_basename+os.sep+'lua_bytecode')
+	
+	count = 0
+	for bytecode in data.lua_bytecode_list:
+		bytecode.name = file_basename + "_lua_" + str(count)
+		print ("	"+"*"*50)
+		print ("	Writing lua bytecode to file")
+		print ("	Size	: {0}".format(len(bytecode.data)))
+		bytecode_path=file_directory+os.sep+file_basename+os.sep+'lua_bytecode'+os.sep+bytecode.name+'.luac'
+		bytecode_file=open(bytecode_path,'wb')
+		bytecode_writer=BinaryWriter(bytecode_file)
+		bytecode_writer.write_string(bytecode.data)
+
+		bytecode_file.close()
+		count = count + 1
+	
+	print ("	"+"*"*50)
+	print ()
+def create_blender_terrain(data):
+	data.create_full_terrain_scene()
+	data.create_water_plane()
 
 def openFile(full_file_path):
 	global file_directory,file_basename,file_extension
@@ -821,6 +871,8 @@ def openFile(full_file_path):
 		file.close()
 
 	if file_extension=='omp':
-		read_map_data(full_file_path)
+		extracted_data = read_map_data(full_file_path)
+		save_map_data(extracted_data)
+		create_blender_terrain(extracted_data)
 
 openFile("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Overlord\\Resources\\Character Minion Master.prp")
