@@ -41,9 +41,53 @@ class OverlordMap:
 		float_map = (highest_digit + middle_digit + smallest_digit) / 2.0
 		return float_map.astype(np.float32)
 
-	def create_full_terrain_scene(self, name="Terrain", scale=1.0, vertical_scale=1.0, center_mesh=True):
-		"""Instance method that uses the class' own height data"""
-		# Get height data from the class instance
+	def create_material(self, obj, texture_atlas_path):
+		"""
+		Create a single material using the texture atlas.
+		"""
+		# Clear any existing materials
+		obj.data.materials.clear()
+
+		mat = bpy.data.materials.new(name="TerrainAtlasMat")
+		mat.use_nodes = True
+		nodes = mat.node_tree.nodes
+		links = mat.node_tree.links
+
+		# Clear default nodes
+		for node in nodes:
+			nodes.remove(node)
+
+		# Create nodes
+		tex_coord = nodes.new(type="ShaderNodeTexCoord")
+		mapping = nodes.new(type="ShaderNodeMapping")
+		tex_image = nodes.new(type="ShaderNodeTexImage")
+		bsdf = nodes.new(type="ShaderNodeBsdfPrincipled")
+		output = nodes.new(type="ShaderNodeOutputMaterial")
+
+		# Load texture atlas
+		try:
+			tex_image.image = bpy.data.images.load(texture_atlas_path)
+		except Exception as e:
+			print(f"Error loading texture atlas: {e}")
+
+		# Link nodes
+		links.new(tex_coord.outputs["UV"], mapping.inputs["Vector"])
+		links.new(mapping.outputs["Vector"], tex_image.inputs["Vector"])
+		links.new(tex_image.outputs["Color"], bsdf.inputs["Base Color"])
+		links.new(bsdf.outputs["BSDF"], output.inputs["Surface"])
+
+		# Position nodes (optional)
+		tex_coord.location = (-500, 0)
+		mapping.location = (-250, 0)
+		tex_image.location = (0, 0)
+		bsdf.location = (500, 0)
+		output.location = (1000, 0)
+
+		# Assign material to object
+		obj.data.materials.append(mat)
+
+	def create_full_terrain_scene(self, name="Terrain", scale=1.0, vertical_scale=1.0, center_mesh=True, texture_atlas_path="atlas.png"):
+		"""Create the terrain mesh with UVs mapped to the texture atlas."""
 		height_data = self.get_float_map()
 		
 		# Clear existing objects
@@ -85,20 +129,33 @@ class OverlordMap:
 		bpy.context.view_layer.objects.active = obj
 		obj.select_set(True)
 
-		## Create material
-		#mat = bpy.data.materials.new(name="TerrainMaterial")
-		#mat.use_nodes = True
-		#nodes = mat.node_tree.nodes
-		#nodes.clear()
-		
-		## Create basic principled BSDF material
-		#bsdf = nodes.new('ShaderNodeBsdfPrincipled')
-		#bsdf.inputs['Base Color'].default_value = (0.3, 0.9, 0.2, 1)  # Green color
-		#output = nodes.new('ShaderNodeOutputMaterial')
-		#mat.node_tree.links.new(bsdf.outputs['BSDF'], output.inputs['Surface'])
-		#obj.data.materials.append(mat)
+		# Create UV layer and assign coordinates based on MainTextureMap
+		uv_layer = mesh.uv_layers.new(name="AtlasUV").data
 
-		# Create lighting
+		for face in mesh.polygons:
+			face_index = face.index
+			i = face_index // 511  # Row in 511x511 grid
+			j = face_index % 511   # Column in grid
+			texture_id = int(self.MainTextureMap[i, j])
+			texture_id = max(0, min(15, texture_id))  # Clamp to 0-15
+
+			# Calculate tile coordinates (4x4 grid)
+			tile_size = 0.25
+			column = texture_id % 4
+			row = texture_id // 4
+			u_min = column * tile_size
+			v_min = row * tile_size
+			u_max = u_min + tile_size
+			v_max = v_min + tile_size
+
+			# Assign UVs to each loop (vertex) of the face
+			loops = face.loop_indices
+			uv_layer[loops[0]].uv = (u_min, v_min)
+			uv_layer[loops[1]].uv = (u_min, v_max)
+			uv_layer[loops[2]].uv = (u_max, v_max)
+			uv_layer[loops[3]].uv = (u_max, v_min)
+
+		# Set up lighting and camera (unchanged)
 		bpy.ops.object.light_add(type='SUN', radius=1, location=(0, 0, 100))
 		sun = bpy.context.active_object
 		sun.data.energy = 0.25
@@ -122,10 +179,10 @@ class OverlordMap:
 		world_nodes = bpy.context.scene.world.node_tree.nodes
 		world_nodes["Background"].inputs[1].default_value = 0.2  # Ambient light
 
-		return obj
+		# Create and assign the single material
+		self.create_material(obj, texture_atlas_path)
 
-		# Usage example:
-		# create_full_terrain_scene(height_data, scale=0.5, vertical_scale=2.0)
+		return obj
 
 	def create_water_plane(self, name="WaterPlane"):
 		# Create plane primitive
