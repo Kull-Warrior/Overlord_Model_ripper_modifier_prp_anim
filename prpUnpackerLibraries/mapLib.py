@@ -144,16 +144,16 @@ class OverlordMap:
 			column = texture_id % 4
 			row = texture_id // 4
 			u_min = column * tile_size
-			v_min = row * tile_size
+			v_min = (3 - row) * tile_size  # Invert row for top-left origin
 			u_max = u_min + tile_size
 			v_max = v_min + tile_size
 
 			# Assign UVs to each loop (vertex) of the face
 			loops = face.loop_indices
-			uv_layer[loops[0]].uv = (u_min, v_min)
-			uv_layer[loops[1]].uv = (u_min, v_max)
-			uv_layer[loops[2]].uv = (u_max, v_max)
-			uv_layer[loops[3]].uv = (u_max, v_min)
+			uv_layer[loops[0]].uv = (u_min, v_max)  # Upper-left corner of tile
+			uv_layer[loops[1]].uv = (u_min, v_min)  # Lower-left corner
+			uv_layer[loops[2]].uv = (u_max, v_min)  # Lower-right corner
+			uv_layer[loops[3]].uv = (u_max, v_max)  # Upper-right corner
 
 		# Set up lighting and camera (unchanged)
 		bpy.ops.object.light_add(type='SUN', radius=1, location=(0, 0, 100))
