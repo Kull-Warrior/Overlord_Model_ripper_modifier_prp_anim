@@ -829,7 +829,8 @@ def read_map_data(filename):
 			save_data(extracted_data, file_directory, file_basename)
 
 			for image in extracted_data.image_list:
-				if image.height == 2048:
+				is_nm_texture = 'nm' in image.name.lower()
+				if not is_nm_texture and image.height == 2048 and image.width == 2048:
 					dds_path = file_directory+os.sep+file_basename+os.sep+'images'+os.sep+image.name
 
 			try:
