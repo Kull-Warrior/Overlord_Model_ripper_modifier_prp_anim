@@ -13,6 +13,7 @@ class OverlordMap:
 		self.UnknownMap = np.zeros((512, 512), dtype=np.uint8)
 		self.lua_bytecode_list=[]
 		self.water_level=0
+		self.texture_atlas=None
 
 	def set_map_data(self, data: bytes):
 		"""Equivalent of C# SetMapData with vectorized NumPy operations"""
@@ -41,7 +42,7 @@ class OverlordMap:
 		float_map = (highest_digit + middle_digit + smallest_digit) / 2.0
 		return float_map.astype(np.float32)
 
-	def create_material(self, obj, texture_atlas_path):
+	def create_material(self, obj):
 		"""
 		Create a single material using the texture atlas.
 		"""
@@ -66,7 +67,7 @@ class OverlordMap:
 
 		# Load texture atlas
 		try:
-			tex_image.image = bpy.data.images.load(texture_atlas_path)
+			tex_image.image = self.texture_atlas
 		except Exception as e:
 			print(f"Error loading texture atlas: {e}")
 
@@ -86,7 +87,7 @@ class OverlordMap:
 		# Assign material to object
 		obj.data.materials.append(mat)
 
-	def create_full_terrain_scene(self, name="Terrain", scale=1.0, vertical_scale=1.0, center_mesh=True, texture_atlas_path="atlas.png"):
+	def create_full_terrain_scene(self, name="Terrain", scale=1.0, vertical_scale=1.0, center_mesh=True):
 		"""Create the terrain mesh with UVs mapped to the texture atlas."""
 		height_data = self.get_float_map()
 		
@@ -180,7 +181,7 @@ class OverlordMap:
 		world_nodes["Background"].inputs[1].default_value = 0.2  # Ambient light
 
 		# Create and assign the single material
-		self.create_material(obj, texture_atlas_path)
+		self.create_material(obj)
 
 		return obj
 

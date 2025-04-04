@@ -1,6 +1,8 @@
+import os
 import struct
 import math
 import luaLib
+import re
 
 class BinaryIO(object):
 	def __init__(self, inputFile):
@@ -362,6 +364,108 @@ class BinaryReader(BinaryIO):
 			if pattern in input_file_name:
 				return value
 		return 0.0
+	
+	def get_resource_files(self, file_path):
+		game_directory = ""
+
+		# Determine the game directory based on the file path
+		if "Overlord II" in file_path:
+			index = file_path.find("Overlord II")
+			game_directory = file_path[:index + len("Overlord II")]
+		elif "Overlord" in file_path:
+			index = file_path.find("Overlord")
+			game_directory = file_path[:index + len("Overlord")]
+
+		resource_files = []
+		extensions = {'.prp', '.pvp', '.psp'}  # Using a set for faster lookups
+
+		# Check if either directory exists
+		if os.path.exists(os.path.join(game_directory, "Resources")) or \
+		   os.path.exists(os.path.join(game_directory, "Expansion")):
+
+			# Walk through all directories recursively
+			for root, dirs, files in os.walk(game_directory):
+				for file in files:
+					# Get file extension and check against our set
+					ext = os.path.splitext(file)[1].lower()
+					if ext in extensions:
+						resource_files.append(os.path.join(root, file))
+
+		return resource_files
+
+	def get_environment(self):
+		environments = []
+		rpk_file_offsets = []
+		block_size = 512
+
+		# Get file size
+		file_size = self.get_file_size()
+		offset = 0
+
+		# Find all 'rpk' occurrences
+		while offset < file_size:
+			# Calculate read size for this block
+			read_size = min(block_size, file_size - offset)
+			self.seek(offset)
+			block = self.read(read_size)
+			
+			# Find matches in decoded ASCII (ignore errors)
+			decoded = block.decode('ascii', errors='ignore')
+			for match in re.finditer('rpk', decoded):
+				rpk_file_offsets.append(offset + match.start())
+			
+			offset += read_size
+
+		# Process found RPK offsets
+		for rpk_offset in rpk_file_offsets:
+			# Read 28 bytes before the RPK marker (offset -29)
+			read_pos = rpk_offset - 29
+			if read_pos < 0:
+				continue  # Skip invalid positions
+
+			self.seek(read_pos)
+			block = self.read(28)
+			decoded = block.decode('ascii', errors='ignore').replace('\x00', '')
+
+			# Extract environment string
+			if 'Exp - Env ' in decoded:
+				start = decoded.find('Exp - Env ')
+				env_str = decoded[start:]
+			elif 'Env ' in decoded:
+				# Find all Env occurrences
+				matches = list(re.finditer('Env ', decoded))
+				if len(matches) > 1:
+					start = matches[-1].start()
+				else:
+					start = decoded.find('Env ')
+				env_str = decoded[start:]
+			elif 'Environment ' in decoded:
+				start = decoded.find('Environment ')
+				env_str = decoded[start:]
+			else:
+				continue  # No valid environment found
+
+			environments.append(env_str.strip())
+
+		# Remove unwanted environments
+		remove_list = [
+			"Env Tower - Main",
+			"Env Spawning Pits",
+			"Env Spawning Pits",  # Intentional duplicate
+			"Exp - MP Env Rocky Race",
+			"Exp - Env HellSet",
+			"Env Multiplayer 1",
+			"Exp - MP Env Halls"
+		]
+		
+		for env in remove_list:
+			while env in environments:
+				environments.remove(env)
+
+		# Determine return value
+		if "Exp - Warrior Abyss - 01" in self.inputFile and len(environments) >= 2:
+			return environments[1]
+		return environments[0] if environments else "default"
 
 class BinaryWriter(BinaryIO):
 	def __init__(self, inputFile):

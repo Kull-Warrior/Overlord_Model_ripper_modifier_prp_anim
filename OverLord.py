@@ -563,7 +563,7 @@ def read_data(filename):
 
 	return rpk_file
 
-def save_data(data):
+def save_data(data, file_directory, file_basename):
 	########################################################################################################################################################################
 	## Write necessary data to new files
 	########################################################################################################################################################################
@@ -685,7 +685,7 @@ def save_data(data):
 	print ("	"+"*"*50)
 	print ()
 
-def create_blender_models(data):
+def create_blender_models(data, file_directory, file_basename):
 ########################################################################################################################################################################
 ## Create blender models
 ########################################################################################################################################################################
@@ -809,9 +809,66 @@ def read_map_data(filename):
 	overlord_map.set_map_data(data)
 	overlord_map.water_level = omp_reader.get_map_water_level(filename)
 	
+	resources_list = omp_reader.get_resource_files(filename)
+	
+	environment = omp_reader.get_environment()
+
+	rpk_environment_file_path = None
+
+	if len(resources_list) > 0:
+		for resource_path in resources_list:
+			if environment in resource_path:
+				rpk_environment_file_path = resource_path
+
+		if rpk_environment_file_path != None:
+			file_directory=os.path.dirname(rpk_environment_file_path)
+			file_extension=os.path.basename(rpk_environment_file_path).split('.')[-1]
+			file_basename=os.path.basename(rpk_environment_file_path).split('.'+file_extension)[0]
+
+			extracted_data = read_data(rpk_environment_file_path)
+			save_data(extracted_data, file_directory, file_basename)
+
+			for image in extracted_data.image_list:
+				if image.height == 2048:
+					dds_path = file_directory+os.sep+file_basename+os.sep+'images'+os.sep+image.name
+
+			try:
+				# Load the DDS image using Blender's native support (DXT1/3/5)
+				img = bpy.data.images.load(dds_path)
+			except Exception as e:
+				print(f"Failed to load {dds_path}: {e}")
+
+			# Get image dimensions and pixel data (pixels are in RGBA order)
+			width, height = img.size
+			pixels = list(img.pixels)
+			
+			# Composite over a white background (adjust the background color if needed)
+			# For each pixel: new_color = alpha * original + (1 - alpha) * background
+			for i in range(0, len(pixels), 4):
+				r, g, b, a = pixels[i:i+4]
+				# White background means background color = (1, 1, 1)
+				pixels[i]   = r
+				pixels[i+1] = g
+				pixels[i+2] = b
+				# Set alpha to 1 (opaque)
+				pixels[i+3] = 1.0
+			
+			# Create a new image to store the composited result
+			new_img = bpy.data.images.new(name=img.name.replace(".dds",".png"), width=width, height=height)
+			new_img.pixels = pixels
+			new_img.file_format = 'PNG'
+
+			overlord_map.texture_atlas = new_img
+
+	if overlord_map.texture_atlas == None:
+		# Get the directory of the current script
+		current_dir = os.path.dirname(bpy.data.filepath)
+		resources_path = os.path.join(current_dir, "resources\\Env Halfling.png")
+		overlord_map.texture_atlas = bpy.data.images.load(resources_path)
+	
 	return overlord_map
 
-def save_map_data(data):
+def save_map_data(data, file_directory, file_basename):
 	print ()
 	print ("-"*50)
 	print ("Write necessary data to new files")
@@ -848,7 +905,6 @@ def create_blender_terrain(data):
 	data.create_water_plane()
 
 def openFile(full_file_path):
-	global file_directory,file_basename,file_extension
 	file_directory=os.path.dirname(full_file_path)
 	file_extension=os.path.basename(full_file_path).split('.')[-1]
 	file_basename=os.path.basename(full_file_path).split('.'+file_extension)[0]
@@ -861,8 +917,8 @@ def openFile(full_file_path):
 
 	if file_extension=='prp' or file_extension=='pvp' or file_extension=='psp':
 		extracted_data = read_data(full_file_path)
-		save_data(extracted_data)
-		create_blender_models(extracted_data)
+		save_data(extracted_data, file_directory, file_basename)
+		create_blender_models(extracted_data, file_directory, file_basename)
 
 	if file_extension=='anim':
 		file=open(full_file_path,'rb')
@@ -872,7 +928,7 @@ def openFile(full_file_path):
 
 	if file_extension=='omp':
 		extracted_data = read_map_data(full_file_path)
-		save_map_data(extracted_data)
+		save_map_data(extracted_data, file_directory, file_basename)
 		create_blender_terrain(extracted_data)
 
 openFile("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Overlord\\Resources\\Character Minion Master.prp")
