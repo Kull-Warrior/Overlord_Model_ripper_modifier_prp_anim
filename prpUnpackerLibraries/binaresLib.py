@@ -402,19 +402,21 @@ class BinaryReader(BinaryIO):
 		file_size = self.get_file_size()
 		offset = 0
 
-		# Find all 'rpk' occurrences
-		while offset < file_size:
-			# Calculate read size for this block
-			read_size = min(block_size, file_size - offset)
+		while self.tell() < file_size:
+			# Read the next block from the file
 			self.seek(offset)
-			block = self.read(read_size)
-			
-			# Find matches in decoded ASCII (ignore errors)
-			decoded = block.decode('ascii', errors='ignore')
-			for match in re.finditer('rpk', decoded):
-				rpk_file_offsets.append(offset + match.start())
-			
-			offset += read_size
+			block = self.read(block_size)
+
+			# Search for all occurrences of the byte sequence in this block
+			pos = block.find(b'\x72\x70\x6B')
+			while pos != -1:
+				# Add the absolute file offset to the list
+				rpk_file_offsets.append(offset + pos)
+				# Search again, starting from the next byte (pos + 1)
+				pos = block.find(b'\x72\x70\x6B', pos + 1)
+
+			# Move start_pos forward by the block size for the next iteration
+			offset += block_size
 
 		# Process found RPK offsets
 		for rpk_offset in rpk_file_offsets:
