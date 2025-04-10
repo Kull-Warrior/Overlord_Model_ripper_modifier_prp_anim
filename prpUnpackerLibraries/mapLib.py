@@ -13,6 +13,7 @@ class OverlordMap:
 		self.UnknownMap = np.zeros((512, 512), dtype=np.uint8)
 		self.lua_bytecode_list=[]
 		self.water_level=0
+		self.rpk_resources=[]
 		self.texture_atlas=None
 
 	def set_map_data(self, data: bytes):

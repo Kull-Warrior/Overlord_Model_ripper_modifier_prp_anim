@@ -804,14 +804,60 @@ def read_map_data(filename):
 		
 		overlord_map.lua_bytecode_list.append(bytecode)
 
-	print ("Detected	:	"+add_leading_zeros(len(overlord_map.lua_bytecode_list))+"{0} lua byte code".format(len(overlord_map.lua_bytecode_list)))
-
 	overlord_map.set_map_data(data)
 	overlord_map.water_level = omp_reader.get_map_water_level(filename)
-	
+
 	resources_list = omp_reader.get_resource_files(filename)
+
+	overlord_map.rpk_resources = omp_reader.get_rpk_resources()
+
+	#environment = omp_reader.get_environment()
+
+	environments = []
+	for rpk_file in overlord_map.rpk_resources:
+		# Extract environment string
+		if 'Exp - Env ' in rpk_file:
+			start = rpk_file.find('Exp - Env ')
+			env_str = rpk_file[start:]
+		elif 'Env ' in rpk_file:
+			# Find all Env occurrences
+			matches = list(re.finditer('Env ', rpk_file))
+			if len(matches) > 1:
+				start = matches[-1].start()
+			else:
+				start = rpk_file.find('Env ')
+			env_str = rpk_file[start:]
+		elif 'Environment ' in rpk_file:
+			start = rpk_file.find('Environment ')
+			env_str = rpk_file[start:]
+		else:
+			continue  # No valid environment found
+
+		environments.append(env_str.strip())
+
+	# Remove unwanted environments
+	remove_list = [
+		"Env Tower - Main",
+		"Env Spawning Pits",
+		"Env Spawning Pits",  # Intentional duplicate
+		"Exp - MP Env Rocky Race",
+		"Exp - Env HellSet",
+		"Env Multiplayer 1",
+		"Exp - MP Env Halls"
+	]
 	
-	environment = omp_reader.get_environment()
+	for env in remove_list:
+		while env in environments:
+			environments.remove(env)
+
+	# Determine return value
+	if "Exp - Warrior Abyss - 01" in filename and len(environments) >= 2:
+		environment = environments[1]
+	else:
+		if environments:
+			environment = environments[0]
+		else:
+			environment = "default"
 
 	rpk_environment_file_path = None
 
@@ -866,7 +912,10 @@ def read_map_data(filename):
 		current_dir = os.path.dirname(bpy.data.filepath)
 		resources_path = os.path.join(current_dir, "resources\\Env Halfling.png")
 		overlord_map.texture_atlas = bpy.data.images.load(resources_path)
-	
+
+	print ("Detected	:	"+add_leading_zeros(len(overlord_map.lua_bytecode_list))+"{0} lua byte code".format(len(overlord_map.lua_bytecode_list)))
+	print ("Detected	:	"+add_leading_zeros(len(overlord_map.rpk_resources))+"{0} rpk files".format(len(overlord_map.rpk_resources)))
+
 	return overlord_map
 
 def save_map_data(data, file_directory, file_basename):

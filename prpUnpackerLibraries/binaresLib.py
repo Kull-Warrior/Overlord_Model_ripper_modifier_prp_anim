@@ -145,6 +145,13 @@ class BinaryIO(object):
 				buffer = b''
 		return None
 
+	def trim_leading_zeros(self, arr):
+		"""Remove leading zero bytes until the first non-zero byte is found."""
+		start = 0
+		while start < len(arr) and arr[start] == 0:
+			start += 1
+		return arr[start:]
+
 class BinaryReader(BinaryIO):
 	"""general BinaryReader
 	"""
@@ -393,11 +400,17 @@ class BinaryReader(BinaryIO):
 
 		return resource_files
 
-	def get_environment(self):
-		environments = []
-		rpk_file_offsets = []
+	def get_rpk_resources(self):
+		start_offsets = []
 		block_size = 512
 
+		# Precompute the sequences for efficiency
+		initial_sequence = b'\x1E\x00\x00\x04'  # Sequence to search for
+		expected_next = [
+			bytes.fromhex("03 1E 00 1F"),  # First possible next 4-byte sequence
+			bytes.fromhex("04 1E 00 1F")   # Second possible next 4-byte sequence
+		]
+		end_sequence = b'\x72\x70\x6B'
 		# Get file size
 		file_size = self.get_file_size()
 		offset = 0
@@ -407,67 +420,53 @@ class BinaryReader(BinaryIO):
 			self.seek(offset)
 			block = self.read(block_size)
 
-			# Search for all occurrences of the byte sequence in this block
-			pos = block.find(b'\x72\x70\x6B')
+			# Search for all occurrences of `initial_sequence` in the block
+			pos = block.find(initial_sequence)
 			while pos != -1:
-				# Add the absolute file offset to the list
-				rpk_file_offsets.append(offset + pos)
+				if pos + 8 <= len(block):
+					next_bytes = block[pos + 4 : pos + 8]  # Extract next 4 bytes
+					# Check if next_bytes matches either expected sequence
+					if next_bytes in expected_next:
+						start_offsets.append(offset + pos)  # Valid match; save offset
+
 				# Search again, starting from the next byte (pos + 1)
-				pos = block.find(b'\x72\x70\x6B', pos + 1)
+				pos = block.find(initial_sequence, pos + 1)
 
 			# Move start_pos forward by the block size for the next iteration
 			offset += block_size
 
-		# Process found RPK offsets
-		for rpk_offset in rpk_file_offsets:
-			# Read 28 bytes before the RPK marker (offset -29)
-			read_pos = rpk_offset - 29
-			if read_pos < 0:
-				continue  # Skip invalid positions
+		byte_arrays = []
+		for start_offset in start_offsets:
+			original_pos = self.tell()
+			self.seek(start_offset)
+			end_offset = self.find_offset(end_sequence)
+			if end_offset is not None:
+				total_bytes = end_offset + len(end_sequence) - start_offset
+				self.seek(start_offset)
+				data = self.read(total_bytes)
+				byte_arrays.append(data)
+			self.seek(original_pos)
 
-			self.seek(read_pos)
-			block = self.read(28)
-			decoded = block.decode('ascii', errors='ignore').replace('\x00', '')
+		# Remove first 13 bytes from each byte array
+		trimmed_arrays = [arr[19:] for arr in byte_arrays]
 
-			# Extract environment string
-			if 'Exp - Env ' in decoded:
-				start = decoded.find('Exp - Env ')
-				env_str = decoded[start:]
-			elif 'Env ' in decoded:
-				# Find all Env occurrences
-				matches = list(re.finditer('Env ', decoded))
-				if len(matches) > 1:
-					start = matches[-1].start()
-				else:
-					start = decoded.find('Env ')
-				env_str = decoded[start:]
-			elif 'Environment ' in decoded:
-				start = decoded.find('Environment ')
-				env_str = decoded[start:]
+		trimmed_arrays = [self.trim_leading_zeros(arr) for arr in trimmed_arrays]
+
+		rpk_binary_arrays = []
+		for arr in trimmed_arrays:
+			index = arr.find(b'\x00\x00\x00')
+			if index != -1:
+				# Slice from index + 3 to the end
+				rpk_binary_arrays.append(arr[index+3:len(arr)-4])
 			else:
-				continue  # No valid environment found
+				# Keep the original data if the sequence is not found
+				rpk_binary_arrays.append(arr[0:len(arr)-4])
 
-			environments.append(env_str.strip())
+		rpk_file_arrays = []
+		for arr in rpk_binary_arrays:
+			rpk_file_arrays.append(arr.decode('ascii', errors='ignore'))
 
-		# Remove unwanted environments
-		remove_list = [
-			"Env Tower - Main",
-			"Env Spawning Pits",
-			"Env Spawning Pits",  # Intentional duplicate
-			"Exp - MP Env Rocky Race",
-			"Exp - Env HellSet",
-			"Env Multiplayer 1",
-			"Exp - MP Env Halls"
-		]
-		
-		for env in remove_list:
-			while env in environments:
-				environments.remove(env)
-
-		# Determine return value
-		if "Exp - Warrior Abyss - 01" in self.inputFile and len(environments) >= 2:
-			return environments[1]
-		return environments[0] if environments else "default"
+		return rpk_file_arrays
 
 class BinaryWriter(BinaryIO):
 	def __init__(self, inputFile):
