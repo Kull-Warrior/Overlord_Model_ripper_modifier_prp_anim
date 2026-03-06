@@ -7,16 +7,8 @@ import meshLib
 import actionLib
 import skeletonLib
 import audioLib
-
-reload(prpLib)
-reload(myFunction)
-reload(modelLib)
-reload(binaresLib)
-reload(imageLib)
-reload(meshLib)
-reload(actionLib)
-reload(skeletonLib)
-reload(audioLib)
+import luaLib
+import mapLib
 
 from prpLib import *
 from myFunction import *
@@ -27,3 +19,5 @@ from meshLib import *
 from actionLib import *
 from skeletonLib import *
 from audioLib import *
+from luaLib import *
+from mapLib import *

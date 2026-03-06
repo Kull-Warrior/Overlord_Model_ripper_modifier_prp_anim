@@ -1,5 +1,5 @@
 import struct
-import Blender
+#import Blender
 
 def tga_16(data):
 	newdata=''
@@ -20,4 +20,4 @@ class Image():
 		self.height=None
 		self.width=None
 		self.name=None
-		self.data=""
+		self.data=bytearray()

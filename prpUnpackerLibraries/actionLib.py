@@ -1,5 +1,5 @@
 import bpy
-import Blender
+#import Blender
 
 class ActionBone:
 	def	__init__(self):
@@ -25,7 +25,7 @@ class Action:
 		self.frame_sort=False
 		self.bone_sort=False
 
-	def bone_name_list(self):
+'''	def bone_name_list(self):
 		if self.skeleton is not None:
 			scene = bpy.data.scenes.active
 			for object in scene.objects:
@@ -47,7 +47,7 @@ class Action:
 					if object.name==self.skeleton:
 						skeleton = object
 		else:
-			print 'Warning: no armature'
+			print ('Warning: no armature')
 		if skeleton is not None:
 			armature=skeleton.getData()
 			pose = skeleton.getPose()
@@ -203,6 +203,7 @@ class Action:
 									[Blender.Object.Pose.ROT,Blender.Object.Pose.LOC],True)
 								pose.update()
 			else:
-				print 'Warning: missing bone_sort or frame_sort'
+				print ('Warning: missing bone_sort or frame_sort')
 			if len(timeList)>0:
 				self.frame_count=max(map(int,timeList))
+'''
