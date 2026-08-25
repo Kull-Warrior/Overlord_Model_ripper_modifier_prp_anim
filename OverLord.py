@@ -1,6 +1,7 @@
 import bpy
 import sys
 import os
+import copy
 
 # Get the directory of the current script
 current_dir = os.path.dirname(bpy.data.filepath)
@@ -18,8 +19,15 @@ from prpUnpackerLibraries import *
 import math
 from math import *
 import struct
+import traceback
 import mathutils
-from mathutils import Euler
+from mathutils import Euler, Matrix, Vector
+
+# settings
+ORIENT_BONES_TO_CHILDREN = True		# point bones at their children instead of keeping the game bone axes
+IMPORT_CUSTOM_NORMALS = True		# use the normals stored in the file
+SCENE_FPS = None					# None = frame rate of the file (15)
+ANIMATION_MATCH_THRESHOLD = 0.5		# min. fraction of animated bones that must exist in a skeleton
 
 def read_data(filename):
 	resource_file=open(filename,'rb')
@@ -146,10 +154,14 @@ def read_data(filename):
 				type2=rpk_reader.read_uint8(1)[0]
 				list2=get_list(type2,rpk_reader)
 
-				list21=get_item(list2,21)
-				for item21 in list21:
-					rpk_reader.seek(item21[1])
-					action.name=rpk_reader.read_string(rpk_reader.read_int32(1)[0])
+				for item2 in list2:
+					rpk_reader.seek(item2[1])
+					if item2[0]==21:
+						action.name=rpk_reader.read_string(rpk_reader.read_int32(1)[0])
+					if item2[0]==30:
+						action.fps=rpk_reader.read_float32(1)[0]
+					if item2[0]==31:
+						action.duration_us=rpk_reader.read_uint32(1)[0]
 
 				list1=get_item(list2,1)
 				for item1 in list1:
@@ -165,7 +177,7 @@ def read_data(filename):
 						for item4 in list4:
 							rpk_reader.seek(item4[1])
 							flag=rpk_reader.read_uint8(4)
-							if flag==(7,0,65,0):#anim
+							if flag==(7,0,65,0):#bone track
 								type5=rpk_reader.read_uint8(1)[0]
 								list5=get_list(type5,rpk_reader)
 								action_bone=ActionBone()
@@ -173,7 +185,7 @@ def read_data(filename):
 									rpk_reader.seek(item5[1])
 									if item5[0]==20:
 										action_bone.name=rpk_reader.read_string(rpk_reader.read_int32(1)[0])
-									if item5[0]==24:
+									if item5[0]==24:#position keys
 										position_frame_count=None
 										position_stream_offset=None
 										type6=rpk_reader.read_uint8(1)[0]
@@ -184,24 +196,19 @@ def read_data(filename):
 												position_frame_count=rpk_reader.read_int32(1)[0]
 											if item6[0]==22:
 												position_stream_offset=rpk_reader.tell()
-										if (position_frame_count and position_stream_offset) is not None:
+										if position_frame_count is not None and position_stream_offset is not None and safe(position_frame_count):
 											rpk_reader.seek(position_stream_offset)
-											action_bone.data.append(struct.pack('<'+'i',position_frame_count))
 											for mC in range(position_frame_count):
-												rpk_reader.seek(2,1)
-												position_data=rpk_reader.read(14)
-												action_bone.data.append(position_data)
-										else:
-											action_bone.data.append(struct.pack('<'+'i',0))
-											
+												time_us=rpk_reader.read_uint32(1)[0]
+												position=rpk_reader.read_float32(3)
+												action_bone.position_keys.append((time_us,position))
 
-									if item5[0]==25:
-
-										scale_frame_count=None
-										scale_stream_offset=None
-
+									if item5[0]==25:#rotation keys
 										rotation_frame_count=None
 										rotation_stream_offset=None
+										sign_offset=None
+										scale_frame_count=None
+										scale_stream_offset=None
 										type6=rpk_reader.read_uint8(1)[0]
 										list6=get_list(type6,rpk_reader)
 										for item6 in list6:
@@ -215,29 +222,24 @@ def read_data(filename):
 														rotation_frame_count=rpk_reader.read_int32(1)[0]
 													if item7[0]==23:
 														rotation_stream_offset=rpk_reader.tell()
+													if item7[0]==24:
+														sign_offset=rpk_reader.tell()
 													if item7[0]==30:
 														scale_frame_count=rpk_reader.read_int32(1)[0]
 													if item7[0]==31:
 														scale_stream_offset=rpk_reader.tell()
-										if (rotation_frame_count and rotation_stream_offset) is not None:
+										if rotation_frame_count is not None and rotation_stream_offset is not None and safe(rotation_frame_count):
 											rpk_reader.seek(rotation_stream_offset)
-											action_bone.data.append(struct.pack('<'+'i',rotation_frame_count))
-											action_bone.data.append(struct.pack('<'+'B',22))
-											for mC in range(rotation_frame_count):
-												rotation_data=rpk_reader.read(6)
-												action_bone.data.append(rotation_data)
-
-										elif (scale_frame_count and scale_stream_offset) is not None:
-											rpk_reader.seek(scale_stream_offset)
-											action_bone.data.append(struct.pack('<'+'i',scale_frame_count))
-											action_bone.data.append(struct.pack('<'+'B',30))
-											for mC in range(scale_frame_count):
-												scale_data=rpk_reader.read(8)
-												action_bone.data.append(scale_data)
-										else:
-											action_bone.data.append(struct.pack('<'+'i',0))
-											action_bone.data.append(struct.pack('<'+'B',0))
-								action.bone_list.append(action_bone)
+											records=[rpk_reader.read(6) for mC in range(rotation_frame_count)]
+											signs=b''
+											if sign_offset is not None:
+												rpk_reader.seek(sign_offset)
+												signs=rpk_reader.read((rotation_frame_count+7)//8)
+											action_bone.decode_rotation(records,signs)
+										if scale_frame_count is not None and scale_stream_offset is not None:
+											print ('Warning: scale keys are not supported (bone',action_bone.name,')')
+								if action_bone.name is not None:
+									action.bone_list.append(action_bone)
 				rpk_file.animation_list.append(action)
 
 			elif flag==(53,0,65,0):#mesh
@@ -270,14 +272,6 @@ def read_data(filename):
 								if indice_count is not None:
 									mesh.indice_list=rpk_reader.read_uint16(indice_count)
 									mesh.is_triangle=True
-									rotation_matrix = Euler((90, 0, 0), 'XYZ').to_matrix()
-									#mesh.matrix = rotation_matrix.to_4x4()
-									mesh.matrix = Matrix((
-									(1, 0, 0, 0),
-									(0, 0, -1, 0),  # cos(90°) = 0, -sin(90°) = -1
-									(0, 1, 0, 0),    # sin(90°) = 1, cos(90°) = 0
-									(0, 0, 0, 1)
-									))
 
 							if item3[0]==21:
 								type4=rpk_reader.read_uint8(1)[0]
@@ -312,17 +306,19 @@ def read_data(filename):
 												vertice_item_offset=rpk_reader.tell()
 										rpk_reader.seek(vertice_item_offset)
 										vertice_position_offset=None
+										vertice_normal_offset=None
 										vertice_uv_offset=None
-										skin_indice_offset=None
-										skin_weight_offset=None
+										skin_indice_offsets=[]
+										skin_weight_offsets=[]
 										offset=0
 										for k in range(vertice_item_count):
 											a,b,c,d=rpk_reader.read_uint8(4)
 											if c==1:vertice_position_offset=offset
+											if c==4 and vertice_normal_offset is None:vertice_normal_offset=offset
 											if c==5 and a==0:
 												vertice_uv_offset=offset
-											if c==11:skin_indice_offset=offset
-											if c==10:skin_weight_offset=offset
+											if c==11:skin_indice_offsets.append(offset)
+											if c==10:skin_weight_offsets.append(offset)
 											if d==2:offset+=12
 											if d==1:offset+=8
 											if d==3:offset+=16
@@ -339,16 +335,27 @@ def read_data(filename):
 					if vertice_position_offset is not None:
 						rpk_reader.seek(tk+vertice_position_offset)
 						mesh.vertice_position_list.append(rpk_reader.read_float32(3))
+					if vertice_normal_offset is not None:
+						rpk_reader.seek(tk+vertice_normal_offset)
+						mesh.vertice_normal_list.append(rpk_reader.read_float32(3))
 					if vertice_uv_offset is not None:
 						rpk_reader.seek(tk+vertice_uv_offset)
 						mesh.vertice_uv_list.append(rpk_reader.read_float32(2))
-					if skin_indice_offset is not None:
-						i1,i2,i3=rpk_reader.read_uint8(3)
-						mesh.skin_indice_list.append([i1,i2])
-					if skin_weight_offset is not None:
-						w1,w2=rpk_reader.read_uint8(2)
-						w3=255-(w1+w2)
-						mesh.skin_weight_list.append([w1,w2])
+					if skin_indice_offsets:
+						indices=[]
+						for so in skin_indice_offsets:
+							rpk_reader.seek(tk+so)
+							indices.append(rpk_reader.read_uint8(1)[0])
+						mesh.skin_indice_list.append(indices)
+					if skin_weight_offsets:
+						weights=[]
+						for so in skin_weight_offsets:
+							rpk_reader.seek(tk+so)
+							weights.append(rpk_reader.read_uint8(1)[0])
+						#third weight is implicit
+						if skin_indice_offsets and len(weights)<len(skin_indice_offsets):
+							weights.append(max(0,255-sum(weights)))
+						mesh.skin_weight_list.append(weights)
 					rpk_reader.seek(tk+vertice_stride_size)
 
 			elif flag in [(82,6,65,0),(60,6,65,0),(36,6,65,0),(10,6,65,0),(15,6,65,0),(8,6,65,0),(54,6,65,0),(38,6,65,0),(18,6,65,0),(22,6,65,0),(32,6,65,0),(50,6,65,0),(55,6,65,0),(48,6,65,0),(86,6,65,0),(49,6,65,0),(89,6,65,0)]:#material
@@ -437,23 +444,23 @@ def read_data(filename):
 						if bone_count is not None and safe(bone_count):
 							skeleton=Skeleton()
 							skeleton.name=model.name
+							skeleton.orient_bones_to_children=ORIENT_BONES_TO_CHILDREN
+							model.bone_name_list={}
 							for m in range(bone_count):
 								tm=rpk_reader.tell()
 								bone=Bone()
 								bone.name=rpk_reader.read_string(32)
-								bone.matrix=matrix_4x4(rpk_reader.read_float32(16))
+								bone.matrix=row_matrix_to_column(rpk_reader.read_float32(16))
 								rpk_reader.read_float32(4)
 								rpk_reader.read_float32(3)
-								a,b,c,d,e=rpk_reader.read_int32(5)
-								bone.parent_id=b
-								bone.skinID=a
-								model.bone_name_list.append(bone.name)
+								skin_id,parent_id,next_sibling,first_child,bone_flags=rpk_reader.read_int32(5)
+								bone.parent_id=parent_id
+								bone.skin_id=skin_id
+								if skin_id>=0:
+									model.bone_name_list[skin_id]=bone.name
 								skeleton.bone_list.append(bone)
 								rpk_reader.seek(tm+144)
-							model.skeleton=skeleton.name
-							for m in range(bone_count):
-								model.bone_name_list[skeleton.bone_list[m].skinID]=skeleton.bone_list[m].name
-							
+							model.skeleton=skeleton
 							rpk_file.skeleton_list.append(skeleton)
 					if item2[0]==35:
 						type3=rpk_reader.read_uint8(1)[0]
@@ -485,12 +492,12 @@ def read_data(filename):
 				audio_count=audio_count+1
 				type2=rpk_reader.read_uint8(1)[0]
 				list2=get_list(type2,rpk_reader)
-				
+
 				audio=Audio()
-				
+
 				for item2 in list2:
 					rpk_reader.seek(item2[1])
-					
+
 					if item2[0]==20:
 						audio.chunk_name = rpk_reader.read_string(rpk_reader.read_int32(1)[0])
 					if item2[0]==21:
@@ -533,16 +540,16 @@ def read_data(filename):
 	# Define the start and end byte sequences
 	start_sequence = b'\x1B\x4C\x75\x61\x50'	# Hex values for "1B 4C 75 61 50"
 	end_sequence = b'\x1B\x80\x00\x00'			# Hex values for "1B 80 00 00"
-	
+
 	# Extract the byte arrays between start and end sequences
 	lua_data = rpk_reader.extract_byte_arrays(start_sequence, end_sequence)
-	
+
 	print(len(lua_data))
-	
+
 	for bytecode_data in lua_data:
 		bytecode = LuaByteCode()
 		bytecode.data = bytecode_data
-		
+
 		rpk_file.lua_bytecode_list.append(bytecode)
 
 	print ("Detected	:	"+add_leading_zeros(image_count)+"{0} images".format(image_count))
@@ -613,14 +620,14 @@ def save_data(data, file_directory, file_basename):
 				print ('Warning: unknown image format',image.format)
 
 		image_file.close()
-		
+
 	print ("	"+"*"*50)
 	print ()
 
 	if len(data.animation_list)>0:
 		print ("Animation subdirectory created")
 		create_new_directory(file_directory+os.sep+file_basename+os.sep+'animations')
-	
+
 	for action in data.animation_list:
 		print ("	"+"*"*50)
 		print ("	Writing animation to file")
@@ -628,17 +635,7 @@ def save_data(data, file_directory, file_basename):
 		animation_path=file_directory+os.sep+file_basename+os.sep+'animations'+os.sep+action.name+'.anim'
 		animation_file=open(animation_path,'wb')
 		animation_writer=BinaryWriter(animation_file)
-		
-		for action_bone in action.bone_list:
-			#print ("		"+"+"*50
-			#print ("		Bone used by the animation"
-			#print ("		Name	: {0}".format(action_bone.name)
-			animation_writer.write_string(action_bone.name.encode('utf-8'))
-			animation_writer.write_string(b'\x00')
-			
-			for i in action_bone.data:
-				animation_writer.write_string(i)
-		#print ("		"+"+"*50
+		write_anim_file(action,animation_writer)
 		animation_file.close()
 
 	print ("	"+"*"*50)
@@ -647,7 +644,7 @@ def save_data(data, file_directory, file_basename):
 	if len(data.audio_list)>0:
 		print ("Audio subdirectory created")
 		create_new_directory(file_directory+os.sep+file_basename+os.sep+'audio')
-	
+
 	for audio in data.audio_list:
 		print ("	"+"*"*50)
 		print ("	Writing audio to file")
@@ -667,7 +664,7 @@ def save_data(data, file_directory, file_basename):
 	if len(data.lua_bytecode_list)>0:
 		print ("Lua bytecode subdirectory created")
 		create_new_directory(file_directory+os.sep+file_basename+os.sep+'lua_bytecode')
-	
+
 	count = 0
 	for bytecode in data.lua_bytecode_list:
 		bytecode.name = file_basename + "_lua_" + str(count)
@@ -681,7 +678,7 @@ def save_data(data, file_directory, file_basename):
 
 		bytecode_file.close()
 		count = count + 1
-	
+
 	print ("	"+"*"*50)
 	print ()
 
@@ -696,88 +693,138 @@ def create_blender_models(data, file_directory, file_basename):
 	print ("-"*50)
 	print ()
 
-	for skeleton in data.skeleton_list:
-		skeleton.draw()
+	if bpy.context.object is not None and bpy.context.object.mode != 'OBJECT':
+		bpy.ops.object.mode_set(mode='OBJECT')
+
+	if SCENE_FPS is not None:
+		bpy.context.scene.render.fps=int(SCENE_FPS)
+		bpy.context.scene.render.fps_base=1.0
+	elif len(data.animation_list)>0:
+		bpy.context.scene.render.fps=int(round(data.animation_list[0].fps))
+		bpy.context.scene.render.fps_base=1.0
 
 	for model in data.model_list:
 		print ("	"+"*"*50)
 		print ("	Name	: {0}".format(model.name))
+
+		collection=bpy.data.collections.new(model.name)
+		bpy.context.scene.collection.children.link(collection)
+
+		armature_name=None
+		if model.skeleton is not None:
+			model.skeleton.collection=collection
+			model.skeleton.draw()
+			armature_name=model.skeleton.object.name
+
 		i=0
 		for mesh_chunk,material_Chunk in model.mesh_list:
 			print ('			',mesh_chunk, ' -> ', material_Chunk)
 			mat=None
-			for mat in data.material_list:
-				if mat.chunk==material_Chunk:
+			for candidate in data.material_list:
+				if candidate.chunk==material_Chunk:
+					mat=candidate
 					break
-			for mesh in data.mesh_list:
-				if mesh.chunk==mesh_chunk:
-					print ('			Mesh Name	:	',mesh.name)
+			for source in data.mesh_list:
+				if source.chunk==mesh_chunk:
+					print ('			Mesh Name	:	',source.name)
+					mesh=copy.copy(source)
+					mesh.material_list=[]
+					mesh.material_id_list=[]
+					mesh.triangle_list=[]
+					mesh.skin_list=[]
+					mesh.skin_id_list=[]
+					mesh.object=None
+					mesh.collection=collection
+					mesh.use_custom_normals=IMPORT_CUSTOM_NORMALS
 					MAT=Mat()
 					if mesh.is_triangle==True:MAT.is_triangle=True
 					if mesh.is_triangle_strip==True:MAT.is_triangle_strip=True
 					if mat is not None:
-
 						if mat.diffChunk is not None:
 							if mat.diffChunk in data.texture_list.keys():
 								mat.diffuse=file_directory+os.sep+file_basename+os.sep+'images'+os.sep+data.texture_list[mat.diffChunk]
-
 						MAT.diffuse=mat.diffuse
 
 					print ('			Material Name	:	',MAT.name)
 					mesh.material_list.append(MAT)
 					mesh.bone_name_list=model.bone_name_list
-					if i<len(model.bone_map_list):
-						skin=Skin()
-						skin.bone_map=model.bone_map_list[i]
-						mesh.skin_list.append(skin)
-
-					mesh.bind_skeleton=model.skeleton
+					if model.skeleton is not None:
+						mesh.matrix=SKIN_TO_BLENDER
+						if i<len(model.bone_map_list):
+							skin=Skin()
+							skin.bone_map=model.bone_map_list[i]
+							mesh.skin_list.append(skin)
+						mesh.bind_skeleton=armature_name
+					else:
+						mesh.matrix=GAME_TO_BLENDER
+						mesh.bind_skeleton=None
 					try:
 						mesh.draw()
-					except:
-						pass
+					except Exception:
+						print ('			ERROR while creating mesh',source.name)
+						traceback.print_exc()
 					break
 			i+=1
+
+	create_blender_animations(data)
+
+	bpy.context.scene.frame_current=bpy.context.scene.frame_start
 	print ("	"+"*"*50)
-'''def anim_file_parser(filename,animation_reader):
-	selObjectList=Blender.Object.GetSelected()
-	if len(selObjectList)>0:
-		armature=selObjectList[0]
-		action=Action()
-		action.skeleton=armature.name
-		action.bone_space=True
-		action.bone_sort=True
-		action.UPDATE=False
 
-		while(True):
-			if animation_reader.tell()>=animation_reader.get_file_size():
+def create_blender_animations(data):
+	if len(data.animation_list)==0 or len(data.skeleton_list)==0:
+		return
+	print ()
+	print ("-"*50)
+	print ("Create animations")
+	print ("-"*50)
+
+	layouts={}
+	for skeleton in data.skeleton_list:
+		if skeleton.object is None:
+			continue
+		layouts.setdefault(skeleton.signature(),[]).append(skeleton)
+
+	for action in data.animation_list:
+		created=[]
+		for signature,skeletons in layouts.items():
+			score=action.matches(skeletons[0].bone_names())
+			if score<ANIMATION_MATCH_THRESHOLD:
+				continue
+			created.append((score,skeletons))
+		if not created:
+			print ("	{0:<40s} : no matching skeleton".format(action.name))
+			continue
+		created.sort(key=lambda item:-item[0])
+		for score,skeletons in created:
+			action_name=action.name
+			if len(created)>1:
+				action_name="{0} [{1}]".format(action.name,skeletons[0].name)
+			first=skeletons[0].object
+			make_active=first.animation_data is None or first.animation_data.action is None
+			blender_action=action.draw(first,action_name=action_name,set_active=make_active)
+			for skeleton in skeletons[1:]:
+				armature=skeleton.object
+				if armature.animation_data is None or armature.animation_data.action is None:
+					assign_action(armature,blender_action)
+			print ("	{0:<40s} -> {1:<40s} ({2} bones, {3:.0f}% match, {4} frames)".format(action.name,action_name,len(action.bone_list),score*100,action.frame_count()))
+	print ()
+
+def anim_file_parser(filename,animation_reader):
+	armature=bpy.context.active_object
+	if armature is None or armature.type!='ARMATURE':
+		for obj in bpy.context.selected_objects:
+			if obj.type=='ARMATURE':
+				armature=obj
 				break
-			bone=ActionBone()
-			action.bone_list.append(bone)
-			bone.name=animation_reader.find(b'\x00')
-			count=animation_reader.read_int32(1)[0]
-			for m in range(count):
-				frame=animation_reader.read_uint16(1)[0]
-				bone.position_frame_list.append(frame)
-				bone.position_key_list.append(vector_matrix(animation_reader.read_float32(3)))
-			count=animation_reader.read_int32(1)[0]
-			type=animation_reader.read_uint8(1)[0]
-			if type==22:#not supported
-				for m in range(count):
-					bone.rotation_frame_list.append(m)
-					x,y,z=animation_reader.read_short(3,'h',14)
-					x=degrees(x)
-					y=degrees(y)
-					z=degrees(z)
-					bone.rotation_key_list.append(Euler(x,y,z).toMatrix().resize4x4())
-			if type==30:
-				for m in range(count):
-					bone.rotation_frame_list.append(m)
-					bone.rotation_key_list.append(quat_matrix(animation_reader.read_short(4,'h',15)).resize4x4())
-
-		action.draw()
-		action.set_context()
-'''
+	if armature is None or armature.type!='ARMATURE':
+		print ('Warning: select the armature that should receive the animation first')
+		return
+	name=os.path.basename(filename).rsplit('.',1)[0]
+	action=read_anim_file(animation_reader,name)
+	score=action.matches([bone.name for bone in armature.data.bones])
+	print ('Animation',action.name,':',len(action.bone_list),'bones,','{0:.0f}% of them exist in'.format(score*100),armature.name)
+	action.draw(armature,action_name=action.name,set_active=True)
 
 def read_map_data(filename):
 	resource_file=open(filename,'rb')
@@ -801,7 +848,7 @@ def read_map_data(filename):
 	for bytecode_data in lua_data:
 		bytecode = LuaByteCode()
 		bytecode.data = bytecode_data
-		
+
 		overlord_map.lua_bytecode_list.append(bytecode)
 
 	overlord_map.set_map_data(data)
@@ -845,7 +892,7 @@ def read_map_data(filename):
 		"Env Multiplayer 1",
 		"Exp - MP Env Halls"
 	]
-	
+
 	for env in remove_list:
 		while env in environments:
 			environments.remove(env)
@@ -888,7 +935,7 @@ def read_map_data(filename):
 			# Get image dimensions and pixel data (pixels are in RGBA order)
 			width, height = img.size
 			pixels = list(img.pixels)
-			
+
 			# Composite over a white background (adjust the background color if needed)
 			# For each pixel: new_color = alpha * original + (1 - alpha) * background
 			for i in range(0, len(pixels), 4):
@@ -899,7 +946,7 @@ def read_map_data(filename):
 				pixels[i+2] = b
 				# Set alpha to 1 (opaque)
 				pixels[i+3] = 1.0
-			
+
 			# Create a new image to store the composited result
 			new_img = bpy.data.images.new(name=img.name.replace(".dds",".png"), width=width, height=height)
 			new_img.pixels = pixels
@@ -929,11 +976,11 @@ def save_map_data(data, file_directory, file_basename):
 		print ("Parent directory created")
 		create_new_directory(file_directory+os.sep+file_basename)
 	print
-	
+
 	if len(data.lua_bytecode_list)>0:
 		print ("Lua bytecode subdirectory created")
 		create_new_directory(file_directory+os.sep+file_basename+os.sep+'lua_bytecode')
-	
+
 	count = 0
 	for bytecode in data.lua_bytecode_list:
 		bytecode.name = file_basename + "_lua_" + str(count)
@@ -947,7 +994,7 @@ def save_map_data(data, file_directory, file_basename):
 
 		bytecode_file.close()
 		count = count + 1
-	
+
 	print ("	"+"*"*50)
 	print ()
 def create_blender_terrain(data):
@@ -981,4 +1028,5 @@ def openFile(full_file_path):
 		save_map_data(extracted_data, file_directory, file_basename)
 		create_blender_terrain(extracted_data)
 
-openFile("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Overlord\\Resources\\Character Minion Master.prp")
+if __name__ == "__main__":
+	openFile("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Overlord\\Resources\\Character Minion Master.prp")

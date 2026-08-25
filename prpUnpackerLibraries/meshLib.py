@@ -51,27 +51,31 @@ class Mesh:
 		self.vertice_position_list = []  # List of Vector positions
 		self.indice_list = []            # Raw index list (could be triangles or strips)
 		self.triangle_list = []          # List of triangles (each a list of 3 vertex indices)
-		
+
 		# Material and UV data
 		self.material_list = []          # List of Mat objects
 		self.material_id_list = []       # Per-face material assignments
 		self.vertice_uv_list = []        # UV coordinates per vertex
-		
+		self.vertice_normal_list = []    # Normals per vertex
+
 		# Skinning data
 		self.skin_list = []              # List of Skin objects
 		self.skin_weight_list = []       # Skin weights per vertex (list of floats or lists)
 		self.skin_indice_list = []       # Skin bone indices per vertex
 		self.skin_id_list = []           # For each vertex, which skin applies
-		self.bone_name_list = []         # List of bone names for vertex groups
-		
+		self.bone_name_list = []         # Bone names for vertex groups (list or dict by skin id)
+
 		# Other properties
 		self.name = None                 # Name of the mesh
 		self.object = None               # The Blender object created from this mesh
 		self.is_triangle = False         # Flag: if indices are triangles
 		self.is_triangle_strip = False   # Flag: if indices are triangle strips
 		self.bind_skeleton = None        # Name of the armature for skinning
-		self.matrix = None               # Transformation matrix (Matrix)
+		self.matrix = None               # Transformation applied to the vertices
 		self.uv_flip = False             # Whether to flip UV vertically
+		self.flip_winding = True         # Files store triangles clockwise
+		self.use_custom_normals = True   # Use the normals of the file
+		self.collection = None           # Collection for the object
 
 	def add_vertex_uv(self, mesh_data):
 		"""
@@ -95,11 +99,34 @@ class Mesh:
 
 	def add_face_uv(self, mesh_data):
 		"""
-		Update normals and refresh mesh data.
+		Validate and refresh mesh data.
 		"""
 		mesh_data.validate()  # Validate the mesh geometry
 		mesh_data.update()    # Update the mesh data
-		mesh_data.calc_normals_split()
+
+	def add_normals(self, mesh_data):
+		"""
+		Apply the vertex normals of the file as custom split normals.
+		"""
+		if not self.use_custom_normals or len(self.vertice_normal_list) != len(mesh_data.vertices):
+			return
+		normals = []
+		rotation = self.matrix.to_3x3() if self.matrix is not None else None
+		for n in self.vertice_normal_list:
+			v = Vector(n)
+			if rotation is not None:
+				v = rotation @ v
+			if v.length > 1e-6:
+				v.normalize()
+			else:
+				v = Vector((0.0, 0.0, 1.0))
+			normals.append(v)
+		try:
+			if hasattr(mesh_data, 'use_auto_smooth'):
+				mesh_data.use_auto_smooth = True
+			mesh_data.normals_split_custom_set_from_vertices(normals)
+		except Exception as e:
+			print('	Warning: could not apply custom normals:', e)
 
 	def add_skin_id_list(self):
 		"""
@@ -118,40 +145,57 @@ class Mesh:
 		"""
 		Assigns vertex groups (bone weights) to the given object based on skin data.
 		"""
+		groups = {}
+		warned = set()
 		for vertID in range(len(self.skin_id_list)):
 			indices = self.skin_indice_list[vertID]
 			weights = self.skin_weight_list[vertID]
 			skinID = self.skin_id_list[vertID]
+			skin = self.skin_list[skinID] if skinID < len(self.skin_list) else None
 			for n, w in enumerate(weights):
 				# Normalize weight if stored as int
 				if isinstance(w, int):
 					w = w / 255.0
-				if w != 0:
-					grID = indices[n]
-					if not self.bone_name_list:
-						if self.skin_list[skinID].bone_map:
-							grName = str(self.skin_list[skinID].bone_map[grID])
-						else:
-							grName = str(grID)
-					else:
-						if self.skin_list[skinID].bone_map:
-							grNameID = self.skin_list[skinID].bone_map[grID]
-							grName = self.bone_name_list[grNameID]
-						else:
-							grName = self.bone_name_list[grID]
-					# Create vertex group if it doesn't exist
-					if grName not in obj.vertex_groups:
-						obj.vertex_groups.new(name=grName)
-					group = obj.vertex_groups[grName]
-					group.add([vertID], w, 'REPLACE')
+				if w <= 0.0 or n >= len(indices):
+					continue
+				grID = indices[n]
+				if skin is not None and skin.bone_map:
+					if grID >= len(skin.bone_map):
+						if ('map', grID) not in warned:
+							print(f"	Warning: vertex {vertID} uses skin index {grID} outside of the bone map ({len(skin.bone_map)} entries)")
+							warned.add(('map', grID))
+						continue
+					grID = skin.bone_map[grID]
+				if isinstance(self.bone_name_list, dict):
+					grName = self.bone_name_list.get(grID)
+				elif self.bone_name_list and 0 <= grID < len(self.bone_name_list):
+					grName = self.bone_name_list[grID]
+				else:
+					grName = None
+				if grName is None:
+					grName = str(grID)
+					if ('name', grID) not in warned:
+						print(f"	Warning: no bone with skin id {grID}, vertex group '{grName}' created instead")
+						warned.add(('name', grID))
+				# a vertex can reference the same bone twice
+				weights_of_group = groups.setdefault(grName, {})
+				weights_of_group[vertID] = weights_of_group.get(vertID, 0.0) + w
+		for grName, entries in groups.items():
+			if grName not in obj.vertex_groups:
+				obj.vertex_groups.new(name=grName)
+			group = obj.vertex_groups[grName]
+			for vertID, w in entries.items():
+				group.add([vertID], min(w, 1.0), 'REPLACE')
 
 	def indices_to_triangles(self, indices_list, matID):
 		"""
 		Converts a flat list of indices into triangles (3 indices per face).
 		"""
 		for i in range(0, len(indices_list), 3):
-			face = indices_list[i:i+3]
+			face = list(indices_list[i:i+3])
 			if len(face) == 3:
+				if self.flip_winding:
+					face = [face[0], face[2], face[1]]
 				self.triangle_list.append(face)
 				self.material_id_list.append(matID)
 
@@ -183,7 +227,7 @@ class Mesh:
 			else:
 				face_direction *= -1
 				if f1 != f2 and f2 != f3 and f3 != f1:
-					if face_direction > 0:
+					if (face_direction > 0) != self.flip_winding:
 						self.triangle_list.append([f1, f2, f3])
 					else:
 						self.triangle_list.append([f1, f3, f2])
@@ -220,10 +264,15 @@ class Mesh:
 		links it to the current collection, and stores the object reference.
 		"""
 		mesh_data = bpy.data.meshes.new(self.name)
-		mesh_data.from_pydata(self.vertice_position_list, [], self.triangle_list)
+		if self.matrix is not None:
+			positions = [(self.matrix @ Vector(v).to_4d()).to_3d() for v in self.vertice_position_list]
+		else:
+			positions = self.vertice_position_list
+		mesh_data.from_pydata(positions, [], self.triangle_list)
 		mesh_data.update()
 		obj = bpy.data.objects.new(self.name, mesh_data)
-		bpy.context.collection.objects.link(obj)
+		collection = self.collection if self.collection is not None else bpy.context.collection
+		collection.objects.link(obj)
 		self.object = obj
 
 	def draw(self):
@@ -235,7 +284,7 @@ class Mesh:
 		- Parents to an armature if needed
 		- Applies vertex groups and modifiers
 		"""
-		
+
 		if self.name is None:
 			self.name = f"{parse_id()}-model-0"
 
@@ -247,19 +296,18 @@ class Mesh:
 		if self.triangle_list and self.vertice_uv_list:
 			self.add_vertex_uv(self.object.data)
 		self.add_face_uv(self.object.data)
+		self.add_normals(self.object.data)
 
 		# Assign materials
 		for matID, mat in enumerate(self.material_list):
 			blender_mat = mat.get_blender_material(self.name, matID)
 			self.object.data.materials.append(blender_mat)
 
-			# Assign material index to each polygon
+		# Assign material index to each polygon
+		if len(self.material_list) > 1:
 			for poly in self.object.data.polygons:
 				if poly.index < len(self.material_id_list):
 					poly.material_index = self.material_id_list[poly.index]
-		# Apply transformation matrix BEFORE parenting to skeleton
-		if self.matrix is not None:
-			self.object.matrix_world = self.matrix
 
 		# Parent to an armature if bind_skeleton is specified
 		if self.bind_skeleton is not None:
@@ -268,13 +316,9 @@ class Mesh:
 				if not self.object.users_collection:
 					bpy.context.collection.objects.link(self.object)
 
-				skeletonMatrix = self.object.matrix_world @ arm_obj.matrix_world
-
-				# Set parent and update the parent inverse matrix
 				self.object.parent = arm_obj
-				
-				self.object.matrix_parent_inverse = arm_obj.matrix_world.inverted()
-				
+				self.object.matrix_parent_inverse = Matrix.Identity(4)
+
 				# Add an Armature modifier if not already present
 				if "ArmatureMod" not in self.object.modifiers:
 					armature_mod = self.object.modifiers.new(name="ArmatureMod", type='ARMATURE')
@@ -282,9 +326,6 @@ class Mesh:
 
 		# **Apply vertex groups (skinning)**
 		self.add_skin(self.object)
-
-		# **Force Blender to update scene**
-		bpy.context.view_layer.update()
 
 # -----------------------------------------------------------------------------
 # Class: Skin
@@ -304,7 +345,7 @@ def set_material_texture(mat, texture_path, node_label):
 	Returns the created node if successful.
 	"""
 	if os.path.exists(texture_path):
-		img = bpy.data.images.load(texture_path)
+		img = bpy.data.images.load(texture_path, check_existing=True)
 		image_node = mat.node_tree.nodes.new('ShaderNodeTexImage')
 		image_node.image = img
 		image_node.label = node_label

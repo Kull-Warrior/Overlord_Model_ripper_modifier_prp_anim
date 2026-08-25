@@ -1,7 +1,34 @@
 import bpy
 import os
+import math
 import mathutils
 from mathutils import Quaternion, Vector, Matrix
+
+# game space: Y up, +Z forward, +X left. Skinned meshes: Y forward, Z down (see docs/FORMAT.md)
+# game -> blender: (x,y,z) -> (x,-z,y)
+GAME_TO_BLENDER = Matrix((
+	(1.0, 0.0,  0.0, 0.0),
+	(0.0, 0.0, -1.0, 0.0),
+	(0.0, 1.0,  0.0, 0.0),
+	(0.0, 0.0,  0.0, 1.0)))
+GAME_TO_BLENDER_INV = GAME_TO_BLENDER.inverted()
+
+# skin mesh -> game: same rotation, skin mesh -> blender: (x,y,z) -> (x,-y,-z)
+SKIN_TO_GAME = GAME_TO_BLENDER.copy()
+SKIN_TO_BLENDER = GAME_TO_BLENDER @ SKIN_TO_GAME
+
+def row_matrix_to_column(data):
+	# file matrices are row major with the translation in the last row
+	return Matrix([data[i:i+4] for i in range(0, 16, 4)]).transposed()
+
+def game_matrix_to_blender(matrix):
+	return GAME_TO_BLENDER @ matrix @ GAME_TO_BLENDER_INV
+
+def game_quaternion(x, y, z, w):
+	return Quaternion((w, x, y, z))
+
+def game_vector_to_blender(vector):
+	return (GAME_TO_BLENDER @ Vector(vector).to_4d()).to_3d()
 
 def	create_new_directory(new_directory_path):
 	if os.path.exists(new_directory_path)==False:
